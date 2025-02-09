@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="src/dashboard.js" defer></script>
+</head>
+<body>
+<h1>Admin Panel</h1>
+
+<h4>Give an user the moderator role:</h4>
+<form action="/admin/give-moderator" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <button type="submit">Give moderator role</button>
+</form>
+
+<h4>Remove the moderator role from an user:</h4>
+<form action="/admin/remove-moderator" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-remove" name="username" required>
+    <button type="submit">Remove moderator role</button>
+</form>
+
+<h4>Delete an user:</h4>
+<form action="/admin/delete-user" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-delete" name="username" required>
+    <button type="submit">Delete user</button>
+</form>
+
+<!-- This can also do moderators -->
+<h4>Give an user an character: </h4>
+<form action="/moderator/insert-character" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-character" name="username" required>
+    <label for="character">Character:</label>
+    <input type="text" id="character" name="character" required>
+    <label for="rarity">Rarity:</label>
+
+    <input type="file" id="character-image" name="character-image" accept="image/*">
+    <button type="button" onclick="document.getElementById('character-image').value = ''">Reset image</button>
+
+    <select id="rarity" name="rarity">
+        <option value="common">Common</option>
+        <option value="uncommon">Uncommon</option>
+        <option value="rare">Rare</option>
+        <option value="epic">Epic</option>
+        <option value="legendary">Legendary</option>
+    </select>
+
+    <button type="submit">Give character</button>
+</form>
+
+
+<h4>Remove an user's character:</h4>
+<form action="/moderator/remove-character" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-remove-character" name="username" required>
+    <label for="character">Character:</label>
+    <input type="text" id="character-remove" name="character" required>
+    <button type="submit">Remove character</button>
+</form>
+
+<h4>Give an user a badge:</h4>
+<form action="/moderator/give-badge" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-badge" name="username" required>
+    <label for="badge">Badge:</label>
+    <input type="text" id="badge" name="badge" required>
+    <button type="submit">Give badge</button>
+</form>
+
+<h4>Remove an user's badge:</h4>
+<form action="/moderator/remove-badge" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username-remove-badge" name="username" required>
+    <label for="badge">Badge:</label>
+    <input type="text" id="badge-remove" name="badge" required>
+    <button type="submit">Remove badge</button>
+</form>
+
+
+
+<button><a href="/home">home</a></button>
+<button><a href="/dashboard">dashboard</a></button>
+
+</body>
+</html>

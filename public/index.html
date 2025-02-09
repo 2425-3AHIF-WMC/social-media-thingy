@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style/style.css">
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+<div class="header">
+<h1>Whaaa</h1>
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href="/events">Events</a>
+        <a href="/rnd">Free Space</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <button><a href="/login" id="login-button">Log in</a></button>
+        <button><a href="/register" id="register-button">Register</a></button>
+        <span id="username"></span>
+        <span id="dashboard-button"></span>
+        <span id="logout-button"></span>
+    </div>
+</div>
+
+<div class="under-header">
+    <div>
+        <h1>Welcome!!</h1>
+        <button>
+            <a href="#">Learn more</a>
+        </button>
+    </div>
+</div>
+
+<div class="main-content">
+<div class="card">
+    <h1>
+        Events
+    </h1>
+    <p> Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
+        sed diam nonumy eirmod tempor invidunt ut labore et dolore
+        magna aliquyam erat, sed diam voluptua. At vero eos et accusam
+        et justo duo dolores et ea rebum. Stet clita kasd gubergren, no
+        sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+</div>
+<div class="card">
+<h1>
+    Free Space
+</h1>
+<p>
+    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+</p>
+</div>
+<div class="card">
+<h1>
+    About
+</h1>
+    <p>
+        Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+    </p>
+</div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/username')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
+                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
+                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
+                    document.getElementById('login-button').style.display = 'none';
+                    document.getElementById('register-button').style.display = 'none';
+                }
+            });
+    });
+</script>
+</body>
+</html>

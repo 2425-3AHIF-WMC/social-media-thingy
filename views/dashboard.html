@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="src/dashboard.js" defer></script>
+</head>
+<body>
+<h1>hiii hello logged in user!!</h1>
+<p>Username: <span id="fetchUsername"></span></p>
+<p>Email: <span id="fetchEmail"></span></p>
+<p>Role: <span id="fetchRole"></span></p>
+
+<h3>Your characters</h3>
+<div id="characters">
+    <!-- characters displayed like a gallery with their main image being the top image -->
+    <!-- clicking on a character will take you to the character's page -->
+
+
+
+</div>
+
+<div class="online-users">
+    <h3>Online users</h3>
+    <ul id="onlineUsers">
+    </ul>
+</div>
+
+<button><a href="/home">home</a></button>
+<button><a href="/logout">logout</a></button>
+<button id="adminButton" style="display: none;"><a href="/admin">Admin Dashboard</a></button>
+
+</body>
+</html>

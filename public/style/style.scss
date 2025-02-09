@@ -1,0 +1,235 @@
+$font-size: 17px;
+$font-family: 'Roboto', sans-serif;
+$font-color: #fff;
+
+/*index html*/
+
+body{
+    font-size: $font-size;
+    font-family: $font-family;
+    color: $font-color;
+    margin: 0;
+    padding: 0;
+    background-color: #1c9437;
+}
+.header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px ;
+
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+
+    font-family: $font-family;
+
+    .home-buttons{
+        a{
+            float: left;
+            color: $font-color;
+            text-decoration: none;
+            font-size: 20px;
+            margin-left: 40px;
+            transition: 0.3s;
+
+            &:hover{
+                color: #f50057;
+            }
+        }
+    }
+    .user-buttons{
+
+        button{
+            color: $font-color;
+            font-size: $font-size;
+            margin-left: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+
+            &:hover{
+                color: #f50057;
+            }
+        }
+
+        a{
+            color: $font-color;
+            text-decoration: none;
+            font-size: 20px;
+            margin-left: 10px;
+            transition: 0.3s;
+
+            &:hover{
+                color: #f50057;
+            }
+
+        }
+    }
+}
+
+
+.under-header{
+
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: url("../img/underheader.png") no-repeat center center/cover;
+    color: $font-color;
+    font-family: $font-family;
+    font-size: $font-size;
+
+    a{
+        color: $font-color;
+        text-decoration: none;
+        font-size: 20px;
+        border: 1px solid $font-color;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: 0.3s;
+
+        &:hover{
+            background-color: $font-color;
+            color: #392b75;
+        }
+    }
+
+    button {
+        color: $font-color;
+        font-size: 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+
+        margin: 10px 0 0 0;
+        &:hover {
+            color: #f50057;
+        }
+    }
+}
+
+.main-content{
+
+    position: relative;
+    z-index: 1;
+    margin-top: -30px;
+    border-radius: 30px 30px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 50vh;
+    font-family: $font-family;
+    font-size: $font-size;
+    color: black;
+    background-color: white;
+    padding: 60px;
+
+    .card{
+
+        width: 300px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+
+
+        h1{
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input{
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button{
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #2fda56;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+
+            &:hover{
+                background-color: #f50057;
+            }
+        }
+
+        p{
+            margin-top: 20px;
+            text-align: center;
+        }
+
+    }
+
+}
+
+/*login html*/
+.login{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: $font-family;
+    font-size: $font-size;
+    color: black;
+    background-color: #ffffff;
+    flex-direction: column;
+}
+
+.register{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: $font-family;
+    font-size: $font-size;
+    color: black;
+    background-color: #ffffff;
+    flex-direction: column;
+}
+
+.form{
+    width: 300px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+
+    h1{
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    input{
+        width: 90%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button{
+        width: 100%;
+        padding: 10px;
+        border: none;
+        background-color: #2fda56;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+
+        &:hover{
+            background-color: #f50057;
+        }
+    }
+
+    p{
+        margin-top: 20px;
+        text-align: center;
+    }
+}
