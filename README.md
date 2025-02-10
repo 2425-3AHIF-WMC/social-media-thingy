@@ -1,4 +1,4 @@
-# Ægir
+# Ægira
 
 We want to give creative people a place, to post about their works freely and without any issues.
 
