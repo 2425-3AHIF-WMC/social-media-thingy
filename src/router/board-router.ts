@@ -42,7 +42,6 @@ router.post('/create', authHandler, [
 
                 await profileImageFile.mv(profileImagePath);
 
-                // Option 1: Store original name inside the image path
                 profileImage = `uploads/${profileImageUUID}#${profileImageFile.name}`;
             }
 
@@ -54,10 +53,8 @@ router.post('/create', authHandler, [
 
                 await headerImageFile.mv(headerImagePath);
 
-                // Option 1: Store original name inside the image path
                 headerImage = `uploads/${headerImageUUID}#${headerImageFile.name}`;
 
-                // Option 2: Store original name in a log file
                 fs.appendFileSync(path.join(uploadsDir, 'image-metadata.log'),
                     `${headerImageUUID} -> ${headerImageFile.name}\n`);
             }
