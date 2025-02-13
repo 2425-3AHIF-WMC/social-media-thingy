@@ -12,14 +12,29 @@
 <p>Email: <span id="fetchEmail"></span></p>
 <p>Role: <span id="fetchRole"></span></p>
 
-<form id="createBoardForm" enctype="multipart/form-data">
-    <input type="text" id="boardName" placeholder="Board Name" required>
-    <input type="text" id="boardDescription" placeholder="Board Description" required>
-    <input type="file" id="profileImage" name="profileImage">
-    <input type="file" id="headerImage" name="headerImage">
-    <button type="submit">Create Board</button>
-</form>
+<div>
+    <h2>Boards</h2>
+    <div id="boardList"></div>
+</div>
 
+<div>
+    <h2>Create Board</h2>
+    <form id="createBoardForm">
+        <label for="boardName">Name:</label>
+        <input type="text" id="boardName" name="name" required>
+        <br>
+        <label for="boardDescription">Description:</label>
+        <input type="text" id="boardDescription" name="description" required>
+        <br>
+        <label for="profileImage">Profile Image:</label>
+        <input type="file" id="profileImage" name="profileImage">
+        <br>
+        <label for="headerImage">Header Image:</label>
+        <input type="file" id="headerImage" name="headerImage">
+        <br>
+        <button type="submit">Create Board</button>
+    </form>
+</div>
 <div class="online-users">
     <h3>Online users</h3>
     <ul id="onlineUsers">

@@ -67,7 +67,15 @@ async function fetchBoards() {
     boardList.innerHTML = '';
     boards.forEach(board => {
         const li = document.createElement('li');
-        li.textContent = `${board.name}: ${board.description}`;
+        //change later so we can see the img of the server profile and header
+        li.innerHTML = `
+            <div class="header-container">
+                <img src="${board.headerImage}" alt="${board.name} header" class="header-image" />
+                <img src="${board.profileImage}" alt="${board.name} profile" class="profile-image" />
+            </div>
+            <h2>${board.name}</h2>
+            <p>${board.description}</p>
+        `;
         boardList.appendChild(li);
     });
 }

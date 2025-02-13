@@ -20,7 +20,7 @@ router.post('/create', authHandler, [
 
     const { name, description } = req.body;
     let profileImage = 'default_profile.png';
-    let headerImage = 'default_header.png';
+    let headerImage = 'default_header.png';g
     const userId = await getUserID(req.session.user);
 
     try {
@@ -41,14 +41,14 @@ router.post('/create', authHandler, [
 
                 try {
                     await profileImageFile.mv(profileImagePath);
-                    console.log("✅ Profile image saved to:", profileImagePath);
+                    //console.log("✅ Profile image saved to:", profileImagePath);
                     profileImage = `uploads/${profileImageName}`;
                 } catch (err) {
                     console.error("❌ Error saving profile image:", err);
                 }
 
                 await profileImageFile.mv(profileImagePath);
-                profileImage = `uploads/${profileImageName}`; // Save relative path in DB
+                profileImage = `uploads/${profileImageName}`;
             }
 
             if (req.files.headerImage) {
@@ -58,7 +58,7 @@ router.post('/create', authHandler, [
                 const headerImagePath = path.join(uploadsDir, headerImageName);
 
                 await headerImageFile.mv(headerImagePath);
-                headerImage = `uploads/${headerImageName}`; // Save relative path in DB
+                headerImage = `uploads/${headerImageName}`;
             }
         }
 

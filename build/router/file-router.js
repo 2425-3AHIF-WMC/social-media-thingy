@@ -26,8 +26,8 @@ router.get('/dashboard', auth_handler_1.authHandler, (req, res) => {
 router.get('/about-us', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/aboutus.html'));
 });
-router.get('/species', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../../public/Species.html'));
+router.get('/rnd', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../../public/Rnd.html'));
 });
 router.get('/events', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/Events.html'));
