@@ -125,13 +125,22 @@ async function getOnlineUsers() {
     return Array.from(onlineUsers);
 }
 
-
-//forgot, please change in the future: add user ID to the board
-async function createBoard(name: string, description: string, profileImage: string = 'default_profile.png', headerImage: string = 'default_header.png') {
+async function getUserID(username?: string ) : Promise<number> {
     await init();
-    const result = await db.run('INSERT INTO boards (name, description, profile_image, header_image) VALUES (?, ?, ?, ?)', [name, description, profileImage, headerImage]);
+    const user = await db.get('SELECT id FROM users WHERE username = ?', username);
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user.id;
+}
+
+async function createBoard(ownerID: number ,name: string, description: string, profileImage: string = 'default_profile.png', headerImage: string = 'default_header.png') {
+    await init();
+    const result = await db.run('INSERT INTO boards (name, description, ownerId,  profile_image, header_image) VALUES (?,?, ?, ?, ?)', [name, description,ownerID, profileImage, headerImage]);
     return { id: result.lastID, name, description, profileImage, headerImage };
 }
+
+
 async function getBoards() {
     await init();
     return await db.all('SELECT * FROM boards');
@@ -140,4 +149,4 @@ async function getBoards() {
 
 init().catch(console.error);
 
-export { register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards };
+export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards };
