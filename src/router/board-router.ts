@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 import { createBoard, getBoards, getUserID } from '../database';
 
 const router = Router();
@@ -36,29 +37,29 @@ router.post('/create', authHandler, [
             if (req.files.profileImage) {
                 const profileImageFile = req.files.profileImage as fileUpload.UploadedFile;
                 const extension = path.extname(profileImageFile.name);
-                const profileImageName = `profile_${userId}_${Date.now()}${extension}`;
-                const profileImagePath = path.join(uploadsDir, profileImageName);
-
-                try {
-                    await profileImageFile.mv(profileImagePath);
-                    //console.log("✅ Profile image saved to:", profileImagePath);
-                    profileImage = `uploads/${profileImageName}`;
-                } catch (err) {
-                    console.error("❌ Error saving profile image:", err);
-                }
+                const profileImageUUID = uuidv4() + extension;
+                const profileImagePath = path.join(uploadsDir, profileImageUUID);
 
                 await profileImageFile.mv(profileImagePath);
-                profileImage = `uploads/${profileImageName}`;
+
+                // Option 1: Store original name inside the image path
+                profileImage = `uploads/${profileImageUUID}#${profileImageFile.name}`;
             }
 
             if (req.files.headerImage) {
                 const headerImageFile = req.files.headerImage as fileUpload.UploadedFile;
                 const extension = path.extname(headerImageFile.name);
-                const headerImageName = `header_${userId}_${Date.now()}${extension}`;
-                const headerImagePath = path.join(uploadsDir, headerImageName);
+                const headerImageUUID = uuidv4() + extension;
+                const headerImagePath = path.join(uploadsDir, headerImageUUID);
 
                 await headerImageFile.mv(headerImagePath);
-                headerImage = `uploads/${headerImageName}`;
+
+                // Option 1: Store original name inside the image path
+                headerImage = `uploads/${headerImageUUID}#${headerImageFile.name}`;
+
+                // Option 2: Store original name in a log file
+                fs.appendFileSync(path.join(uploadsDir, 'image-metadata.log'),
+                    `${headerImageUUID} -> ${headerImageFile.name}\n`);
             }
         }
 
