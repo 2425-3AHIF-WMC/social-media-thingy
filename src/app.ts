@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import authRouter from './router/auth-router';
 import fileRouter from './router/file-router';
 import roleRouter from "./router/role-router";
+import boardRouter from './router/board-router';
+
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
 
@@ -24,6 +26,7 @@ app.use(session({
 app.use('/', authRouter);
 app.use('/', fileRouter);
 app.use('/', roleRouter);
+app.use('/', boardRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

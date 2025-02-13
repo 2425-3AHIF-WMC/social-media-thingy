@@ -1,0 +1,8 @@
+### Create a new board
+POST http://localhost:3001/create
+Content-Type: application/json
+
+{
+  "name": "test",
+  "description": "test description"
+}

@@ -1,7 +1,6 @@
 import sqlite3 from 'sqlite3';
 import {open} from 'sqlite';
 import bcrypt from 'bcrypt';
-import {v4 as uuidv4} from 'uuid';
 import fs from 'fs';
 import {Database} from "sqlite";
 import CustomSession from "./model/session";
@@ -13,11 +12,12 @@ const onlineUsers = new Set<string>();
 async function init() {
     if (!db) {
         db = await open({
-            filename: './data/users.sqlite',
+            filename: './data/aegiraDatabase.sqlite',
             driver: sqlite3.Database
         });
     }
 }
+
 
 async function register(username: string, password: string, role: string = 'user', givenEmail: string) {
     try {
@@ -43,9 +43,8 @@ async function register(username: string, password: string, role: string = 'user
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const uuid = uuidv4();
-        await db.run('INSERT INTO users (username, password, role, email, uuid) VALUES (?, ?, ?, ?, ?)',
-            [username, hashedPassword, role, givenEmail, uuid]);
+        await db.run('INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)',
+            [username, hashedPassword, role, givenEmail]);
     } catch (error) {
         console.error('Registration error:', error);
         throw error;
@@ -78,6 +77,7 @@ async function login(username: string, password: string) {
 function logout(username: string) {
     onlineUsers.delete(username);
 }
+
 
 async function getUserRole(username: string): Promise<string> {
     await init();
@@ -125,6 +125,19 @@ async function getOnlineUsers() {
     return Array.from(onlineUsers);
 }
 
+
+//forgot, please change in the future: add user ID to the board
+async function createBoard(name: string, description: string, profileImage: string = 'default_profile.png', headerImage: string = 'default_header.png') {
+    await init();
+    const result = await db.run('INSERT INTO boards (name, description, profile_image, header_image) VALUES (?, ?, ?, ?)', [name, description, profileImage, headerImage]);
+    return { id: result.lastID, name, description, profileImage, headerImage };
+}
+async function getBoards() {
+    await init();
+    return await db.all('SELECT * FROM boards');
+}
+
+
 init().catch(console.error);
 
-export { register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers };
+export { register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards };

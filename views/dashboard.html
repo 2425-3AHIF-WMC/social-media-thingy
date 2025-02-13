@@ -12,14 +12,13 @@
 <p>Email: <span id="fetchEmail"></span></p>
 <p>Role: <span id="fetchRole"></span></p>
 
-<h3>Your characters</h3>
-<div id="characters">
-    <!-- characters displayed like a gallery with their main image being the top image -->
-    <!-- clicking on a character will take you to the character's page -->
-
-
-
-</div>
+<form id="createBoardForm" enctype="multipart/form-data">
+    <input type="text" id="boardName" placeholder="Board Name" required>
+    <input type="text" id="boardDescription" placeholder="Board Description" required>
+    <input type="file" id="profileImage" name="profileImage">
+    <input type="file" id="headerImage" name="headerImage">
+    <button type="submit">Create Board</button>
+</form>
 
 <div class="online-users">
     <h3>Online users</h3>

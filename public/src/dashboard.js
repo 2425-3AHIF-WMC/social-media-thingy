@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserInformation();
     await fetchUsernames();
+    await fetchBoards();
 });
 
 async function fetchUserInformation() {
@@ -33,7 +34,7 @@ async function fetchUserInformation() {
             const adminButton = document.getElementById('adminButton');
             if (data.role === 'admin') {
                 adminButton.style.display = 'block';
-            }else {
+            } else {
                 adminButton.style.display = 'none';
             }
         })
@@ -58,3 +59,37 @@ async function fetchUsernames() {
         onlineUsersList.appendChild(listItem);
     });
 }
+
+async function fetchBoards() {
+    const boardList = document.getElementById('boardList');
+    const response = await fetch('/boards');
+    const boards = await response.json();
+    boardList.innerHTML = '';
+    boards.forEach(board => {
+        const li = document.createElement('li');
+        li.textContent = `${board.name}: ${board.description}`;
+        boardList.appendChild(li);
+    });
+}
+
+document.getElementById('createBoardForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append('name', document.getElementById('boardName').value);
+    formData.append('description', document.getElementById('boardDescription').value);
+    formData.append('profileImage', document.getElementById('profileImage').files[0]);
+    formData.append('headerImage', document.getElementById('headerImage').files[0]);
+
+    const response = await fetch('/create', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (response.ok) {
+        fetchBoards();
+        document.getElementById('createBoardForm').reset();
+    } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.errors.map(e => e.msg).join(', ')}`);
+    }
+});
