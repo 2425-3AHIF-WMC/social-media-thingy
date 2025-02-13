@@ -18,6 +18,7 @@ const express_validator_1 = require("express-validator");
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const uuid_1 = require("uuid");
 const database_1 = require("../database");
 const router = (0, express_1.Router)();
 router.use((0, express_fileupload_1.default)());
@@ -44,26 +45,19 @@ router.post('/create', auth_handler_1.authHandler, [
             if (req.files.profileImage) {
                 const profileImageFile = req.files.profileImage;
                 const extension = path_1.default.extname(profileImageFile.name);
-                const profileImageName = `profile_${userId}_${Date.now()}${extension}`;
-                const profileImagePath = path_1.default.join(uploadsDir, profileImageName);
-                try {
-                    yield profileImageFile.mv(profileImagePath);
-                    console.log("✅ Profile image saved to:", profileImagePath);
-                    profileImage = `uploads/${profileImageName}`;
-                }
-                catch (err) {
-                    console.error("❌ Error saving profile image:", err);
-                }
+                const profileImageUUID = (0, uuid_1.v4)() + extension;
+                const profileImagePath = path_1.default.join(uploadsDir, profileImageUUID);
                 yield profileImageFile.mv(profileImagePath);
-                profileImage = `uploads/${profileImageName}`; // Save relative path in DB
+                profileImage = `uploads/${profileImageUUID}#${profileImageFile.name}`;
             }
             if (req.files.headerImage) {
                 const headerImageFile = req.files.headerImage;
                 const extension = path_1.default.extname(headerImageFile.name);
-                const headerImageName = `header_${userId}_${Date.now()}${extension}`;
-                const headerImagePath = path_1.default.join(uploadsDir, headerImageName);
+                const headerImageUUID = (0, uuid_1.v4)() + extension;
+                const headerImagePath = path_1.default.join(uploadsDir, headerImageUUID);
                 yield headerImageFile.mv(headerImagePath);
-                headerImage = `uploads/${headerImageName}`; // Save relative path in DB
+                headerImage = `uploads/${headerImageUUID}#${headerImageFile.name}`;
+                fs_1.default.appendFileSync(path_1.default.join(uploadsDir, 'image-metadata.log'), `${headerImageUUID} -> ${headerImageFile.name}\n`);
             }
         }
         const newBoard = yield (0, database_1.createBoard)(userId, name, description, profileImage, headerImage);

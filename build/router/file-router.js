@@ -35,6 +35,9 @@ router.get('/events', (req, res) => {
 router.get('/home', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/index.html'));
 });
+router.get('/discovery', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, '../../public/discovery.html'));
+});
 router.get('/username', auth_handler_1.authHandler, (req, res) => {
     const username = (req.session).user;
     if (username) {

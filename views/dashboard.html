@@ -5,12 +5,61 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="style/style.css">
     <script src="src/dashboard.js" defer></script>
+    <style>
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .label {
+            width: 100px;
+            font-weight: bold;
+            text-align: right;
+        }
+        .editable-box {
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 5px;
+            min-width: 200px;
+            min-height: 20px;
+            cursor: pointer;
+            background-color: #6c6c6c;
+            color: white;
+        }
+        .editable-box:empty::before {
+            content: "click to edit...";
+            color: white;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".editable-box").forEach(box => {
+                box.addEventListener("blur", async (event) => {
+                    const fieldId = event.target.id;
+                    const newValue = event.target.innerText.trim();
+
+                    if (fieldId && newValue) {
+                        await fetch("/update-user", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ field: fieldId, value: newValue })
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 <body>
 <h1>hiii hello logged in user!!</h1>
-<p>Username: <span id="fetchUsername"></span></p>
-<p>Email: <span id="fetchEmail"></span></p>
-<p>Role: <span id="fetchRole"></span></p>
+
+<div class="profile-info"><span class="label">Username:</span> <span id="fetchUsername" class="editable-box" contenteditable="false"></span></div>
+<div class="profile-info"><span class="label">Bio:</span> <span id="fetchBio" class="editable-box" contenteditable="true"></span></div>
+<div class="profile-info"><span class="label">Email:</span> <span id="fetchEmail" class="editable-box" contenteditable="false"></span></div>
+<div class="profile-info"><span class="label">Role:</span> <span id="fetchRole" class="editable-box" contenteditable="false"></span></div>
+<div class="profile-info"><span class="label">Pronouns:</span> <span id="fetchPronouns" class="editable-box" contenteditable="true"></span></div>
+<div class="profile-info"><span class="label">Links:</span> <span id="fetchLinks" class="editable-box" contenteditable="true"></span></div>
+<div class="profile-info"><span class="label">Badges:</span> <span id="fetchBadges" class="editable-box" contenteditable="false"></span></div>
 
 <div>
     <h2>Boards</h2>
@@ -37,13 +86,11 @@
 </div>
 <div class="online-users">
     <h3>Online users</h3>
-    <ul id="onlineUsers">
-    </ul>
+    <ul id="onlineUsers"></ul>
 </div>
 
 <button><a href="/home">home</a></button>
 <button><a href="/logout">logout</a></button>
 <button id="adminButton" style="display: none;"><a href="/admin">Admin Dashboard</a></button>
-
 </body>
 </html>
