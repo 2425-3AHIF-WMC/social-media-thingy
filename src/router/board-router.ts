@@ -7,7 +7,6 @@ import fs from 'fs';
 import { createBoard, getBoards, getUserID } from '../database';
 
 const router = Router();
-
 router.use(fileUpload());
 
 router.post('/create', authHandler, [
@@ -25,28 +24,48 @@ router.post('/create', authHandler, [
     const userId = await getUserID(req.session.user);
 
     try {
+        // Use absolute path
+        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
 
-        const uploadsDir = path.join(__dirname, '..', 'uploads');
+        // Ensure the uploads directory exists
         if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir);
+            fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
         if (req.files) {
             if (req.files.profileImage) {
                 const profileImageFile = req.files.profileImage as fileUpload.UploadedFile;
-                profileImage = `uploads/${profileImageFile.name}`;
-                await profileImageFile.mv(path.join(uploadsDir, profileImageFile.name));
+                const extension = path.extname(profileImageFile.name);
+                const profileImageName = `profile_${userId}_${Date.now()}${extension}`;
+                const profileImagePath = path.join(uploadsDir, profileImageName);
+
+                try {
+                    await profileImageFile.mv(profileImagePath);
+                    console.log("✅ Profile image saved to:", profileImagePath);
+                    profileImage = `uploads/${profileImageName}`;
+                } catch (err) {
+                    console.error("❌ Error saving profile image:", err);
+                }
+
+                await profileImageFile.mv(profileImagePath);
+                profileImage = `uploads/${profileImageName}`; // Save relative path in DB
             }
+
             if (req.files.headerImage) {
                 const headerImageFile = req.files.headerImage as fileUpload.UploadedFile;
-                headerImage = `uploads/${headerImageFile.name}`;
-                await headerImageFile.mv(path.join(uploadsDir, headerImageFile.name));
+                const extension = path.extname(headerImageFile.name);
+                const headerImageName = `header_${userId}_${Date.now()}${extension}`;
+                const headerImagePath = path.join(uploadsDir, headerImageName);
+
+                await headerImageFile.mv(headerImagePath);
+                headerImage = `uploads/${headerImageName}`; // Save relative path in DB
             }
         }
 
         const newBoard = await createBoard(userId, name, description, profileImage, headerImage);
         return res.status(201).json(newBoard);
     } catch (error) {
+        console.error("Error saving images:", error);
         return res.status(500).json({ error: 'Failed to create board' });
     }
 });
@@ -54,9 +73,10 @@ router.post('/create', authHandler, [
 router.get('/boards', authHandler, async (req: Request, res: Response) => {
     try {
         const boards = await getBoards();
-        res.json(boards);
+        return res.json(boards);
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch boards' });
+        console.error("Error fetching boards:", error);
+        return res.status(500).json({ error: 'Failed to fetch boards' });
     }
 });
 
