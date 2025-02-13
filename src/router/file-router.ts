@@ -41,9 +41,12 @@ router.get('/events', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/Events.html'));
 });
 
-
 router.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/index.html'));
+});
+
+router.get('/discovery', (req, res) =>{
+    res.sendFile(path.join(__dirname, '../../public/discovery.html'));
 });
 
 router.get('/username', authHandler, (req, res) => {
