@@ -20,7 +20,7 @@ router.post('/create', authHandler, [
 
     const { name, description } = req.body;
     let profileImage = 'default_profile.png';
-    let headerImage = 'default_header.png';g
+    let headerImage = 'default_header.png';
     const userId = await getUserID(req.session.user);
 
     try {
