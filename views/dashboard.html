@@ -34,20 +34,69 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".editable-box").forEach(box => {
-                box.addEventListener("blur", async (event) => {
-                    const fieldId = event.target.id;
-                    const newValue = event.target.innerText.trim();
+                box.addEventListener("keydown", async (event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault(); // Prevent new line
+                        const fieldId = event.target.id;
+                        const newValue = event.target.innerText.trim();
 
-                    if (fieldId && newValue) {
-                        await fetch("/update-user", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ field: fieldId, value: newValue })
-                        });
+                        console.log("Attempting to send request to /update-user", { field: fieldId, value: newValue });
+
+                        if (fieldId && newValue) {
+                            const response = await fetch("/update-user", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ field: fieldId, value: newValue })
+                            });
+
+                            const result = await response.json();
+                            console.log("Server Response:", result);
+                        }
+                        event.target.blur(); // Remove focus after saving
                     }
                 });
             });
         });
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Fetch and populate user data
+            try {
+                const response = await fetch("/get-user-data");
+                const userData = await response.json();
+
+                if (userData) {
+                    document.getElementById("fetchUsername").innerText = userData.username || "click to edit...";
+                    document.getElementById("fetchBio").innerText = userData.bio || "click to edit...";
+                    document.getElementById("fetchPronouns").innerText = userData.pronouns || "click to edit...";
+                    document.getElementById("fetchLinks").innerText = userData.links || "click to edit...";
+                    document.getElementById("fetchBadges").innerText = userData.badges || "click to edit...";
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+
+            // Enable inline editing and saving
+            document.querySelectorAll(".editable-box").forEach(box => {
+                box.addEventListener("keydown", async (event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault(); // Prevent new line
+                        const fieldId = event.target.id;
+                        const newValue = event.target.innerText.trim();
+
+                        console.log("Updating field:", fieldId, "with value:", newValue);
+
+                        if (fieldId && newValue) {
+                            await fetch("/update-user", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ field: fieldId, value: newValue })
+                            });
+                        }
+                        event.target.blur(); // Remove focus after saving
+                    }
+                });
+            });
+        });
+
     </script>
 </head>
 <body>
@@ -63,7 +112,7 @@
 
 <div>
     <h2>Boards</h2>
-   <div id="userBoardList"></div>
+    <div id="boardList"></div>
 </div>
 
 <div>

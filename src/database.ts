@@ -5,7 +5,7 @@ import fs from 'fs';
 import {Database} from "sqlite";
 import CustomSession from "./model/session";
 
-let db: Database;
+export let db: Database;
 
 const onlineUsers = new Set<string>();
 
@@ -156,7 +156,27 @@ async function getBoard(userId:number) {
   }
 }
 
+async function updateUserFieldInDB(userId: number, field: string, value: string): Promise<boolean> {
+    try {
+        await init();
+
+        const allowedFields = ["bio", "pronouns", "links", "badges"]; // Ensure only valid fields are updated
+        if (!allowedFields.includes(field)) {
+            console.error("Invalid field update attempt:", field);
+            return false;
+        }
+
+        console.log("Updating database field:", field, "for userId:", userId, "with value:", value); // Debug log
+
+        await db.run(`UPDATE users SET ${field} = ? WHERE id = ?`, [value, userId]);
+        return true;
+    } catch (error) {
+        console.error("Error updating user field in database:", error);
+        return false;
+    }
+}
+
 
 init().catch(console.error);
 
-export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards, getBoard };
+export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards, getBoard, updateUserFieldInDB };

@@ -64,7 +64,7 @@ async function fetchUserBoards() {
     const userBoardList = document.getElementById('userBoardList');
     const response = await fetch('/user-boards');
     const boards = await response.json();
-    userBoardList.innerHTML = '';
+    userBoardList.innerHTML = ' ';
     boards.forEach(board => {
         const li = document.createElement('li');
         li.innerHTML = `
