@@ -93,7 +93,7 @@ document.getElementById('createBoardForm').addEventListener('submit', async (eve
     });
 
     if (response.ok) {
-        fetchBoards();
+        await fetchUserBoards();
         document.getElementById('createBoardForm').reset();
     } else {
         const errorData = await response.json();
