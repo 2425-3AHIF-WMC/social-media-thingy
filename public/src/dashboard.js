@@ -67,14 +67,17 @@ async function fetchUserBoards() {
     userBoardList.innerHTML = ' ';
     boards.forEach(board => {
         const li = document.createElement('li');
+        const descriptionWords = board.description.split(' ').length;
+        const descriptionClass = descriptionWords > 30 ? 'description' : '';
+        const truncatedDescription = board.description.split(' ').slice(0, 20).join(' ') + (descriptionWords > 20 ? '...' : '');
         li.innerHTML = `
-    <div class="header-container">
-        <img src="/${board.header_image}" alt="${board.name} header" class="header-image" onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
-        <img src="/${board.profile_image}" alt="${board.name} profile" class="profile-image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
-    </div>
-    <h2>${board.name}</h2>
-    <p>${board.description}</p>
-`;
+            <div class="header-container">
+                <img src="/${board.header_image}" alt="${board.name} header" class="header-image" onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
+                <img src="/${board.profile_image}" alt="${board.name} profile" class="profile-image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
+            </div>
+            <h2>${board.name}</h2>
+            <p class="${descriptionClass}" title="${board.description}">${truncatedDescription}</p>
+        `;
         userBoardList.appendChild(li);
     });
 }

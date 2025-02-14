@@ -237,39 +237,96 @@ body{
 
 #userBoardList {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    flex-direction: row;
+    gap: 30px;
+    overflow-x: auto;
+    white-space: nowrap;
+
+    /* WebKit browsers */
+    &::-webkit-scrollbar {
+        height: 12px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    scrollbar-width: none;
+    scrollbar-color: #888 #f1f1f1;
+
+    li {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+        list-style: none;
+        width: 400px;
+        max-height: 400px;
+        position: relative;
+        color: black;
+        overflow: hidden;
+        margin-left: 20px;
+        margin-right: 20px;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    h2 {
+        margin-top: 60px;
+    }
+
+    .header-container {
+        position: relative;
+    }
+
+    .header-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 3px solid white;
+        position: absolute;
+        bottom: -50px;
+        left: 20px;
+        background-color: white;
+    }
+
+    .description {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+    }
+
+    .description:hover {
+        white-space: normal;
+        background-color: rgba(0, 0, 0, 0.1);
+        padding: 5px;
+        border-radius: 5px;
+    }
 }
 
-#userBoardList li {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
-    list-style: none;
-    width: 300px;
-    position: relative;
-    color: black;
+#userBoardList.active {
+    cursor: grabbing;
+    user-select: none;
+    pointer-events: none;
 }
 
-.header-container {
-    position: relative;
-}
-
-.header-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 10px 10px 0 0;
-}
-
-.profile-image {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 3px solid white;
-    position: absolute;
-    bottom: -50px;
-    left: 20px;
-    background-color: white;
+#userBoardList.active * {
+    pointer-events: none;
 }
