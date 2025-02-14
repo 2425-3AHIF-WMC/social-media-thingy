@@ -134,14 +134,8 @@ async function getUserID(username?: string ) : Promise<number> {
     return user.id;
 }
 
-async function createBoard(
-    ownerID: number,
-    name: string,
-    description: string,
-    profileImage: string = 'uploads/default_profile.png',
-    headerImage: string = 'uploads/default_header.png',
-    visibility: string = 'public'
-) {
+//createBoard(userId, name, description, profileImage, headerImage, visibility);
+async function createBoard(ownerID: number, name: string, description: string, profileImage: string = 'uploads/default_profile.png', headerImage: string = 'uploads/default_header.png', visibility: string = 'public') {
     await init();
 
     const result = await db.run(

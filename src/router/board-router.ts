@@ -12,14 +12,15 @@ router.use(fileUpload());
 
 router.post('/create', authHandler, [
     body('name').notEmpty().withMessage('Name is required'),
-    body('description').notEmpty().withMessage('Description is required')
+    body('description').notEmpty().withMessage('Description is required'),
+    body('visibility').notEmpty().withMessage('Visibility is required').isIn(['public', 'private']).withMessage('Visibility must be either public or private')
 ], async (req: Request, res: Response) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description } = req.body;
+    const { name, description, visibility } = req.body;
     let profileImage = 'default_profile.png';
     let headerImage = 'default_header.png';
     const userId = await getUserID(req.session.user);
@@ -51,7 +52,7 @@ router.post('/create', authHandler, [
             }
         }
 
-        const newBoard = await createBoard(userId, name, description, profileImage, headerImage);
+        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility);
         return res.status(201).json(newBoard);
     } catch (error) {
         console.error("Error saving images:", error);

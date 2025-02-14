@@ -87,12 +87,10 @@ document.getElementById('createBoardForm').addEventListener('submit', async (eve
     if (profileImage) formData.append('profileImage', profileImage);
 
     const headerImage = document.getElementById('headerImage').files[0];
-    if (headerImage) formData.append(' headerImage', headerImage);
+    if (headerImage) formData.append('headerImage', headerImage);
 
-    const visibilityElement = document.getElementById('visibility');
-    if (visibilityElement) {
-        formData.append('visibility', visibilityElement.value);
-    }
+    const visibility = document.getElementById('boardType').value;
+    formData.append('visibility', visibility);
 
     try {
         const response = await fetch('/create', {
