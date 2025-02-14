@@ -12,16 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBoard = exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = void 0;
+exports.updateUserFieldInDB = exports.getBoard = exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = exports.db = void 0;
 const sqlite3_1 = __importDefault(require("sqlite3"));
 const sqlite_1 = require("sqlite");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-let db;
 const onlineUsers = new Set();
 function init() {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!db) {
-            db = yield (0, sqlite_1.open)({
+        if (!exports.db) {
+            exports.db = yield (0, sqlite_1.open)({
                 filename: './data/aegiraDatabase.sqlite',
                 driver: sqlite3_1.default.Database
             });
@@ -41,8 +40,8 @@ function register(username_1, password_1) {
                 throw new Error('Email is required');
             }
             yield init();
-            const user = yield db.get('SELECT * FROM users WHERE username = ?', [username]);
-            const email = yield db.get('SELECT * FROM users WHERE email = ?', [givenEmail]);
+            const user = yield exports.db.get('SELECT * FROM users WHERE username = ?', [username]);
+            const email = yield exports.db.get('SELECT * FROM users WHERE email = ?', [givenEmail]);
             if (user) {
                 throw new Error('User already exists');
             }
@@ -50,7 +49,7 @@ function register(username_1, password_1) {
                 throw new Error('Email already exists');
             }
             const hashedPassword = yield bcrypt_1.default.hash(password, 10);
-            yield db.run('INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)', [username, hashedPassword, role, givenEmail]);
+            yield exports.db.run('INSERT INTO users (username, password, role, email) VALUES (?, ?, ?, ?)', [username, hashedPassword, role, givenEmail]);
         }
         catch (error) {
             console.error('Registration error:', error);
@@ -63,7 +62,7 @@ function login(username, password) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield init();
-            const user = yield db.get('SELECT * FROM users WHERE username = ?', [username]);
+            const user = yield exports.db.get('SELECT * FROM users WHERE username = ?', [username]);
             if (!user) {
                 throw new Error('Invalid username or password');
             }
@@ -87,7 +86,7 @@ exports.logout = logout;
 function getUserRole(username) {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        const user = yield db.get('SELECT role FROM users WHERE username = ?', username);
+        const user = yield exports.db.get('SELECT role FROM users WHERE username = ?', username);
         if (!user) {
             throw new Error('User not found');
         }
@@ -98,29 +97,29 @@ exports.getUserRole = getUserRole;
 function giveModerator(username) {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        const user = yield db.get('SELECT * FROM users WHERE username = ?', username);
+        const user = yield exports.db.get('SELECT * FROM users WHERE username = ?', username);
         if (!user) {
             throw new Error('User not found');
         }
-        yield db.run('UPDATE users SET role = ? WHERE username = ?', 'moderator', username);
+        yield exports.db.run('UPDATE users SET role = ? WHERE username = ?', 'moderator', username);
     });
 }
 exports.giveModerator = giveModerator;
 function removeModerator(username) {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        const user = yield db.get('SELECT * FROM users WHERE username = ?', username);
+        const user = yield exports.db.get('SELECT * FROM users WHERE username = ?', username);
         if (!user) {
             throw new Error('User not found');
         }
-        yield db.run('UPDATE users SET role = ? WHERE username = ?', 'user', username);
+        yield exports.db.run('UPDATE users SET role = ? WHERE username = ?', 'user', username);
     });
 }
 exports.removeModerator = removeModerator;
 function giveUserInformation(username) {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        const user = yield db.get('SELECT * FROM users WHERE username = ?', username);
+        const user = yield exports.db.get('SELECT * FROM users WHERE username = ?', username);
         if (!user) {
             throw new Error('User not found');
         }
@@ -141,7 +140,7 @@ exports.getOnlineUsers = getOnlineUsers;
 function getUserID(username) {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        const user = yield db.get('SELECT id FROM users WHERE username = ?', username);
+        const user = yield exports.db.get('SELECT id FROM users WHERE username = ?', username);
         if (!user) {
             throw new Error('User not found');
         }
@@ -150,17 +149,18 @@ function getUserID(username) {
 }
 exports.getUserID = getUserID;
 function createBoard(ownerID_1, name_1, description_1) {
-    return __awaiter(this, arguments, void 0, function* (ownerID, name, description, profileImage = 'default_profile.png', headerImage = 'default_header.png') {
+    return __awaiter(this, arguments, void 0, function* (ownerID, name, description, profileImage = 'uploads/default_profile.png', headerImage = 'uploads/default_header.png', boardType = 'public') {
         yield init();
-        const result = yield db.run('INSERT INTO boards (name, description, ownerId,  profile_image, header_image) VALUES (?,?, ?, ?, ?)', [name, description, ownerID, profileImage, headerImage]);
-        return { id: result.lastID, name, description, profileImage, headerImage };
+        console.log("Creating board with values:", { ownerID, name, description, profileImage, headerImage, boardType });
+        const result = yield exports.db.run('INSERT INTO boards (name, description, ownerId, profile_image, header_image, boardtype) VALUES (?, ?, ?, ?, ?, ?)', [name, description, ownerID, profileImage, headerImage, boardType]);
+        return { id: result.lastID, name, description, profileImage, headerImage, boardType };
     });
 }
 exports.createBoard = createBoard;
 function getBoards() {
     return __awaiter(this, void 0, void 0, function* () {
         yield init();
-        return yield db.all('SELECT * FROM boards');
+        return yield exports.db.all('SELECT * FROM boards');
     });
 }
 exports.getBoards = getBoards;
@@ -168,12 +168,32 @@ function getBoard(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         if (userId) {
             yield init();
-            return yield db.all('SELECT * FROM boards WHERE ownerId = ?', [userId]);
+            return yield exports.db.all('SELECT * FROM boards WHERE ownerId = ?', [userId]);
         }
         else {
-            return yield db.all('SELECT * FROM boards');
+            return yield exports.db.all('SELECT * FROM boards');
         }
     });
 }
 exports.getBoard = getBoard;
+function updateUserFieldInDB(userId, field, value) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield init();
+            const allowedFields = ["bio", "pronouns", "links", "badges"]; // Ensure only valid fields are updated
+            if (!allowedFields.includes(field)) {
+                console.error("Invalid field update attempt:", field);
+                return false;
+            }
+            console.log("Updating database field:", field, "for userId:", userId, "with value:", value); // Debug log
+            yield exports.db.run(`UPDATE users SET ${field} = ? WHERE id = ?`, [value, userId]);
+            return true;
+        }
+        catch (error) {
+            console.error("Error updating user field in database:", error);
+            return false;
+        }
+    });
+}
+exports.updateUserFieldInDB = updateUserFieldInDB;
 init().catch(console.error);

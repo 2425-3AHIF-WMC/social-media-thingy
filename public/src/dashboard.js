@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserInformation();
     await fetchUsernames();
     await fetchUserBoards();
-    enableEditableFields();
 });
 
 async function fetchUserInformation() {
@@ -40,69 +39,79 @@ async function fetchUsernames() {
 
 async function fetchUserBoards() {
     const userBoardList = document.getElementById('userBoardList');
-    const response = await fetch('/user-boards');
-    const boards = await response.json();
-    userBoardList.innerHTML = '';
+    userBoardList.innerHTML = ''; // Clear old content
 
-    boards.forEach(board => {
-        const li = document.createElement('li');
-        const descriptionWords = board.description.split(' ').length;
-        const descriptionClass = descriptionWords > 30 ? 'description' : '';
-        const truncatedDescription = board.description.split(' ').slice(0, 20).join(' ') + (descriptionWords > 20 ? '...' : '');
-        li.innerHTML = `
-            <div class="header-container">
-                <img src="/${board.header_image}" alt="${board.name} header" class="header-image" onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
-                <img src="/${board.profile_image}" alt="${board.name} profile" class="profile-image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
-            </div>
-            <h2>${board.name}</h2>
-            <p class="${descriptionClass}" title="${board.description}">${truncatedDescription}</p>
-        `;
-        userBoardList.appendChild(li);
-    });
+    try {
+        const response = await fetch('/user-boards');
+        const boards = await response.json();
+
+        console.log("Fetched Boards:", boards); // Debugging: Check if data is returned
+
+        if (!boards.length) {
+            userBoardList.innerHTML = '<p>No boards found.</p>';
+            return;
+        }
+
+        boards.forEach(board => {
+            const li = document.createElement('li'); // Using <li> to match previous structure
+            li.classList.add('board-item');
+
+            // Ensure images use correct paths
+            const profileImage = board.profile_image.startsWith("uploads/") ? `/${board.profile_image}` : "/uploads/default_profile.png";
+            const headerImage = board.header_image.startsWith("uploads/") ? `/${board.header_image}` : "/uploads/default_header.png";
+
+            li.innerHTML = `
+                <div class="header-container">
+                    <img src="${headerImage}" alt="${board.name} header" class="header-image" 
+                        onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
+                    <img src="${profileImage}" alt="${board.name} profile" class="profile-image" 
+                        onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
+                </div>
+                <h2>${board.name}</h2>
+                <p>${board.description}</p>
+            `;
+
+            userBoardList.appendChild(li);
+        });
+
+    } catch (error) {
+        console.error("Error fetching boards:", error);
+    }
 }
 
 document.getElementById('createBoardForm').addEventListener('submit', async (event) => {
     event.preventDefault();
+
     const formData = new FormData();
     formData.append('name', document.getElementById('boardName').value);
     formData.append('description', document.getElementById('boardDescription').value);
-    formData.append('profileImage', document.getElementById('profileImage').files[0]);
-    formData.append('headerImage', document.getElementById('headerImage').files[0]);
-    formData.append('boardType', document.getElementById('boardType').value);
 
-    const response = await fetch('/create', {
-        method: 'POST',
-        body: formData
-    });
+    // Ensure images are only added if selected
+    const profileImage = document.getElementById('profileImage').files[0];
+    if (profileImage) formData.append('profileImage', profileImage);
 
-    if (response.ok) {
-        await fetchUserBoards();
-        document.getElementById('createBoardForm').reset();
-    } else {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.errors.map(e => e.msg).join(', ')}`);
+    const headerImage = document.getElementById('headerImage').files[0];
+    if (headerImage) formData.append(' headerImage', headerImage);
+
+    const boardTypeElement = document.getElementById('boardType');
+    if (boardTypeElement) {
+        formData.append('boardType', boardTypeElement.value);
+    }
+
+    try {
+        const response = await fetch('/create', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            await fetchUserBoards();
+            document.getElementById('createBoardForm').reset();
+        } else {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.errors.map(e => e.msg).join(', ')}`);
+        }
+    } catch (error) {
+        console.error("Error creating board:", error);
     }
 });
-
-function enableEditableFields() {
-    document.querySelectorAll(".editable-box").forEach(box => {
-        box.addEventListener("keydown", async (event) => {
-            if (event.key === "Enter") {
-                event.preventDefault(); // Prevent new line
-                const fieldId = event.target.id;
-                const newValue = event.target.innerText.trim();
-
-                console.log("Updating field:", fieldId, "with value:", newValue);
-
-                if (fieldId && newValue) {
-                    await fetch("/update-user", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ field: fieldId, value: newValue })
-                    });
-                }
-                event.target.blur(); // Remove focus after saving
-            }
-        });
-    });
-}

@@ -134,12 +134,25 @@ async function getUserID(username?: string ) : Promise<number> {
     return user.id;
 }
 
-async function createBoard(ownerID: number ,name: string, description: string, profileImage: string = 'default_profile.png', headerImage: string = 'default_header.png') {
+async function createBoard(
+    ownerID: number,
+    name: string,
+    description: string,
+    profileImage: string = 'uploads/default_profile.png',
+    headerImage: string = 'uploads/default_header.png',
+    boardType: string = 'public'
+) {
     await init();
-    const result = await db.run('INSERT INTO boards (name, description, ownerId,  profile_image, header_image) VALUES (?,?, ?, ?, ?)', [name, description,ownerID, profileImage, headerImage]);
-    return { id: result.lastID, name, description, profileImage, headerImage };
-}
 
+    console.log("Creating board with values:", { ownerID, name, description, profileImage, headerImage, boardType });
+
+    const result = await db.run(
+        'INSERT INTO boards (name, description, ownerId, profile_image, header_image, boardtype) VALUES (?, ?, ?, ?, ?, ?)',
+        [name, description, ownerID, profileImage, headerImage, boardType]
+    );
+
+    return { id: result.lastID, name, description, profileImage, headerImage, boardType };
+}
 
 async function getBoards() {
     await init();

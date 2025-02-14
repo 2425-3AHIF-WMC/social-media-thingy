@@ -222,7 +222,7 @@ body {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
   list-style: none;
   width: 400px;
   max-height: 400px;
@@ -231,14 +231,20 @@ body {
   overflow: hidden;
   margin-left: 20px;
   margin-right: 20px;
-  display: inline-block;
+  display: flex; /* Use flex for better layout */
+  flex-direction: column; /* Stack content properly */
   flex-shrink: 0;
+  align-items: center; /* Center content inside */
 }
 #userBoardList h2 {
   margin-top: 60px;
 }
 #userBoardList .header-container {
-  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-direction: column;
 }
 #userBoardList .header-image {
   width: 100%;
@@ -247,13 +253,11 @@ body {
   border-radius: 10px 10px 0 0;
 }
 #userBoardList .profile-image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   border: 3px solid white;
-  position: absolute;
-  bottom: -50px;
-  left: 20px;
+  position: relative;
   background-color: white;
 }
 #userBoardList .description {

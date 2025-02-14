@@ -79,9 +79,4 @@ router.get("/get-user-data", async (req, res) => {
     }
 });
 
-//Add 1: Click to edit should be shown even after the user once has written something in the field. It should be shown until the user writes something inside.
-//Add 2: Make the fields see-through when the user is not editing them. Let the fields only have a little outline
-//Add 3: Add Margin between fields
-//Add 4: Board Type when adding board
-
 export default router;
