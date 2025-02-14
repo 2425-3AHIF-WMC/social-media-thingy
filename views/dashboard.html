@@ -5,58 +5,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="style/style.css">
     <script src="src/dashboard.js" defer></script>
-    <style>
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .label {
-            width: 100px;
-            font-weight: bold;
-            text-align: right;
-        }
-        .editable-box {
-            border: 1px solid black;
-            border-radius: 8px;
-            padding: 5px;
-            min-width: 200px;
-            min-height: 20px;
-            cursor: pointer;
-            background-color: #6c6c6c;
-            color: white;
-        }
-        .editable-box:empty::before {
-            content: "click to edit...";
-            color: white;
-        }
-    </style>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".editable-box").forEach(box => {
-                box.addEventListener("keydown", async (event) => {
-                    if (event.key === "Enter") {
-                        event.preventDefault(); // Prevent new line
-                        const fieldId = event.target.id;
-                        const newValue = event.target.innerText.trim();
-
-                        console.log("Attempting to send request to /update-user", { field: fieldId, value: newValue });
-
-                        if (fieldId && newValue) {
-                            const response = await fetch("/update-user", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ field: fieldId, value: newValue })
-                            });
-
-                            const result = await response.json();
-                            console.log("Server Response:", result);
-                        }
-                        event.target.blur(); // Remove focus after saving
-                    }
-                });
-            });
-        });
         document.addEventListener("DOMContentLoaded", async () => {
             // Fetch and populate user data
             try {
@@ -74,7 +23,7 @@
                 console.error("Error fetching user data:", error);
             }
 
-            // Enable inline editing and saving
+            // Enable inline editing and saving on Enter
             document.querySelectorAll(".editable-box").forEach(box => {
                 box.addEventListener("keydown", async (event) => {
                     if (event.key === "Enter") {
@@ -96,7 +45,6 @@
                 });
             });
         });
-
     </script>
 </head>
 <body>

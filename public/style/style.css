@@ -279,4 +279,34 @@ body {
   pointer-events: none;
 }
 
+.profile-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.label {
+  width: 100px;
+  font-weight: bold;
+  text-align: right;
+}
+.editable-box {
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 5px;
+  min-width: 200px;
+  min-height: 20px;
+  cursor: pointer;
+  background-color: rgba(108, 108, 108, 0.5);
+  color: white;
+  outline: 1px solid white;
+}
+.editable-box:focus {
+  background-color: #6c6c6c;
+}
+.editable-box:empty::before {
+  content: "click to edit...";
+  color: white;
+}
+
 /*# sourceMappingURL=style.css.map */
