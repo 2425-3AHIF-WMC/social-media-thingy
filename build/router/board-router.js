@@ -35,29 +35,24 @@ router.post('/create', auth_handler_1.authHandler, [
     let headerImage = 'default_header.png';
     const userId = yield (0, database_1.getUserID)(req.session.user);
     try {
-        // Use absolute path
         const uploadsDir = path_1.default.resolve(__dirname, '..', 'uploads');
-        // Ensure the uploads directory exists
         if (!fs_1.default.existsSync(uploadsDir)) {
             fs_1.default.mkdirSync(uploadsDir, { recursive: true });
         }
         if (req.files) {
             if (req.files.profileImage) {
                 const profileImageFile = req.files.profileImage;
-                const extension = path_1.default.extname(profileImageFile.name);
-                const profileImageUUID = (0, uuid_1.v4)() + extension;
+                const profileImageUUID = (0, uuid_1.v4)() + path_1.default.extname(profileImageFile.name);
                 const profileImagePath = path_1.default.join(uploadsDir, profileImageUUID);
                 yield profileImageFile.mv(profileImagePath);
-                profileImage = `uploads/${profileImageUUID}#${profileImageFile.name}`;
+                profileImage = `uploads/${profileImageUUID}`;
             }
             if (req.files.headerImage) {
                 const headerImageFile = req.files.headerImage;
-                const extension = path_1.default.extname(headerImageFile.name);
-                const headerImageUUID = (0, uuid_1.v4)() + extension;
+                const headerImageUUID = (0, uuid_1.v4)() + path_1.default.extname(headerImageFile.name);
                 const headerImagePath = path_1.default.join(uploadsDir, headerImageUUID);
                 yield headerImageFile.mv(headerImagePath);
-                headerImage = `uploads/${headerImageUUID}#${headerImageFile.name}`;
-                fs_1.default.appendFileSync(path_1.default.join(uploadsDir, 'image-metadata.log'), `${headerImageUUID} -> ${headerImageFile.name}\n`);
+                headerImage = `uploads/${headerImageUUID}`;
             }
         }
         const newBoard = yield (0, database_1.createBoard)(userId, name, description, profileImage, headerImage);
@@ -76,6 +71,17 @@ router.get('/boards', auth_handler_1.authHandler, (req, res) => __awaiter(void 0
     catch (error) {
         console.error("Error fetching boards:", error);
         return res.status(500).json({ error: 'Failed to fetch boards' });
+    }
+}));
+router.get('/user-boards', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const boards = yield (0, database_1.getBoard)(userId);
+        return res.json(boards);
+    }
+    catch (error) {
+        console.error("Error fetching user boards:", error);
+        return res.status(500).json({ error: 'Failed to fetch user boards' });
     }
 }));
 exports.default = router;

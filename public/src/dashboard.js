@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserInformation();
     await fetchUsernames();
-    await fetchBoards();
+    await fetchUserBoards();
 });
 
 async function fetchUserInformation() {
@@ -60,23 +60,22 @@ async function fetchUsernames() {
     });
 }
 
-async function fetchBoards() {
-    const boardList = document.getElementById('boardList');
-    const response = await fetch('/boards');
+async function fetchUserBoards() {
+    const userBoardList = document.getElementById('userBoardList');
+    const response = await fetch('/user-boards');
     const boards = await response.json();
-    boardList.innerHTML = '';
+    userBoardList.innerHTML = '';
     boards.forEach(board => {
         const li = document.createElement('li');
-        //change later so we can see the img of the server profile and header
         li.innerHTML = `
-            <div class="header-container">
-                <img src="${board.headerImage}" alt="${board.name} header" class="header-image" />
-                <img src="${board.profileImage}" alt="${board.name} profile" class="profile-image" />
-            </div>
-            <h2>${board.name}</h2>
-            <p>${board.description}</p>
-        `;
-        boardList.appendChild(li);
+    <div class="header-container">
+        <img src="/${board.header_image}" alt="${board.name} header" class="header-image" onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
+        <img src="/${board.profile_image}" alt="${board.name} profile" class="profile-image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
+    </div>
+    <h2>${board.name}</h2>
+    <p>${board.description}</p>
+`;
+        userBoardList.appendChild(li);
     });
 }
 

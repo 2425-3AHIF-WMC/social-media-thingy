@@ -146,7 +146,17 @@ async function getBoards() {
     return await db.all('SELECT * FROM boards');
 }
 
+async function getBoard(userId:number) {
+  if (userId){
+    await init();
+    return await db.all('SELECT * FROM boards WHERE ownerId = ?', [userId]);
+  }
+  else {
+      return await db.all('SELECT * FROM boards');
+  }
+}
+
 
 init().catch(console.error);
 
-export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards };
+export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards, getBoard };

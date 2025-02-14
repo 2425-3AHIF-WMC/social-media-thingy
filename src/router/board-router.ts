@@ -5,7 +5,7 @@ import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { createBoard, getBoards, getUserID } from '../database';
+import { createBoard, getBoards, getUserID, getBoard } from '../database';
 
 const router = Router();
 router.use(fileUpload());
@@ -25,10 +25,8 @@ router.post('/create', authHandler, [
     const userId = await getUserID(req.session.user);
 
     try {
-        // Use absolute path
         const uploadsDir = path.resolve(__dirname, '..', 'uploads');
 
-        // Ensure the uploads directory exists
         if (!fs.existsSync(uploadsDir)) {
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
@@ -36,27 +34,20 @@ router.post('/create', authHandler, [
         if (req.files) {
             if (req.files.profileImage) {
                 const profileImageFile = req.files.profileImage as fileUpload.UploadedFile;
-                const extension = path.extname(profileImageFile.name);
-                const profileImageUUID = uuidv4() + extension;
+                const profileImageUUID = uuidv4() + path.extname(profileImageFile.name);
                 const profileImagePath = path.join(uploadsDir, profileImageUUID);
 
                 await profileImageFile.mv(profileImagePath);
-
-                profileImage = `uploads/${profileImageUUID}#${profileImageFile.name}`;
+                profileImage = `uploads/${profileImageUUID}`;
             }
 
             if (req.files.headerImage) {
                 const headerImageFile = req.files.headerImage as fileUpload.UploadedFile;
-                const extension = path.extname(headerImageFile.name);
-                const headerImageUUID = uuidv4() + extension;
+                const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
                 const headerImagePath = path.join(uploadsDir, headerImageUUID);
 
                 await headerImageFile.mv(headerImagePath);
-
-                headerImage = `uploads/${headerImageUUID}#${headerImageFile.name}`;
-
-                fs.appendFileSync(path.join(uploadsDir, 'image-metadata.log'),
-                    `${headerImageUUID} -> ${headerImageFile.name}\n`);
+                headerImage = `uploads/${headerImageUUID}`;
             }
         }
 
@@ -75,6 +66,17 @@ router.get('/boards', authHandler, async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error fetching boards:", error);
         return res.status(500).json({ error: 'Failed to fetch boards' });
+    }
+});
+
+router.get('/user-boards', authHandler, async (req: Request, res: Response) => {
+    try {
+        const userId = await getUserID(req.session.user);
+        const boards = await getBoard(userId);
+        return res.json(boards);
+    } catch (error) {
+        console.error("Error fetching user boards:", error);
+        return res.status(500).json({ error: 'Failed to fetch user boards' });
     }
 });
 

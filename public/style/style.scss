@@ -235,48 +235,41 @@ body{
 
 /*dashboard.html*/
 
+#userBoardList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
 
-#boardList{
-
-    li{
-        position: relative;
-        margin-bottom: 40ßx;
-    }
-
-    img{
-        display: block;
-        max-width: 100%;
-    }
-
-
-     .header-image {
-        width: 100%;
-        height: 200px; /* Adjust height as needed */
-        object-fit: cover;
-        border-radius: 10px 10px 0 0; /* Optional: Add rounded corners to the top of the header image */
-        position: relative;
-        z-index: 1;
-    }
-     .profile-image {
-        width: 100px; /* Adjust size as needed */
-        height: 100px; /* Adjust size as needed */
-        border-radius: 50%;
-        border: 3px solid white; /* Optional: Add a border around the profile image */
-        position: absolute;
-        bottom: -50px; /* Adjust to position the profile image */
-        left: 20px; /* Adjust to position the profile image */
-        z-index: 2;
-    }
-
+#userBoardList li {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
-    margin: 20px;
-    color: #392b75;
     list-style: none;
-    font-family: $font-family;
     width: 300px;
+    position: relative;
+    color: black;
+}
 
+.header-container {
+    position: relative;
+}
 
+.header-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid white;
+    position: absolute;
+    bottom: -50px;
+    left: 20px;
+    background-color: white;
 }

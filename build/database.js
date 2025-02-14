@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = void 0;
+exports.getBoard = exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = void 0;
 const sqlite3_1 = __importDefault(require("sqlite3"));
 const sqlite_1 = require("sqlite");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -164,4 +164,16 @@ function getBoards() {
     });
 }
 exports.getBoards = getBoards;
+function getBoard(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (userId) {
+            yield init();
+            return yield db.all('SELECT * FROM boards WHERE ownerId = ?', [userId]);
+        }
+        else {
+            return yield db.all('SELECT * FROM boards');
+        }
+    });
+}
+exports.getBoard = getBoard;
 init().catch(console.error);

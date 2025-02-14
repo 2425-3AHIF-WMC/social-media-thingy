@@ -22,6 +22,7 @@ app.use((0, express_session_1.default)({
     resave: false,
     saveUninitialized: true,
 }));
+app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 app.use('/', auth_router_1.default);
 app.use('/', file_router_1.default);
 app.use('/', role_router_1.default);
