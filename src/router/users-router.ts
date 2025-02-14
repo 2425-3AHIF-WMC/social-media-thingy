@@ -1,11 +1,9 @@
 import path from "path";
 import fs from "fs";
-import express from "express";
-import {getUserID} from "../database";
-import {updateUserFieldInDB} from "../database";
-import {db} from "../database";
+import { Router, Request, Response } from 'express';
+import { getUserID, updateUserFieldInDB, db } from "../database";
 
-const router = express.Router();
+const router = Router();
 const usersDir = path.resolve(__dirname, '..', 'users');
 
 if (!fs.existsSync(usersDir)) {
@@ -13,21 +11,15 @@ if (!fs.existsSync(usersDir)) {
 }
 
 router.post("/update-user", async (req, res) => {
-    console.log("Received request to update-user"); // Debugging
-
     try {
         let { field, value } = req.body;
-        console.log("Request body:", { field, value }); // Debugging
-
         const userId = await getUserID(req.session.user);
-        console.log("User ID:", userId); // Debugging
 
         if (!userId) {
             console.error("Unauthorized request: No user ID found.");
             return res.status(401).json({ error: "Unauthorized" });
         }
 
-        // Map frontend field names to actual database column names
         const fieldMapping: Record<string, string> = {
             "fetchBio": "bio",
             "fetchPronouns": "pronouns",
@@ -35,15 +27,12 @@ router.post("/update-user", async (req, res) => {
             "fetchBadges": "badges"
         };
 
-        // Ensure the field exists in the mapping
         if (!(field in fieldMapping)) {
             console.error("Invalid field update attempt:", field);
             return res.status(400).json({ error: "Invalid field name" });
         }
 
-        // Convert the field name
         field = fieldMapping[field];
-
         const success = await updateUserFieldInDB(userId, field, value);
 
         if (!success) {

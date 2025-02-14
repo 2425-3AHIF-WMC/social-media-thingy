@@ -45,18 +45,15 @@ async function fetchUserBoards() {
         const response = await fetch('/user-boards');
         const boards = await response.json();
 
-        console.log("Fetched Boards:", boards); // Debugging: Check if data is returned
-
         if (!boards.length) {
             userBoardList.innerHTML = '<p>No boards found.</p>';
             return;
         }
 
         boards.forEach(board => {
-            const li = document.createElement('li'); // Using <li> to match previous structure
+            const li = document.createElement('li');
             li.classList.add('board-item');
 
-            // Ensure images use correct paths
             const profileImage = board.profile_image.startsWith("uploads/") ? `/${board.profile_image}` : "/uploads/default_profile.png";
             const headerImage = board.header_image.startsWith("uploads/") ? `/${board.header_image}` : "/uploads/default_header.png";
 
@@ -86,16 +83,15 @@ document.getElementById('createBoardForm').addEventListener('submit', async (eve
     formData.append('name', document.getElementById('boardName').value);
     formData.append('description', document.getElementById('boardDescription').value);
 
-    // Ensure images are only added if selected
     const profileImage = document.getElementById('profileImage').files[0];
     if (profileImage) formData.append('profileImage', profileImage);
 
     const headerImage = document.getElementById('headerImage').files[0];
     if (headerImage) formData.append(' headerImage', headerImage);
 
-    const boardTypeElement = document.getElementById('boardType');
-    if (boardTypeElement) {
-        formData.append('boardType', boardTypeElement.value);
+    const visibilityElement = document.getElementById('visibility');
+    if (visibilityElement) {
+        formData.append('visibility', visibilityElement.value);
     }
 
     try {

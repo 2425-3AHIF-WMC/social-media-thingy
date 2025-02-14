@@ -140,18 +140,16 @@ async function createBoard(
     description: string,
     profileImage: string = 'uploads/default_profile.png',
     headerImage: string = 'uploads/default_header.png',
-    boardType: string = 'public'
+    visibility: string = 'public'
 ) {
     await init();
 
-    console.log("Creating board with values:", { ownerID, name, description, profileImage, headerImage, boardType });
-
     const result = await db.run(
-        'INSERT INTO boards (name, description, ownerId, profile_image, header_image, boardtype) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, description, ownerID, profileImage, headerImage, boardType]
+        'INSERT INTO boards (name, description, ownerId, profile_image, header_image, visibility) VALUES (?, ?, ?, ?, ?, ?)',
+        [name, description, ownerID, profileImage, headerImage, visibility]
     );
 
-    return { id: result.lastID, name, description, profileImage, headerImage, boardType };
+    return { id: result.lastID, name, description, profileImage, headerImage, visibility };
 }
 
 async function getBoards() {
@@ -178,8 +176,6 @@ async function updateUserFieldInDB(userId: number, field: string, value: string)
             console.error("Invalid field update attempt:", field);
             return false;
         }
-
-        console.log("Updating database field:", field, "for userId:", userId, "with value:", value); // Debug log
 
         await db.run(`UPDATE users SET ${field} = ? WHERE id = ?`, [value, userId]);
         return true;
