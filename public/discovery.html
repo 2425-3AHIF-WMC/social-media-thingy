@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="style/style.css">
     <meta charset="UTF-8">
     <title>Discovery</title>
+    <script src="src/discovery.js" defer></script>
 </head>
 <body>
 <div class="header">
@@ -16,7 +17,11 @@
     </div>
 </div>
 
+<input type="text" id="searchBoardInput" placeholder="Search by name, description, or hashtags...">
+<button id="searchBoardButton">Search</button>
 
+<h2>Boards</h2>
+<ul id="boardResults" class="board-container"></ul>
 
 </body>
 </html>

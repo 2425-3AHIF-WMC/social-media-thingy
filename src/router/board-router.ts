@@ -21,6 +21,7 @@ router.post('/create', authHandler, [
     }
 
     const { name, description, visibility } = req.body;
+    let hashtags = req.body.hashtags ? req.body.hashtags.trim() : "";
     let profileImage = 'default_profile.png';
     let headerImage = 'default_header.png';
     const userId = await getUserID(req.session.user);
@@ -33,15 +34,11 @@ router.post('/create', authHandler, [
         }
 
         if (req.files) {
-            console.log("Uploaded Files:", req.files);
-
-            // Normalize key names by trimming spaces
             const files = Object.fromEntries(
                 Object.entries(req.files).map(([key, value]) => [key.trim(), value])
             );
 
             if (files.profileImage) {
-                console.log("Profile Image Found:", files.profileImage);
                 const profileImageFile = files.profileImage as fileUpload.UploadedFile;
                 const profileImageUUID = uuidv4() + path.extname(profileImageFile.name);
                 const profileImagePath = path.join(uploadsDir, profileImageUUID);
@@ -51,7 +48,6 @@ router.post('/create', authHandler, [
             }
 
             if (files.headerImage) {
-                console.log("Header Image Found:", files.headerImage);
                 const headerImageFile = files.headerImage as fileUpload.UploadedFile;
                 const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
                 const headerImagePath = path.join(uploadsDir, headerImageUUID);
@@ -61,23 +57,42 @@ router.post('/create', authHandler, [
             }
         }
 
-        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility);
+        // Ensure hashtags are stored as a space-separated string
+        if (Array.isArray(hashtags)) {
+            hashtags = [...new Set(hashtags)].join(" ");
+        }
+
+        console.log("Saving board with hashtags:", hashtags); // ✅ Debugging log
+
+        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtags);
         return res.status(201).json(newBoard);
     } catch (error) {
-        console.error("Error saving images:", error);
+        console.error("Error saving board:", error);
         return res.status(500).json({ error: 'Failed to create board' });
     }
 });
 
 router.get('/boards', authHandler, async (req: Request, res: Response) => {
     try {
-        const boards = await getBoards();
+        const { search } = req.query;
+        let boards = await getBoards();
+
+        if (search) {
+            const searchTerm = search.toString().toLowerCase();
+            boards = boards.filter(board =>
+                board.name.toLowerCase().includes(searchTerm) ||
+                board.description.toLowerCase().includes(searchTerm) ||
+                (board.hashtags && board.hashtags.toLowerCase().includes(searchTerm))
+            );
+        }
+
         return res.json(boards);
     } catch (error) {
         console.error("Error fetching boards:", error);
         return res.status(500).json({ error: 'Failed to fetch boards' });
     }
 });
+
 
 router.get('/user-boards', authHandler, async (req: Request, res: Response) => {
     try {
