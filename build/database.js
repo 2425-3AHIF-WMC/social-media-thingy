@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUserFieldInDB = exports.getBoard = exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = exports.db = void 0;
+exports.updateProfileHeaderImage = exports.updateUserProfileImage = exports.updateUserFieldInDB = exports.getBoard = exports.getBoards = exports.createBoard = exports.getOnlineUsers = exports.logout = exports.giveUserInformation = exports.removeModerator = exports.giveModerator = exports.getUserRole = exports.login = exports.register = exports.getUserID = exports.db = void 0;
 const sqlite3_1 = __importDefault(require("sqlite3"));
 const sqlite_1 = require("sqlite");
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -148,12 +148,12 @@ function getUserID(username) {
     });
 }
 exports.getUserID = getUserID;
+//createBoard(userId, name, description, profileImage, headerImage, visibility);
 function createBoard(ownerID_1, name_1, description_1) {
-    return __awaiter(this, arguments, void 0, function* (ownerID, name, description, profileImage = 'uploads/default_profile.png', headerImage = 'uploads/default_header.png', boardType = 'public') {
+    return __awaiter(this, arguments, void 0, function* (ownerID, name, description, profileImage = 'uploads/default_profile.png', headerImage = 'uploads/default_header.png', visibility = 'public') {
         yield init();
-        console.log("Creating board with values:", { ownerID, name, description, profileImage, headerImage, boardType });
-        const result = yield exports.db.run('INSERT INTO boards (name, description, ownerId, profile_image, header_image, boardtype) VALUES (?, ?, ?, ?, ?, ?)', [name, description, ownerID, profileImage, headerImage, boardType]);
-        return { id: result.lastID, name, description, profileImage, headerImage, boardType };
+        const result = yield exports.db.run('INSERT INTO boards (name, description, ownerId, profile_image, header_image, visibility) VALUES (?, ?, ?, ?, ?, ?)', [name, description, ownerID, profileImage, headerImage, visibility]);
+        return { id: result.lastID, name, description, profileImage, headerImage, visibility };
     });
 }
 exports.createBoard = createBoard;
@@ -185,7 +185,6 @@ function updateUserFieldInDB(userId, field, value) {
                 console.error("Invalid field update attempt:", field);
                 return false;
             }
-            console.log("Updating database field:", field, "for userId:", userId, "with value:", value); // Debug log
             yield exports.db.run(`UPDATE users SET ${field} = ? WHERE id = ?`, [value, userId]);
             return true;
         }
@@ -196,4 +195,32 @@ function updateUserFieldInDB(userId, field, value) {
     });
 }
 exports.updateUserFieldInDB = updateUserFieldInDB;
+function updateUserProfileImage(userId, profileImage) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield init();
+            yield exports.db.run('UPDATE users SET profile_image = ? WHERE id = ?', [profileImage, userId]);
+            return true;
+        }
+        catch (error) {
+            console.error("Error updating profile image in database:", error);
+            return false;
+        }
+    });
+}
+exports.updateUserProfileImage = updateUserProfileImage;
+function updateProfileHeaderImage(userId, headerImage) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield init();
+            yield exports.db.run('UPDATE users SET header_image = ? WHERE id = ?', [headerImage, userId]);
+            return true;
+        }
+        catch (error) {
+            console.error("Error updating header image in database:", error);
+            return false;
+        }
+    });
+}
+exports.updateProfileHeaderImage = updateProfileHeaderImage;
 init().catch(console.error);

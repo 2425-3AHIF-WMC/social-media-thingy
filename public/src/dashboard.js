@@ -2,7 +2,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserInformation();
     await fetchUsernames();
     await fetchUserBoards();
+    await fetchUserAvatarImage();
+    await fetchUserHeaderImage();
 });
+async function fetchUserAvatarImage() {
+    try {
+        const response = await fetch('/get-user-avatar', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            const profileImage = data.profile_image.startsWith("profile_images/") ? `/${data.profile_image}` : "/profile_images/default_profile.png";
+            document.getElementById('userprofileImage').src = profileImage;
+        } else {
+            console.error('Error fetching user avatar image');
+        }
+    } catch (error) {
+        console.error('Error fetching user avatar image:', error);
+    }
+}
+
+async function fetchUserHeaderImage() {
+    try {
+        const response = await fetch('/get-user-header', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            const headerImage = data.header_image ? `/${data.header_image}` : '/uploads/default_header.png';
+            document.getElementById('userheaderImage').src = headerImage;
+        } else {
+            console.error('Error fetching user header image');
+        }
+    } catch (error) {
+        console.error('Error fetching user header image:', error);
+    }
+}
 
 async function fetchUserInformation() {
     fetch('/username', {
@@ -107,5 +144,59 @@ document.getElementById('createBoardForm').addEventListener('submit', async (eve
         }
     } catch (error) {
         console.error("Error creating board:", error);
+    }
+});
+
+document.getElementById('userprofileImage').addEventListener('click', () => {
+    document.getElementById('profileImageInput').click();
+});
+
+document.getElementById('userheaderImage').addEventListener('click', () => {
+    document.getElementById('headerImageInput').click();
+});
+
+document.getElementById('profileImageInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await fetch('/update-user-avatar', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                await fetchUserInformation();
+            } else {
+                console.error('Error updating profile image');
+            }
+        } catch (error) {
+            console.error('Error updating profile image:', error);
+        }
+    }
+});
+
+document.getElementById('headerImageInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('header', file);
+
+        try {
+            const response = await fetch('/update-user-header', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                await fetchUserInformation();
+            } else {
+                console.error('Error updating header image');
+            }
+        } catch (error) {
+            console.error('Error updating header image:', error);
+        }
     }
 });

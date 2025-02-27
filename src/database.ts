@@ -179,7 +179,33 @@ async function updateUserFieldInDB(userId: number, field: string, value: string)
     }
 }
 
+async function updateUserProfileImage( userId: number, profileImage: string) {
+    try {
+        await init();
+        await db.run('UPDATE users SET profile_image = ? WHERE id = ?', [profileImage, userId]);
+        return true;
+    } catch (error) {
+        console.error("Error updating profile image in database:", error);
+        return false;
+    }
+}
+
+async function updateProfileHeaderImage(userId: number, headerImage: string) {
+    try {
+        await init();
+        await db.run('UPDATE users SET header_image = ? WHERE id = ?', [headerImage, userId]);
+        return true;
+    } catch (error) {
+        console.error("Error updating header image in database:", error);
+        return false;
+    }
+
+}
 
 init().catch(console.error);
 
-export { getUserID,  register, login, getUserRole, giveModerator, removeModerator, giveUserInformation, logout, getOnlineUsers, createBoard, getBoards, getBoard, updateUserFieldInDB };
+export {
+    getUserID,  register, login, getUserRole,
+    giveModerator, removeModerator, giveUserInformation,
+    logout, getOnlineUsers, createBoard, getBoards,
+    getBoard, updateUserFieldInDB, updateUserProfileImage, updateProfileHeaderImage};

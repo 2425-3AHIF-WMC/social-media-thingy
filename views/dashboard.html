@@ -7,7 +7,6 @@
     <script src="src/dashboard.js" defer></script>
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
-            // Fetch and populate user data
             try {
                 const response = await fetch("/get-user-data");
                 const userData = await response.json();
@@ -63,16 +62,21 @@
         <span id="logout-button"></span>
     </div>
 </div>
-
-<h1>hiii hello logged in user!!</h1>
-
-<div class="profile-info"><span class="label">Username:</span> <span id="fetchUsername" class="editable-box" contenteditable="false"></span></div>
-<div class="profile-info"><span class="label">Bio:</span> <span id="fetchBio" class="editable-box" contenteditable="true"></span></div>
-<div class="profile-info"><span class="label">Email:</span> <span id="fetchEmail" class="editable-box" contenteditable="false"></span></div>
-<div class="profile-info"><span class="label">Role:</span> <span id="fetchRole" class="editable-box" contenteditable="false"></span></div>
-<div class="profile-info"><span class="label">Pronouns:</span> <span id="fetchPronouns" class="editable-box" contenteditable="true"></span></div>
-<div class="profile-info"><span class="label">Links:</span> <span id="fetchLinks" class="editable-box" contenteditable="true"></span></div>
-<div class="profile-info"><span class="label">Badges:</span> <span id="fetchBadges" class="editable-box" contenteditable="false"></span></div>
+<div class="profile-header-container">
+    <img id="userheaderImage" class="header-image" src="uploads/default_header.png" alt="Header Image">
+    <img id="userprofileImage" class="profile-image" src="uploads/default_profile.png" alt="Profile Image">
+    <input type="file" id="profileImageInput" style="display: none;">
+    <input type="file" id="headerImageInput" style="display: none;">
+</div>
+<div class="user-profile-infos">
+    <div class="profile-info"><span class="label">Username:</span> <span id="fetchUsername" class="editable-box" contenteditable="false"></span></div>
+    <div class="profile-info"><span class="label">Bio:</span> <span id="fetchBio" class="editable-box" contenteditable="true"></span></div>
+    <div class="profile-info"><span class="label">Email:</span> <span id="fetchEmail" class="editable-box" contenteditable="false"></span></div>
+    <div class="profile-info"><span class="label">Role:</span> <span id="fetchRole" class="editable-box" contenteditable="false"></span></div>
+    <div class="profile-info"><span class="label">Pronouns:</span> <span id="fetchPronouns" class="editable-box" contenteditable="true"></span></div>
+    <div class="profile-info"><span class="label">Links:</span> <span id="fetchLinks" class="editable-box" contenteditable="true"></span></div>
+    <div class="profile-info"><span class="label">Badges:</span> <span id="fetchBadges" class="editable-box" contenteditable="false"></span></div>
+</div>
 
 <div>
     <h2>Boards</h2>

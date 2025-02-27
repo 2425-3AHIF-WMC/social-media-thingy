@@ -24,13 +24,14 @@ const router = (0, express_1.Router)();
 router.use((0, express_fileupload_1.default)());
 router.post('/create', auth_handler_1.authHandler, [
     (0, express_validator_1.body)('name').notEmpty().withMessage('Name is required'),
-    (0, express_validator_1.body)('description').notEmpty().withMessage('Description is required')
+    (0, express_validator_1.body)('description').notEmpty().withMessage('Description is required'),
+    (0, express_validator_1.body)('visibility').notEmpty().withMessage('Visibility is required').isIn(['public', 'private']).withMessage('Visibility must be either public or private')
 ], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
-    const { name, description } = req.body;
+    const { name, description, visibility } = req.body;
     let profileImage = 'default_profile.png';
     let headerImage = 'default_header.png';
     const userId = yield (0, database_1.getUserID)(req.session.user);
@@ -40,22 +41,27 @@ router.post('/create', auth_handler_1.authHandler, [
             fs_1.default.mkdirSync(uploadsDir, { recursive: true });
         }
         if (req.files) {
-            if (req.files.profileImage) {
-                const profileImageFile = req.files.profileImage;
+            console.log("Uploaded Files:", req.files);
+            // Normalize key names by trimming spaces
+            const files = Object.fromEntries(Object.entries(req.files).map(([key, value]) => [key.trim(), value]));
+            if (files.profileImage) {
+                console.log("Profile Image Found:", files.profileImage);
+                const profileImageFile = files.profileImage;
                 const profileImageUUID = (0, uuid_1.v4)() + path_1.default.extname(profileImageFile.name);
                 const profileImagePath = path_1.default.join(uploadsDir, profileImageUUID);
                 yield profileImageFile.mv(profileImagePath);
                 profileImage = `uploads/${profileImageUUID}`;
             }
-            if (req.files.headerImage) {
-                const headerImageFile = req.files.headerImage;
+            if (files.headerImage) {
+                console.log("Header Image Found:", files.headerImage);
+                const headerImageFile = files.headerImage;
                 const headerImageUUID = (0, uuid_1.v4)() + path_1.default.extname(headerImageFile.name);
                 const headerImagePath = path_1.default.join(uploadsDir, headerImageUUID);
                 yield headerImageFile.mv(headerImagePath);
                 headerImage = `uploads/${headerImageUUID}`;
             }
         }
-        const newBoard = yield (0, database_1.createBoard)(userId, name, description, profileImage, headerImage);
+        const newBoard = yield (0, database_1.createBoard)(userId, name, description, profileImage, headerImage, visibility);
         return res.status(201).json(newBoard);
     }
     catch (error) {
