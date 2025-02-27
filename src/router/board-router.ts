@@ -32,8 +32,16 @@ router.post('/create', authHandler, [
         }
 
         if (req.files) {
-            if (req.files.profileImage) {
-                const profileImageFile = req.files.profileImage as fileUpload.UploadedFile;
+            console.log("Uploaded Files:", req.files);
+
+            // Normalize key names by trimming spaces
+            const files = Object.fromEntries(
+                Object.entries(req.files).map(([key, value]) => [key.trim(), value])
+            );
+
+            if (files.profileImage) {
+                console.log("Profile Image Found:", files.profileImage);
+                const profileImageFile = files.profileImage as fileUpload.UploadedFile;
                 const profileImageUUID = uuidv4() + path.extname(profileImageFile.name);
                 const profileImagePath = path.join(uploadsDir, profileImageUUID);
 
@@ -41,8 +49,9 @@ router.post('/create', authHandler, [
                 profileImage = `uploads/${profileImageUUID}`;
             }
 
-            if (req.files.headerImage) {
-                const headerImageFile = req.files.headerImage as fileUpload.UploadedFile;
+            if (files.headerImage) {
+                console.log("Header Image Found:", files.headerImage);
+                const headerImageFile = files.headerImage as fileUpload.UploadedFile;
                 const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
                 const headerImagePath = path.join(uploadsDir, headerImageUUID);
 
