@@ -15,60 +15,64 @@
                 const response = await fetch("/get-user-data");
                 const userData = await response.json();
 
-            function updateHashtagDisplay() {
-                hashtagList.innerHTML = "";
-                hashtags.forEach(tag => {
-                    const span = document.createElement("span");
-                    span.textContent = `#${tag} `;
-                    hashtagList.appendChild(span);
-                });
-            }
-
-            document.getElementById("addHashtagButton").addEventListener("click", () => {
-                const tag = hashtagInput.value.trim();
-                if (tag && !hashtags.has(tag)) {
-                    hashtags.add(tag);
-                    updateHashtagDisplay();
-                    hashtagInput.value = "";
-                }
-            });
-
-            // Allow pressing enter to add a hashtag
-            hashtagInput.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    document.getElementById("addHashtagButton").click();
-                }
-            });
-
-            document.getElementById("createBoardForm").addEventListener("submit", async (event) => {
-                event.preventDefault();
-
-                const formData = new FormData(event.target);
-                formData.append("hashtags", Array.from(hashtags).join(" ")); // Send as space-separated
-
-                try {
-                    const response = await fetch("/create", {
-                        method: "POST",
-                        body: formData
+                function updateHashtagDisplay() {
+                    hashtagList.innerHTML = "";
+                    hashtags.forEach(tag => {
+                        const span = document.createElement("span");
+                        span.textContent = `#${tag} `;
+                        hashtagList.appendChild(span);
                     });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        alert("Board created successfully!");
-                        hashtags.clear();
-                        updateHashtagDisplay();
-                        event.target.reset();
-                    } else {
-                        alert(`Error: ${result.error}`);
-                    }
-                } catch (error) {
-                    console.error("Error submitting form:", error);
-                    alert("Failed to create board. Please try again.");
                 }
-            });
+
+                document.getElementById("addHashtagButton").addEventListener("click", () => {
+                    const tag = hashtagInput.value.trim();
+                    if (tag && !hashtags.has(tag)) {
+                        hashtags.add(tag);
+                        updateHashtagDisplay();
+                        hashtagInput.value = "";
+                    }
+                });
+
+                // Allow pressing enter to add a hashtag
+                hashtagInput.addEventListener("keydown", (event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        document.getElementById("addHashtagButton").click();
+                    }
+                });
+
+                document.getElementById("createBoardForm").addEventListener("submit", async (event) => {
+                    event.preventDefault();
+
+                    const formData = new FormData(event.target);
+                    formData.append("hashtags", Array.from(hashtags).join(" ")); // Send as space-separated
+
+                    try {
+                        const response = await fetch("/create", {
+                            method: "POST",
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            alert("Board created successfully!");
+                            hashtags.clear();
+                            updateHashtagDisplay();
+                            event.target.reset();
+                        } else {
+                            alert(`Error: ${result.error}`);
+                        }
+                    } catch (error) {
+                        console.error("Error submitting form:", error);
+                        alert("Failed to create board. Please try again.");
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
         });
+
     </script>
 </head>
 <body>

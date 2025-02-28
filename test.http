@@ -6,3 +6,9 @@ Content-Type: application/json
   "name": "test",
   "description": "test description"
 }
+
+### Get Picture from Profile_Image folder
+GET http://localhost:3001/profile_images/acd8ba85-bd23-41a3-9141-8237ca45740a.jpg
+
+### Uploads
+GET http://localhost:3001/uploads/e4f400b4-2137-4a2f-87c2-dc395ada459e.jpg

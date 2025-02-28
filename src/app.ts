@@ -25,6 +25,22 @@ app.use(session({
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use('/profile_images', express.static(path.join(__dirname, 'profile_images'), {
+    setHeaders: (res, filePath) => {
+        const ext = path.extname(filePath).toLowerCase();
+        const mimeTypeMap: Record<string, string> = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".gif": "image/gif"
+        };
+
+        if (mimeTypeMap[ext]) {
+            res.setHeader("Content-Type", mimeTypeMap[ext]);
+        }
+    }
+}));
+
 app.use('/', authRouter);
 app.use('/', fileRouter);
 app.use('/', roleRouter);

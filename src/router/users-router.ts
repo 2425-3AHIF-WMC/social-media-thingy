@@ -74,94 +74,86 @@ router.get("/get-user-data", async (req, res) => {
 router.post("/update-user-avatar", authHandler, async (req, res) => {
     try {
         const userId = await getUserID(req.session.user);
-
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
         const profileUploads = path.resolve(__dirname, '..', 'profile_images');
-
         if (!fs.existsSync(profileUploads)) {
             fs.mkdirSync(profileUploads, { recursive: true });
         }
 
-        if (req.files) {
-            console.log("Uploaded Files:", req.files);
-
-            const files = Object.fromEntries(
-                Object.entries(req.files).map(([key, value]) => [key.trim(), value])
-            );
-
-            if (files.avatar) {
-                console.log("Avatar Image Found:", files.avatar);
-                const avatarImageFile = files.avatar as fileUpload.UploadedFile;
-                const avatarImageUUID = uuidv4() + path.extname(avatarImageFile.name);
-                const avatarImagePath = path.join(profileUploads, avatarImageUUID);
-
-                await avatarImageFile.mv(avatarImagePath);
-                const avatarImage = `profile_images/${avatarImageUUID}`;
-
-                const success = await updateUserProfileImage(userId, avatarImage);
-
-                if (!success) {
-                    return res.status(500).json({ error: "Failed to update avatar" });
-                }
-                return res.status(200).json({ success: true, message: "Avatar updated" });
-            }
+        if (!req.files || !req.files.avatar) {
+            return res.status(400).json({ error: "No avatar image provided" });
         }
 
-        return res.status(400).json({ error: "No avatar image provided" });
+        const avatarImageFile = req.files.avatar as fileUpload.UploadedFile;
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+
+        if (!allowedMimeTypes.includes(avatarImageFile.mimetype)) {
+            return res.status(400).json({ error: "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+        }
+
+        const avatarImageUUID = uuidv4() + path.extname(avatarImageFile.name);
+        const avatarImagePath = path.join(profileUploads, avatarImageUUID);
+
+        await avatarImageFile.mv(avatarImagePath);
+        const avatarImage = `profile_images/${avatarImageUUID}`;
+
+        const success = await updateUserProfileImage(userId, avatarImage);
+        if (!success) {
+            return res.status(500).json({ error: "Failed to update avatar" });
+        }
+
+        return res.status(200).json({ success: true, message: "Avatar updated", profile_image: avatarImage });
     } catch (error) {
         console.error("Error saving avatar image:", error);
         return res.status(500).json({ error: "Failed to update avatar" });
     }
 });
 
+
 router.post("/update-user-header", authHandler, async (req, res) => {
     try {
         const userId = await getUserID(req.session.user);
-
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
 
         const headerUploads = path.resolve(__dirname, '..', 'profile_images');
-
         if (!fs.existsSync(headerUploads)) {
             fs.mkdirSync(headerUploads, { recursive: true });
         }
 
-        if (req.files) {
-            console.log("Uploaded Files:", req.files);
-
-            const files = Object.fromEntries(
-                Object.entries(req.files).map(([key, value]) => [key.trim(), value])
-            );
-
-            if (files.header) {
-                console.log("Header Image Found:", files.header);
-                const headerImageFile = files.header as fileUpload.UploadedFile;
-                const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
-                const headerImagePath = path.join(headerUploads, headerImageUUID);
-
-                await headerImageFile.mv(headerImagePath);
-                const headerImage = `profile_images/${headerImageUUID}`;
-
-                const success = await updateProfileHeaderImage(userId, headerImage);
-
-                if (!success) {
-                    return res.status(500).json({ error: "Failed to update header" });
-                }
-                return res.status(200).json({ success: true, message: "Header updated" });
-            }
+        if (!req.files || !req.files.header) {
+            return res.status(400).json({ error: "No header image provided" });
         }
 
-        return res.status(400).json({ error: "No header image provided" });
+        const headerImageFile = req.files.header as fileUpload.UploadedFile;
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+
+        if (!allowedMimeTypes.includes(headerImageFile.mimetype)) {
+            return res.status(400).json({ error: "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+        }
+
+        const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
+        const headerImagePath = path.join(headerUploads, headerImageUUID);
+
+        await headerImageFile.mv(headerImagePath);
+        const headerImage = `profile_images/${headerImageUUID}`;
+
+        const success = await updateProfileHeaderImage(userId, headerImage);
+        if (!success) {
+            return res.status(500).json({ error: "Failed to update header" });
+        }
+
+        return res.status(200).json({ success: true, message: "Header updated", header_image: headerImage });
     } catch (error) {
         console.error("Error saving header image:", error);
         return res.status(500).json({ error: "Failed to update header" });
     }
 });
+
 
 router.get("/get-user-avatar", authHandler, async (req, res) => {
     try {
