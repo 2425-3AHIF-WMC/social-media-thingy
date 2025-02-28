@@ -15,6 +15,7 @@ dotenv.config();
 const app = express();
 const port = 3001;
 
+
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,7 +25,8 @@ app.use(session({
     saveUninitialized: true,
 }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
 app.use('/profile_images', express.static(path.join(__dirname, 'profile_images'), {
     setHeaders: (res, filePath) => {
         const ext = path.extname(filePath).toLowerCase();

@@ -151,7 +151,7 @@ async function getBoards() {
     return await db.all('SELECT * FROM boards');
 }
 
-async function getBoard(userId:number) {
+async function getUserBoard(userId:number) {
   if (userId){
     await init();
     return await db.all('SELECT * FROM boards WHERE ownerId = ?', [userId]);
@@ -159,6 +159,11 @@ async function getBoard(userId:number) {
   else {
       return await db.all('SELECT * FROM boards');
   }
+}
+
+async function getBoardById(boardId: number) {
+    await init();
+    return await db.get('SELECT * FROM boards WHERE id = ?', [boardId]);
 }
 
 async function updateUserFieldInDB(userId: number, field: string, value: string): Promise<boolean> {
@@ -208,4 +213,5 @@ export {
     getUserID,  register, login, getUserRole,
     giveModerator, removeModerator, giveUserInformation,
     logout, getOnlineUsers, createBoard, getBoards,
-    getBoard, updateUserFieldInDB, updateUserProfileImage, updateProfileHeaderImage};
+    getUserBoard, updateUserFieldInDB, updateUserProfileImage,
+    updateProfileHeaderImage, getBoardById};

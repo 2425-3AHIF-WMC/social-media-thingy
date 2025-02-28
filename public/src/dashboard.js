@@ -90,6 +90,7 @@ async function fetchUserBoards() {
         boards.forEach(board => {
             const li = document.createElement('li');
             li.classList.add('board-item');
+            li.setAttribute('data-board-id', board.id);
 
             const profileImage = board.profile_image.startsWith("uploads/") ? `/${board.profile_image}` : "/uploads/default_profile.png";
             const headerImage = board.header_image.startsWith("uploads/") ? `/${board.header_image}` : "/uploads/default_header.png";
@@ -103,6 +104,7 @@ async function fetchUserBoards() {
                 </div>
                 <h2>${board.name}</h2>
                 <p>${board.description}</p>
+                <a href="/board/${board.id}" target="_blank">Open Board</a>
             `;
 
             userBoardList.appendChild(li);
@@ -112,6 +114,14 @@ async function fetchUserBoards() {
         console.error("Error fetching boards:", error);
     }
 }
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".board-item").forEach(item => {
+        item.addEventListener("click", (event) => {
+            const boardId = item.getAttribute("data-board-id");
+            window.open(`/board/${boardId}`, '_blank');
+        });
+    });
+});
 
 document.getElementById('createBoardForm').addEventListener('submit', async (event) => {
     event.preventDefault();

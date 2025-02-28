@@ -5,7 +5,7 @@ import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { createBoard, getBoards, getUserID, getBoard } from '../database';
+import { createBoard, getBoards, getUserID, getUserBoard, getBoardById } from '../database';
 
 const router = Router();
 router.use(fileUpload());
@@ -72,6 +72,22 @@ router.post('/create', authHandler, [
     }
 });
 
+router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
+    const boardId = parseInt(req.params.id);
+    try{
+        const board = await getBoardById(boardId);
+
+        if (!board){
+            return res.status(404).json({ error: 'Board not found' });
+        }
+        res.render('board', { board });
+
+    }catch (error){
+        console.error("Error fetching board:", error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 router.get('/boards', authHandler, async (req: Request, res: Response) => {
     try {
         const { search } = req.query;
@@ -97,7 +113,7 @@ router.get('/boards', authHandler, async (req: Request, res: Response) => {
 router.get('/user-boards', authHandler, async (req: Request, res: Response) => {
     try {
         const userId = await getUserID(req.session.user);
-        const boards = await getBoard(userId);
+        const boards = await getUserBoard(userId);
         return res.json(boards);
     } catch (error) {
         console.error("Error fetching user boards:", error);

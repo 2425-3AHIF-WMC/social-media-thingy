@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{board.name}}</title>
+    <title><%= board.name %></title>
     <link rel="stylesheet" href="/style/style.css">
 </head>
 <body>
 <div class="profile-header-container">
-    <img class="header-image" src="{{board.header_image}}" alt="Header Image">
-    <img class="profile-image" src="{{board.profile_image}}" alt="Profile Image">
+    <img class="header-image" src="/<%= board.header_image %>" alt="Header Image" onerror="this.onerror=null;this.src='/uploads/default_header.png';">
+    <img class="profile-image" src="/<%= board.profile_image %>" alt="Profile Image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';">
 </div>
-<h1>{{board.name}}</h1>
-<p>{{board.description}}</p>
+<h1><%= board.name %></h1>
+<p><%= board.description %></p>
 <button id="joinButton">Join</button>
 </body>
 </html>
