@@ -48,24 +48,26 @@
                     formData.append("hashtags", Array.from(hashtags).join(" ")); // Send as space-separated
 
                     try {
+                        console.log(formData);
                         const response = await fetch("/create", {
                             method: "POST",
                             body: formData
                         });
+                        console.log(formData.entries())
 
                         const result = await response.json();
 
                         if (response.ok) {
-                            alert("Board created successfully!");
+                            console.log("Board created successfully!");
                             hashtags.clear();
                             updateHashtagDisplay();
                             event.target.reset();
                         } else {
-                            alert(`Error: ${result.error}`);
+                            console.log(`Error: ${result.error}`);
                         }
                     } catch (error) {
                         console.error("Error submitting form:", error);
-                        alert("Failed to create board. Please try again.");
+                        console.log("Failed to create board. Please try again.");
                     }
                 });
             } catch (error) {
