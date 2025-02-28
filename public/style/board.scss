@@ -1,0 +1,47 @@
+button#joinButton {
+  display: block;
+  margin: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+  color: white;
+  float: right;
+  background-color: #ff224a;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button#joinButton:hover {
+  background-color: #ea0e37;
+}
+
+button#joinButton:active {
+  background-color: #c60c2e;
+}
+
+.board-content {
+  position: relative; /* Add relative positioning to the container */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3rem;
+
+  .board-Title {
+    margin-bottom: 1rem;
+    font-size: 3rem;
+  }
+
+  .board-description {
+    color: black;
+    margin-bottom: 2rem;
+  }
+
+  #joinButton {
+    font-size : 1.5rem;
+    position: absolute;
+    width: 10%;
+    top: 10px;
+    right: 3rem;
+    margin: 0;
+  }
+}
