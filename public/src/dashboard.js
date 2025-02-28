@@ -167,10 +167,13 @@ document.getElementById('profileImageInput').addEventListener('change', async (e
                 body: formData
             });
 
+            const result = await response.json();
             if (response.ok) {
-                await fetchUserInformation();
+                // Profil sofort updaten
+                const profileImageElement = document.getElementById('userprofileImage');
+                profileImageElement.src = `/${result.profile_image}?t=${new Date().getTime()}`; // Prevent caching issues
             } else {
-                console.error('Error updating profile image');
+                console.error('Error updating profile image:', result.error);
             }
         } catch (error) {
             console.error('Error updating profile image:', error);
@@ -190,10 +193,13 @@ document.getElementById('headerImageInput').addEventListener('change', async (ev
                 body: formData
             });
 
+            const result = await response.json();
             if (response.ok) {
-                await fetchUserInformation();
+                // Header sofort updaten
+                const headerImageElement = document.getElementById('userheaderImage');
+                headerImageElement.src = `/${result.header_image}?t=${new Date().getTime()}`; // Prevent caching issues
             } else {
-                console.error('Error updating header image');
+                console.error('Error updating header image:', result.error);
             }
         } catch (error) {
             console.error('Error updating header image:', error);
