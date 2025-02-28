@@ -1,3 +1,5 @@
+let hashtagsSet = new Set();
+
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserInformation();
     await fetchUsernames();
@@ -5,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchUserAvatarImage();
     await fetchUserHeaderImage();
 });
+
 async function fetchUserAvatarImage() {
     try {
         const response = await fetch('/get-user-avatar', {
@@ -113,21 +116,78 @@ async function fetchUserBoards() {
     }
 }
 
-document.getElementById('createBoardForm').addEventListener('submit', async (event) => {
+document.getElementById("addHashtagButton").addEventListener("click", () => {
+    const hashtagInput = document.getElementById("boardHashtags");
+    let tag = hashtagInput.value.trim();
+
+    if (!tag || hashtagsSet.has(tag)) return; // Avoid duplicates or empty tags
+
+    if (hashtagsSet.size >= 5) {
+        alert("You can only add up to 5 hashtags.");
+        document.getElementById("addHashtagButton").disabled = true; // Disable button
+        return;
+    }
+
+    hashtagsSet.add(tag);
+    updateHashtagDisplay();
+    hashtagInput.value = "";
+
+    if (hashtagsSet.size >= 5) {
+        document.getElementById("addHashtagButton").disabled = true; // Lock button after 5 tags
+    }
+});
+
+function updateHashtagDisplay() {
+    const hashtagList = document.getElementById("hashtagList");
+    hashtagList.innerHTML = "";
+    hashtagsSet.forEach(tag => {
+        const span = document.createElement("span");
+        span.textContent = `#${tag} `;
+        hashtagList.appendChild(span);
+    });
+}
+
+document.getElementById("createBoardForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const formData = new FormData();
-    formData.append('name', document.getElementById('boardName').value);
-    formData.append('description', document.getElementById('boardDescription').value);
+    // Collect values
+    const name = document.getElementById('boardName').value.trim();
+    const description = document.getElementById('boardDescription').value.trim();
+    const boardType = document.getElementById('boardType').value;
 
+    if (!name || !description) {
+        alert("Name and description are required!");
+        return;
+    }
+
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('visibility', boardType);
+
+    // Convert hashtags to JSON before appending
+    const hashtagsArray = Array.from(hashtagsSet).slice(0, 5);
+    if (hashtagsArray.length > 0) {
+        formData.append("hashtags", JSON.stringify(hashtagsArray)); // Send as a proper JSON string
+    }
+
+    // Handle image uploads correctly
     const profileImage = document.getElementById('profileImage').files[0];
-    if (profileImage) formData.append('profileImage', profileImage);
+    if (profileImage) {
+        formData.append('profileImage', profileImage);
+    }
 
     const headerImage = document.getElementById('headerImage').files[0];
-    if (headerImage) formData.append('headerImage', headerImage);
+    if (headerImage) {
+        formData.append('headerImage', headerImage);
+    }
 
-    const visibility = document.getElementById('boardType').value;
-    formData.append('visibility', visibility);
+    // Debugging: Log the formData contents before sending
+    console.log("🚀 FormData before submission:");
+    for (const pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+    }
 
     try {
         const response = await fetch('/create', {
@@ -135,74 +195,19 @@ document.getElementById('createBoardForm').addEventListener('submit', async (eve
             body: formData
         });
 
+        const result = await response.json();
+        console.log("🛠️ Server Response:", result);
+
         if (response.ok) {
-            await fetchUserBoards();
-            document.getElementById('createBoardForm').reset();
+            alert("Board created successfully!");
+            hashtagsSet.clear();
+            updateHashtagDisplay();
+            document.getElementById("createBoardForm").reset();
         } else {
-            const errorData = await response.json();
-            alert(`Error: ${errorData.errors.map(e => e.msg).join(', ')}`);
+            alert(`Error: ${result.error}`);
         }
     } catch (error) {
-        console.error("Error creating board:", error);
-    }
-});
-
-document.getElementById('userprofileImage').addEventListener('click', () => {
-    document.getElementById('profileImageInput').click();
-});
-
-document.getElementById('userheaderImage').addEventListener('click', () => {
-    document.getElementById('headerImageInput').click();
-});
-
-document.getElementById('profileImageInput').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const formData = new FormData();
-        formData.append('avatar', file);
-
-        try {
-            const response = await fetch('/update-user-avatar', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                // Profil sofort updaten
-                const profileImageElement = document.getElementById('userprofileImage');
-                profileImageElement.src = `/${result.profile_image}?t=${new Date().getTime()}`; // Prevent caching issues
-            } else {
-                console.error('Error updating profile image:', result.error);
-            }
-        } catch (error) {
-            console.error('Error updating profile image:', error);
-        }
-    }
-});
-
-document.getElementById('headerImageInput').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const formData = new FormData();
-        formData.append('header', file);
-
-        try {
-            const response = await fetch('/update-user-header', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                // Header sofort updaten
-                const headerImageElement = document.getElementById('userheaderImage');
-                headerImageElement.src = `/${result.header_image}?t=${new Date().getTime()}`; // Prevent caching issues
-            } else {
-                console.error('Error updating header image:', result.error);
-            }
-        } catch (error) {
-            console.error('Error updating header image:', error);
-        }
+        console.error("❌ Error creating board:", error);
+        alert("Failed to create board. Please try again.");
     }
 });

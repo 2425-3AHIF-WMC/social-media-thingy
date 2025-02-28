@@ -15,13 +15,31 @@ router.post('/create', authHandler, [
     body('description').notEmpty().withMessage('Description is required'),
     body('visibility').notEmpty().withMessage('Visibility is required').isIn(['public', 'private']).withMessage('Visibility must be either public or private')
 ], async (req: Request, res: Response) => {
+    console.log("Received request to create board:", req.body);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, description, visibility } = req.body;
-    let hashtags = req.body.hashtags ? req.body.hashtags.trim() : "";
+    let { name, description, visibility, hashtags } = req.body;
+
+    // Ensure hashtags are parsed correctly
+    try {
+        if (typeof hashtags === "string") {
+            hashtags = JSON.parse(hashtags);
+        }
+        if (!Array.isArray(hashtags)) {
+            hashtags = [];
+        }
+        hashtags = hashtags.slice(0, 5); // Ensure max of 5
+    } catch (error) {
+        console.error("❌ Error parsing hashtags:", error);
+        hashtags = [];
+    }
+
+    console.log("✅ Processed Hashtags:", hashtags);
+
     let profileImage = 'default_profile.png';
     let headerImage = 'default_header.png';
     const userId = await getUserID(req.session.user);
@@ -34,38 +52,27 @@ router.post('/create', authHandler, [
         }
 
         if (req.files) {
-            const files = Object.fromEntries(
-                Object.entries(req.files).map(([key, value]) => [key.trim(), value])
-            );
+            const files = req.files as { [key: string]: fileUpload.UploadedFile };
 
             if (files.profileImage) {
-                const profileImageFile = files.profileImage as fileUpload.UploadedFile;
-                const profileImageUUID = uuidv4() + path.extname(profileImageFile.name);
+                const profileImageUUID = uuidv4() + path.extname(files.profileImage.name);
                 const profileImagePath = path.join(uploadsDir, profileImageUUID);
-
-                await profileImageFile.mv(profileImagePath);
+                await files.profileImage.mv(profileImagePath);
                 profileImage = `uploads/${profileImageUUID}`;
             }
 
             if (files.headerImage) {
-                const headerImageFile = files.headerImage as fileUpload.UploadedFile;
-                const headerImageUUID = uuidv4() + path.extname(headerImageFile.name);
+                const headerImageUUID = uuidv4() + path.extname(files.headerImage.name);
                 const headerImagePath = path.join(uploadsDir, headerImageUUID);
-
-                await headerImageFile.mv(headerImagePath);
+                await files.headerImage.mv(headerImagePath);
                 headerImage = `uploads/${headerImageUUID}`;
             }
         }
 
-        // Ensure hashtags are stored as a space-separated string
-        if (Array.isArray(hashtags)) {
-            hashtags = [...new Set(hashtags)].join(" ");
-        }
-
-        console.log("Saving board with hashtags:", hashtags); // ✅ Debugging log
-
-        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtags);
+        console.log("Saving board with hashtags:", hashtags);
+        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtags.join(" "));
         return res.status(201).json(newBoard);
+
     } catch (error) {
         console.error("Error saving board:", error);
         return res.status(500).json({ error: 'Failed to create board' });
