@@ -43,26 +43,86 @@ async function fetchUserHeaderImage() {
         console.error('Error fetching user header image:', error);
     }
 }
+document.getElementById('userprofileImage').addEventListener('click', () => {
+    document.getElementById('profileImageInput').click();
+});
+
+document.getElementById('userheaderImage').addEventListener('click', () => {
+    document.getElementById('headerImageInput').click();
+});
+
+document.getElementById('profileImageInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        try {
+            const response = await fetch('/update-user-avatar', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                await fetchUserInformation();
+            } else {
+                console.error('Error updating profile image');
+            }
+        } catch (error) {
+            console.error('Error updating profile image:', error);
+        }
+    }
+});
+
+document.getElementById('headerImageInput').addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('header', file);
+
+        try {
+            const response = await fetch('/update-user-header', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                await fetchUserInformation();
+            } else {
+                console.error('Error updating header image');
+            }
+        } catch (error) {
+            console.error('Error updating header image:', error);
+        }
+    }
+});
 
 async function fetchUserInformation() {
-    fetch('/username', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
+    try {
+        const response = await fetch('/username', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
             document.getElementById('fetchUsername').textContent = data.username || "click to edit...";
             document.getElementById('fetchEmail').textContent = data.email || "click to edit...";
             document.getElementById('fetchRole').textContent = data.role || "click to edit...";
+            document.getElementById('fetchBio').textContent = data.bio || "click to edit...";
+            document.getElementById('fetchPronouns').textContent = data.pronouns || "click to edit...";
 
             const adminButton = document.getElementById('adminButton');
             adminButton.style.display = data.role === 'admin' ? 'block' : 'none';
-        })
-        .catch(error => console.error('Error fetching user info:', error));
+        } else {
+            console.error('Error fetching user info');
+        }
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+    }
 }
-
 async function fetchUsernames() {
     const response = await fetch('/online-users');
     const data = await response.json();
@@ -209,7 +269,6 @@ document.getElementById("createBoardForm").addEventListener("submit", async (eve
         console.log("🛠️ Server Response:", result);
 
         if (response.ok) {
-            alert("Board created successfully!");
             hashtagsSet.clear();
             updateHashtagDisplay();
             document.getElementById("createBoardForm").reset();

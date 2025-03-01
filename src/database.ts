@@ -204,7 +204,11 @@ async function updateProfileHeaderImage(userId: number, headerImage: string) {
         console.error("Error updating header image in database:", error);
         return false;
     }
+}
 
+async function getUserInfo(userId: number) {
+    await init();
+    return await db.get('SELECT * FROM users WHERE id = ?', [userId]);
 }
 
 init().catch(console.error);
@@ -214,4 +218,4 @@ export {
     giveModerator, removeModerator, giveUserInformation,
     logout, getOnlineUsers, createBoard, getBoards,
     getUserBoard, updateUserFieldInDB, updateUserProfileImage,
-    updateProfileHeaderImage, getBoardById};
+    updateProfileHeaderImage, getBoardById, getUserInfo};
