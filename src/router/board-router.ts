@@ -5,7 +5,8 @@ import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { createBoard, getBoards, getUserID, getUserBoard, getBoardById } from '../database';
+import { createBoard, getBoards, getUserBoard, getBoardById } from '../boardsDatabase';
+import {getUserID} from "../usersDatabase";
 
 const router = Router();
 router.use(fileUpload());

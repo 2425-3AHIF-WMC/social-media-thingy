@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import {getUserRole, giveModerator, removeModerator} from '../database';
-
+import {getUserRole, giveModerator, removeModerator} from '../usersDatabase';
 
 const router = Router();
 

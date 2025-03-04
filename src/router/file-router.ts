@@ -2,7 +2,9 @@ import express from 'express';
 import path from "path";
 import { adminHandler, authHandler, moderatorHandler } from '../middleware/auth-handler';
 import authRouter from "./auth-router";
-import { giveUserInformation, getUserBoard, getOnlineUsers, getUserID, getUserInfo } from "../database";
+import { giveUserInformation, getUserID, getUserInfo } from "../usersDatabase";
+import {getUserBoard} from "../boardsDatabase";
+import {getOnlineUsers} from "../authDatabase";
 
 const router = express.Router();
 

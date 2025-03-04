@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { getUserID, updateUserFieldInDB,updateUserProfileImage, updateProfileHeaderImage, db } from "../database";
+import { getUserID, updateUserFieldInDB,updateUserProfileImage, updateProfileHeaderImage} from "../usersDatabase";
 import {authHandler} from "../middleware/auth-handler";
 import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import {db} from "../database";
 
 const router = Router();
 const usersDir = path.resolve(__dirname, '..', 'users');

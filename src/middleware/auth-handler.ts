@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import {getUserRole} from "../database";
+import {getUserRole} from "../usersDatabase";
 
 export async function authHandler(req: Request, res: Response, next: NextFunction) {
     if ((req.session).user) {

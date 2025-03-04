@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import { register, login, getOnlineUsers, logout } from '../database';
+import { register, login, getOnlineUsers, logout } from '../authDatabase';
 import CustomSession from "../model/session";
 
 const router = Router();
