@@ -13,9 +13,12 @@
     <img class="profile-image" src="/<%= board.profile_image %>" alt="Profile Image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';">
 </div>
 <div class="board-content">
-    <h1 class="board-Title" ><%= board.name %></h1>
-    <p class="board-description" ><%= board.description %></p>
-    <button id="joinButton">Join</button>
+    <h1 class="board-Title"><%= board.name %></h1>
+    <p class="board-description"><%= board.description %></p>
+    <p class="board-owner">Owner: <%= ownerName %></p>
+    <% if (currentUserId !== ownerId) { %>
+        <button id="joinButton">Join</button>
+    <% } %>
 </div>
 </body>
 </html>

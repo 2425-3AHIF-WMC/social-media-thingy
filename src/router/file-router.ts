@@ -3,7 +3,7 @@ import path from "path";
 import { adminHandler, authHandler, moderatorHandler } from '../middleware/auth-handler';
 import authRouter from "./auth-router";
 import { giveUserInformation, getUserID, getUserInfo } from "../usersDatabase";
-import {getUserBoard} from "../boardsDatabase";
+import {getBoards, getUserBoard} from "../boardsDatabase";
 import {getOnlineUsers} from "../authDatabase";
 
 const router = express.Router();
@@ -59,8 +59,19 @@ router.get('/events', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/Events.html'));
 });
 
-router.get('/discovery', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/discovery.html'));
+router.get('/discovery', authHandler, async (req, res) => {
+    try {
+        const username = req.session.user;
+        if (!username) {
+            return res.status(400).send('Username is undefined');
+        }
+        const user = await giveUserInformation(username);
+        const boards = await getBoards();
+        res.render('discovery', { user, boards });
+    } catch (error) {
+        console.error("Error fetching boards:", error);
+        res.status(500).json({ error: 'Failed to fetch boards' });
+    }
 });
 
 router.get('/username', authHandler, (req, res) => {

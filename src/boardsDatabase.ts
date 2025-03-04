@@ -37,3 +37,21 @@ export async function getBoardById(boardId: number) {
     await init();
     return await db.get('SELECT * FROM boards WHERE id = ?', [boardId]);
 }
+
+export async function getBoardOwnerName(boardId: number): Promise<string> {
+    await init();
+    const user = await db.get('SELECT username FROM users WHERE id = (SELECT ownerId FROM boards WHERE id = ?)', boardId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user.username;
+}
+
+export async function getBoardOwnerId(boardId: number): Promise<number> {
+    await init();
+    const user = await db.get('SELECT ownerId FROM boards WHERE id = ?', boardId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user.ownerId;
+}

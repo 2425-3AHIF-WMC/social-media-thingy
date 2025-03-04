@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Discovery</title>
+    <link rel="stylesheet" href="/style/style.css">
+</head>
+<body>
+<div class="header">
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href="/discovery">Discovery</a>
+        <a href="/events">Events</a>
+        <a href="/rnd">Free Space</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <span id="username"><%= user.username %></span>
+        <span id="dashboard-button"></span>
+        <span id="logout-button"></span>
+    </div>
+</div>
+<div class="discovery-content">
+    <h1>Discovery</h1>
+    <div class="board-list">
+        <% boards.forEach(board => { %>
+            <div class="board-item">
+                <div class="header-container">
+                    <img src="/<%= board.header_image %>" alt="<%= board.name %> header" class="header-image" onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
+                    <img src="/<%= board.profile_image %>" alt="<%= board.name %> profile" class="profile-image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
+                </div>
+                <h2><%= board.name %></h2>
+                <p><%= board.description %></p>
+                <a href="/board/<%= board.id %>" target="_blank">Open Board</a>
+            </div>
+        <% }) %>
+    </div>
+</div>
+</body>
+</html>

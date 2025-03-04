@@ -5,7 +5,14 @@ import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { createBoard, getBoards, getUserBoard, getBoardById } from '../boardsDatabase';
+import {
+    createBoard,
+    getBoards,
+    getUserBoard,
+    getBoardById,
+    getBoardOwnerName,
+    getBoardOwnerId
+} from '../boardsDatabase';
 import {getUserID} from "../usersDatabase";
 
 const router = Router();
@@ -82,15 +89,16 @@ router.post('/create', authHandler, [
 
 router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
     const boardId = parseInt(req.params.id);
-    try{
+    try {
         const board = await getBoardById(boardId);
-
-        if (!board){
+        if (!board) {
             return res.status(404).json({ error: 'Board not found' });
         }
-        res.render('board', { board });
-
-    }catch (error){
+        const ownerName = await getBoardOwnerName(boardId);
+        const ownerId = await getBoardOwnerId(boardId);
+        const currentUserId = await getUserID(req.session.user);
+        res.render('board', { board, ownerName, ownerId, currentUserId });
+    } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });
     }
