@@ -55,3 +55,18 @@ export async function getBoardOwnerId(boardId: number): Promise<number> {
     }
     return user.ownerId;
 }
+
+export async function joinBoard(boardId: number, userId: number) {
+    await init();
+    await db.run('INSERT INTO BoardMembers (boardId, userId) VALUES (?, ?)', [boardId, userId]);
+}
+
+export async function getBoardMembers(boardId: number) {
+    await init();
+    return await db.all('SELECT * FROM BoardMembers WHERE boardId = ?', [boardId]);
+}
+
+export async function updateOwnerRole(boardId: number, userId: number, role: string) {
+    await init();
+    await db.run('UPDATE BoardMembers SET role = ? WHERE boardId = ? AND userId = ?', [role, boardId, userId]);
+}

@@ -11,7 +11,7 @@ import {
     getUserBoard,
     getBoardById,
     getBoardOwnerName,
-    getBoardOwnerId
+    getBoardOwnerId, joinBoard
 } from '../boardsDatabase';
 import {getUserID} from "../usersDatabase";
 
@@ -136,5 +136,18 @@ router.get('/user-boards', authHandler, async (req: Request, res: Response) => {
         return res.status(500).json({ error: 'Failed to fetch user boards' });
     }
 });
+
+router.post('/join/:id', authHandler, async (req: Request, res: Response) => {
+    const boardId = parseInt(req.params.id);
+    const userId = await getUserID(req.session.user);
+    try {
+        await joinBoard(boardId, userId);
+        return res.status(204).send();
+    } catch (error) {
+        console.error("Error joining board:", error);
+        return res.status(500).json({ error: 'Failed to join board' });
+    }
+});
+
 
 export default router;

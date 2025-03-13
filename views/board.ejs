@@ -17,7 +17,9 @@
     <p class="board-description"><%= board.description %></p>
     <p class="board-owner">Owner: <%= ownerName %></p>
     <% if (currentUserId !== ownerId) { %>
-        <button id="joinButton">Join</button>
+       <form action="/join/<%= board.id %>" method="POST">
+           <button id="joinButton" type="submit">Join</button>
+       </form>
     <% } %>
 </div>
 </body>
