@@ -70,3 +70,15 @@ export async function updateOwnerRole(boardId: number, userId: number, role: str
     await init();
     await db.run('UPDATE BoardMembers SET role = ? WHERE boardId = ? AND userId = ?', [role, boardId, userId]);
 }
+
+export async function doesUserExist(userId: number): Promise<boolean> {
+    await init();
+    const result = await db.get('SELECT COUNT(*) as count FROM Users WHERE id = ?', [userId]);
+    return result.count > 0;
+}
+
+export async function isUserMemberOfBoard(userId: number, boardId: number): Promise<boolean> {
+    await init();
+    const result = await db.get('SELECT COUNT(*) as count FROM BoardMembers WHERE userId = ? AND boardId = ?', [userId, boardId]);
+    return result.count > 0;
+}

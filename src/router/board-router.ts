@@ -11,9 +11,10 @@ import {
     getUserBoard,
     getBoardById,
     getBoardOwnerName,
-    getBoardOwnerId, joinBoard
+    getBoardOwnerId, joinBoard, isUserMemberOfBoard
 } from '../boardsDatabase';
 import {getUserID} from "../usersDatabase";
+import {getPostsForBoard} from "../postDatabase";
 
 const router = Router();
 router.use(fileUpload());
@@ -97,7 +98,9 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const ownerName = await getBoardOwnerName(boardId);
         const ownerId = await getBoardOwnerId(boardId);
         const currentUserId = await getUserID(req.session.user);
-        res.render('board', { board, ownerName, ownerId, currentUserId });
+        const isMember = await isUserMemberOfBoard(currentUserId, boardId);
+        const posts = await getPostsForBoard(boardId);
+        res.render('board', { board, ownerName, ownerId, currentUserId, isMember });
     } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });

@@ -16,11 +16,103 @@
     <h1 class="board-Title"><%= board.name %></h1>
     <p class="board-description"><%= board.description %></p>
     <p class="board-owner">Owner: <%= ownerName %></p>
-    <% if (currentUserId !== ownerId) { %>
-       <form action="/join/<%= board.id %>" method="POST">
-           <button id="joinButton" type="submit">Join</button>
-       </form>
+    <% if (currentUserId !== ownerId && !isMember) { %>
+        <form action="/join/<%= board.id %>" method="POST">
+            <button id="joinButton" type="submit">Join</button>
+        </form>
     <% } %>
 </div>
+<div class="board-general">
+    <div class="board-header">
+        <div class="board-tabs">
+            <button class="tab-button" onclick="openTab('posts')">Posts</button>
+            <button class="tab-button" onclick="openTab('chat')">Chat</button>
+            <button class="tab-button" onclick="openTab('source')">Source</button>
+        </div>
+        <div class="board-members">
+            <h2>Board Members</h2>
+            <!-- List of board members here -->
+        </div>
+    </div>
+
+
+    <div id="posts" class="tab-content">
+        <div class="post-buttons">
+            <button id="createPostButton" onclick="openModal()">Create Post</button>
+
+            <!-- Add this modal structure at the end of the body -->
+            <div id="postModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeModal()">&times;</span>
+                    <form action="/createPost" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="boardId" value="<%= board.id %>">
+                        <div>
+                            <label for="title">Title:</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div>
+                            <label for="content">Content:</label>
+                            <textarea id="content" name="content" required></textarea>
+                        </div>
+                        <div>
+                            <label for="image">Image:</label>
+                            <input type="file" id="image" name="image">
+                        </div>
+                        <button type="submit">Post</button>
+                    </form>
+                </div>
+            </div>
+            <form action="/searchPosts/<%= board.id %>" method="POST">
+                <input type="text" name="search" placeholder="Search Posts">
+                <button type="submit">Search</button>
+            </form>
+
+        </div>
+        <h2>Posts</h2>
+    </div>
+    <div id="chat" class="tab-content" style="display:none;">
+        <h2>Chat</h2>
+    </div>
+    <div id="source" class="tab-content" style="display:none;">
+        <h2>Source</h2>
+    </div>
+
+
+</div>
+
+<script>
+    function openTab(tabName) {
+        var i, tabcontent, tabbuttons;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        event.currentTarget.className += " active";
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector(".tab-button").click();
+    });
+
+    function openModal() {
+        document.getElementById("postModal").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("postModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById("postModal");
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
 </body>
 </html>

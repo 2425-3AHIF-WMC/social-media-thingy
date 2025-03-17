@@ -17,7 +17,7 @@
     "express": "^4.19.2",
     "express-fileupload": "^1.5.1",
     "express-session": "^1.18.1",
-    "express-validator": "^7.2.0",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "sqlite": "^5.1.1",
