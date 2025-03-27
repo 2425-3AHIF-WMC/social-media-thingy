@@ -36,13 +36,13 @@ async function fetchAllBoards(searchTerm = "") {
             </div>
             <h2>${board.name}</h2>
             <p>${board.description}</p>
-            <p><strong>Hashtags:</strong> ${formatHashtags(board.hashtags)}</p>
+            <p><strong>Hashtag:</strong> ${formatHashtag(board.hashtag)}</p>
         `;
         boardResults.appendChild(boardElement);
     });
 }
 
-function formatHashtags(hashtags) {
-    if (!hashtags || hashtags.trim() === "") return "None";
-    return hashtags.split(" ").map(tag => `#${tag}`).join(", ");
+function formatHashtag(hashtag) {
+    if (!hashtag || hashtag.trim() === "") return "None";
+    return hashtag.split(" ").map(tag => `#${tag}`).join(", ");
 }

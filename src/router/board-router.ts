@@ -31,23 +31,23 @@ router.post('/create', authHandler, [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    let { name, description, visibility, hashtags } = req.body;
+    let { name, description, visibility, hashtag } = req.body;
 
-    // Ensure hashtags are parsed correctly
+    // Ensure hashtag are parsed correctly
     try {
-        if (typeof hashtags === "string") {
-            hashtags = JSON.parse(hashtags);
+        if (typeof hashtag === "string") {
+            hashtag = JSON.parse(hashtag);
         }
-        if (!Array.isArray(hashtags)) {
-            hashtags = [];
+        if (!Array.isArray(hashtag)) {
+            hashtag = [];
         }
-        hashtags = hashtags.slice(0, 5); // Ensure max of 5
+        hashtag = hashtag.slice(0, 5); // Ensure max of 5
     } catch (error) {
         console.error("❌ Error parsing hashtags:", error);
-        hashtags = [];
+        hashtag = [];
     }
 
-    console.log("✅ Processed Hashtags:", hashtags);
+    console.log("✅ Processed Hashtags:", hashtag);
 
     let profileImage = 'default_profile.png';
     let headerImage = 'default_header.png';
@@ -78,8 +78,8 @@ router.post('/create', authHandler, [
             }
         }
 
-        console.log("Saving board with hashtags:", hashtags);
-        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtags.join(" "));
+        console.log("Saving board with hashtags:", hashtag);
+        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtag.join(" "));
         return res.status(201).json(newBoard);
 
     } catch (error) {
@@ -117,7 +117,7 @@ router.get('/boards', authHandler, async (req: Request, res: Response) => {
             boards = boards.filter(board =>
                 board.name.toLowerCase().includes(searchTerm) ||
                 board.description.toLowerCase().includes(searchTerm) ||
-                (board.hashtags && board.hashtags.toLowerCase().includes(searchTerm))
+                (board.hashtag && board.hashtag.toLowerCase().includes(searchTerm))
             );
         }
 
