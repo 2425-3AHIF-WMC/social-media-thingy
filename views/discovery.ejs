@@ -10,15 +10,18 @@
 </head>
 <body>
 <div class="header">
+    <h1>Whaaa</h1>
     <div class="home-buttons">
         <a href="/">Home</a>
-        <a href="/discovery">Discovery</a>
+        <a href ="/discovery">Discovery</a>
         <a href="/events">Events</a>
         <a href="/rnd">Free Space</a>
         <a href="/about-us">About us</a>
     </div>
     <div class="user-buttons">
-        <span id="username"><%= user.username %></span>
+        <button><a href="/login" id="login-button">Log in</a></button>
+        <button><a href="/register" id="register-button">Register</a></button>
+        <span id="username"></span>
         <span id="dashboard-button"></span>
         <span id="logout-button"></span>
     </div>
