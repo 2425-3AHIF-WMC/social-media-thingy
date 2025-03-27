@@ -11,10 +11,27 @@
 <!-- Include shared header partial and pass the user object -->
 <%- include('partials/header', { user: user }) %>
 
+
+<!-- Dashboard-specific content -->
 <!-- Dashboard-specific content -->
 <div class="profile-header-container">
-    <img id="userheaderImage" class="header-image" src="<%= userHeaderImage %>" alt="Header Image">
-    <img id="userprofileImage" class="profile-image" src="<%= userProfileImage %>" alt="Profile Image">
+    <!-- Add onerror fallback for user header image -->
+    <img
+            id="userheaderImage"
+            class="header-image"
+            src="<%= userHeaderImage %>"
+            alt="Header Image"
+            onerror="this.onerror=null;this.src='/uploads/default_header.png';"
+    >
+    <!-- Add onerror fallback for user profile image -->
+    <img
+            id="userprofileImage"
+            class="profile-image"
+            src="<%= userProfileImage %>"
+            alt="Profile Image"
+            onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
+    >
+
     <input type="file" id="profileImageInput" style="display: none;">
     <input type="file" id="headerImageInput" style="display: none;">
 </div>
@@ -110,9 +127,69 @@
 <button id="adminButton" style="display: <%= user.role === 'admin' ? 'block' : 'none' %>;">
     <a href="/admin">Admin Dashboard</a>
 </button>
-
+<!-- Fix scripts after some while i really got no fucking clue what happened here -->
 <script>
-    // Your dashboard-specific JavaScript can be placed here.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Make the profile image clickable -> triggers file input
+        const profileImageEl = document.getElementById('userprofileImage');
+        const headerImageEl  = document.getElementById('userheaderImage');
+
+        profileImageEl.addEventListener('click', () => {
+            document.getElementById('profileImageInput').click();
+        });
+
+        headerImageEl.addEventListener('click', () => {
+            document.getElementById('headerImageInput').click();
+        });
+
+        // If you have the old code for updating images via fetch:
+        document.getElementById('profileImageInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                    const response = await fetch('/update-user-avatar', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Error updating profile image');
+                    }
+                } catch (error) {
+                    console.error('Error updating profile image:', error);
+                }
+            }
+        });
+
+        document.getElementById('headerImageInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('header', file);
+
+                try {
+                    const response = await fetch('/update-user-header', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Error updating header image');
+                    }
+                } catch (error) {
+                    console.error('Error updating header image:', error);
+                }
+            }
+        });
+
+        // ... the rest of dashboard JS (hashtags, board creation, etc.) ...
+    });
 </script>
+
 </body>
 </html>

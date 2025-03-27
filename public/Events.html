@@ -25,5 +25,21 @@
     </div>
 </div>
 events
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/username')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
+                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
+                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
+                    document.getElementById('login-button').style.display = 'none';
+                    document.getElementById('register-button').style.display = 'none';
+                }
+            });
+    });
+</script>
 </body>
 </html>
