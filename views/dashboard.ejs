@@ -79,6 +79,8 @@
         <span class="label">Badges:</span>
         <span id="fetchBadges" class="editable-box" contenteditable="false"><%= user.badges %></span>
     </div>
+    <!-- Here's the Save button to update fields at once -->
+    <button id="saveProfileButton">Save Changes</button>
 </div>
 
 <div>
@@ -144,16 +146,104 @@
 <!-- Fix scripts after some while i really got no fucking clue what happened here -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Make the profile image clickable -> triggers file input
+        const profileImageEl = document.getElementById('userprofileImage');
+        const headerImageEl  = document.getElementById('userheaderImage');
+
+        profileImageEl.addEventListener('click', () => {
+            document.getElementById('profileImageInput').click();
+        });
+
+        headerImageEl.addEventListener('click', () => {
+            document.getElementById('headerImageInput').click();
+        });
+
+        // If you have the old code for updating images via fetch:
+        document.getElementById('profileImageInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('avatar', file);
+
+                try {
+                    const response = await fetch('/update-user-avatar', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Error updating profile image');
+                    }
+                } catch (error) {
+                    console.error('Error updating profile image:', error);
+                }
+            }
+        });
+
+        document.getElementById('headerImageInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('header', file);
+
+                try {
+                    const response = await fetch('/update-user-header', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        console.error('Error updating header image');
+                    }
+                } catch (error) {
+                    console.error('Error updating header image:', error);
+                }
+            }
+        });
+
+        // ... the rest of dashboard JS (hashtags, board creation, etc.) ...
+    });
+    document.addEventListener('DOMContentLoaded', () => {
         fetch('/username')
             .then(response => response.json())
             .then(data => {
                 if (data.username) {
-                    document.getElementById('username').textContent = `Welcome,  ${data.username}`;
+                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
+                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
                     document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
                     document.getElementById('login-button').style.display = 'none';
                     document.getElementById('register-button').style.display = 'none';
                 }
             });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // "Save Changes" updates all fields in one request
+        document.getElementById('saveProfileButton').addEventListener('click', async () => {
+            const bio = document.getElementById('fetchBio').textContent.trim();
+            const pronouns = document.getElementById('fetchPronouns').textContent.trim();
+            const links = document.getElementById('fetchLinks').textContent.trim();
+            const badges = document.getElementById('fetchBadges').textContent.trim();
+
+            try {
+                const response = await fetch('/update-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bio, pronouns, links, badges })
+                });
+
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+                    // Optionally reload the page:
+                    // location.reload();
+                } else {
+                    console.error('Failed to update user fields.');
+                }
+            } catch (error) {
+                console.error('Error updating user fields:', error);
+            }
+        });
     });
 </script>
 

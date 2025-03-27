@@ -14,40 +14,41 @@ if (!fs.existsSync(usersDir)) {
     fs.mkdirSync(usersDir, { recursive: true });
 }
 
-router.post("/update-user", async (req, res) => {
+// If you already have something like this, just adjust it:
+router.post('/update-user', authHandler, async (req: Request, res: Response) => {
     try {
-        let { field, value } = req.body;
-        const userId = await getUserID(req.session.user);
-
-        if (!userId) {
-            console.error("Unauthorized request: No user ID found.");
-            return res.status(401).json({ error: "Unauthorized" });
+        // 1) Identify the user making the request (via session)
+        const username = req.session.user;
+        if (!username) {
+            return res.status(400).json({ message: 'No user in session' });
         }
 
-        const fieldMapping: Record<string, string> = {
-            "fetchBio": "bio",
-            "fetchPronouns": "pronouns",
-            "fetchLinks": "links",
-            "fetchBadges": "badges"
-        };
+        const userId = await getUserID(username);
 
-        if (!(field in fieldMapping)) {
-            console.error("Invalid field update attempt:", field);
-            return res.status(400).json({ error: "Invalid field name" });
+        // 2) Extract the fields from the request body
+        // e.g. { bio, pronouns, links }
+        // but you can add or remove fields as needed
+        const { bio, pronouns, links, badges } = req.body;
+
+        // 3) For each field that is defined, call your existing update function
+        if (bio !== undefined) {
+            await updateUserFieldInDB(userId, "bio", bio);
+        }
+        if (pronouns !== undefined) {
+            await updateUserFieldInDB(userId, "pronouns", pronouns);
+        }
+        if (links !== undefined) {
+            await updateUserFieldInDB(userId, "links", links);
+        }
+        if (badges !== undefined) {
+            await updateUserFieldInDB(userId, "badges", badges);
         }
 
-        field = fieldMapping[field];
-        const success = await updateUserFieldInDB(userId, field, value);
-
-        if (!success) {
-            console.error("Failed to update database.");
-            return res.status(500).json({ error: "Failed to update user field in database" });
-        }
-
-        res.status(200).json({ success: true, message: "User profile updated in DB" });
+        // 4) Respond with success
+        return res.json({ message: 'Profile updated successfully' });
     } catch (error) {
-        console.error("Error updating user profile:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error('Error updating user:', error);
+        return res.status(500).json({ message: 'Server error' });
     }
 });
 
