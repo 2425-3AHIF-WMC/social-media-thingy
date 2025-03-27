@@ -9,7 +9,23 @@
 </head>
 <body>
 
-<%- include('partials/header', { user: user }) %>
+<div class="header">
+    <h1>Whaaa</h1>
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href ="/discovery">Discovery</a>
+        <a href="/events">Events</a>
+        <a href="/rnd">Free Space</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <button><a href="/login" id="login-button">Log in</a></button>
+        <button><a href="/register" id="register-button">Register</a></button>
+        <span id="username"></span>
+        <span id="dashboard-button"></span>
+        <span id="logout-button"></span>
+    </div>
+</div>
 <!-- END HEADER -->
 
 <div class="profile-header-container">
@@ -121,6 +137,19 @@
             modal.style.display = "none";
         }
     }
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/username')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
+                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
+                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
+                    document.getElementById('login-button').style.display = 'none';
+                    document.getElementById('register-button').style.display = 'none';
+                }
+            });
+    });
 </script>
 </body>
 </html>

@@ -8,11 +8,25 @@
 </head>
 <body>
 
-<!-- Include shared header partial and pass the user object -->
-<%- include('partials/header', { user: user }) %>
+<div class="header">
+    <h1>Whaaa</h1>
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href ="/discovery">Discovery</a>
+        <a href="/events">Events</a>
+        <a href="/rnd">Free Space</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <button><a href="/login" id="login-button">Log in</a></button>
+        <button><a href="/register" id="register-button">Register</a></button>
+        <span id="username"></span>
+        <span id="dashboard-button"></span>
+        <span id="logout-button"></span>
+    </div>
+</div>
 
 
-<!-- Dashboard-specific content -->
 <!-- Dashboard-specific content -->
 <div class="profile-header-container">
     <!-- Add onerror fallback for user header image -->
@@ -130,64 +144,16 @@
 <!-- Fix scripts after some while i really got no fucking clue what happened here -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // Make the profile image clickable -> triggers file input
-        const profileImageEl = document.getElementById('userprofileImage');
-        const headerImageEl  = document.getElementById('userheaderImage');
-
-        profileImageEl.addEventListener('click', () => {
-            document.getElementById('profileImageInput').click();
-        });
-
-        headerImageEl.addEventListener('click', () => {
-            document.getElementById('headerImageInput').click();
-        });
-
-        // If you have the old code for updating images via fetch:
-        document.getElementById('profileImageInput').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('avatar', file);
-
-                try {
-                    const response = await fetch('/update-user-avatar', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Error updating profile image');
-                    }
-                } catch (error) {
-                    console.error('Error updating profile image:', error);
+        fetch('/username')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('username').textContent = `Welcome,  ${data.username}`;
+                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
+                    document.getElementById('login-button').style.display = 'none';
+                    document.getElementById('register-button').style.display = 'none';
                 }
-            }
-        });
-
-        document.getElementById('headerImageInput').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('header', file);
-
-                try {
-                    const response = await fetch('/update-user-header', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Error updating header image');
-                    }
-                } catch (error) {
-                    console.error('Error updating header image:', error);
-                }
-            }
-        });
-
-        // ... the rest of dashboard JS (hashtags, board creation, etc.) ...
+            });
     });
 </script>
 
