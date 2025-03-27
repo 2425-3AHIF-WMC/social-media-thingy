@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const database_1 = require("../database");
+const usersDatabase_1 = require("../usersDatabase");
 const router = (0, express_1.Router)();
 router.post('/admin/give-moderator', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.body;
     try {
-        yield (0, database_1.giveModerator)(username);
+        yield (0, usersDatabase_1.giveModerator)(username);
         res.redirect('/admin');
     }
     catch (error) {
@@ -30,7 +30,7 @@ router.post('/admin/give-moderator', (req, res) => __awaiter(void 0, void 0, voi
 router.post('/admin/remove-moderator', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.body;
     try {
-        yield (0, database_1.removeModerator)(username);
+        yield (0, usersDatabase_1.removeModerator)(username);
         res.redirect('/admin');
     }
     catch (error) {
@@ -45,7 +45,7 @@ router.post('/admin/remove-moderator', (req, res) => __awaiter(void 0, void 0, v
 router.post('/user-roles', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username } = req.body;
     try {
-        const users = yield (0, database_1.getUserRole)(username);
+        const users = yield (0, usersDatabase_1.getUserRole)(username);
         res.json({ users, count: users.length });
     }
     catch (error) {

@@ -24,6 +24,22 @@ app.use((0, express_session_1.default)({
     saveUninitialized: true,
 }));
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, 'uploads')));
+app.set('view engine', 'ejs');
+app.set('views', path_1.default.join(__dirname, '../views'));
+app.use('/profile_images', express_1.default.static(path_1.default.join(__dirname, 'profile_images'), {
+    setHeaders: (res, filePath) => {
+        const ext = path_1.default.extname(filePath).toLowerCase();
+        const mimeTypeMap = {
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".png": "image/png",
+            ".gif": "image/gif"
+        };
+        if (mimeTypeMap[ext]) {
+            res.setHeader("Content-Type", mimeTypeMap[ext]);
+        }
+    }
+}));
 app.use('/', auth_router_1.default);
 app.use('/', file_router_1.default);
 app.use('/', role_router_1.default);

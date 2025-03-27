@@ -10,12 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const database_1 = require("../database");
+const authDatabase_1 = require("../authDatabase");
 const router = (0, express_1.Router)();
 router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password, role, email } = req.body;
     try {
-        yield (0, database_1.register)(username, password, role, email);
+        yield (0, authDatabase_1.register)(username, password, role, email);
         res.redirect('/');
     }
     catch (error) {
@@ -30,7 +30,7 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
 router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, password } = req.body;
     try {
-        yield (0, database_1.login)(username, password);
+        yield (0, authDatabase_1.login)(username, password);
         (req.session).user = username;
         res.redirect('/dashboard');
     }
@@ -46,14 +46,14 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 router.get('/logout', (req, res) => {
     const username = req.session.user;
     if (username) {
-        (0, database_1.logout)(username);
+        (0, authDatabase_1.logout)(username);
     }
     req.session.user = undefined;
     res.redirect('/');
 });
 router.get('/online-users', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield (0, database_1.getOnlineUsers)();
+        const users = yield (0, authDatabase_1.getOnlineUsers)();
         res.json({ users, count: users.length });
     }
     catch (error) {

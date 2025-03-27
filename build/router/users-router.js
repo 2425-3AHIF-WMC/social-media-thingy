@@ -13,11 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const database_1 = require("../database");
+const usersDatabase_1 = require("../usersDatabase");
 const auth_handler_1 = require("../middleware/auth-handler");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const uuid_1 = require("uuid");
+const database_1 = require("../database");
 const router = (0, express_1.Router)();
 const usersDir = path_1.default.resolve(__dirname, '..', 'users');
 if (!fs_1.default.existsSync(usersDir)) {
@@ -26,7 +27,7 @@ if (!fs_1.default.existsSync(usersDir)) {
 router.post("/update-user", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let { field, value } = req.body;
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             console.error("Unauthorized request: No user ID found.");
             return res.status(401).json({ error: "Unauthorized" });
@@ -42,7 +43,7 @@ router.post("/update-user", (req, res) => __awaiter(void 0, void 0, void 0, func
             return res.status(400).json({ error: "Invalid field name" });
         }
         field = fieldMapping[field];
-        const success = yield (0, database_1.updateUserFieldInDB)(userId, field, value);
+        const success = yield (0, usersDatabase_1.updateUserFieldInDB)(userId, field, value);
         if (!success) {
             console.error("Failed to update database.");
             return res.status(500).json({ error: "Failed to update user field in database" });
@@ -56,11 +57,11 @@ router.post("/update-user", (req, res) => __awaiter(void 0, void 0, void 0, func
 }));
 router.get("/get-user-data", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        const user = yield database_1.db.get("SELECT username, bio, pronouns, links, badges FROM users WHERE id = ?", [userId]);
+        const user = yield database_1.db.get("SELECT username, bio, pronouns, links, badges, profile_image, header_image FROM users WHERE id = ?", [userId]);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -73,7 +74,7 @@ router.get("/get-user-data", (req, res) => __awaiter(void 0, void 0, void 0, fun
 }));
 router.post("/update-user-avatar", auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
@@ -81,24 +82,23 @@ router.post("/update-user-avatar", auth_handler_1.authHandler, (req, res) => __a
         if (!fs_1.default.existsSync(profileUploads)) {
             fs_1.default.mkdirSync(profileUploads, { recursive: true });
         }
-        if (req.files) {
-            console.log("Uploaded Files:", req.files);
-            const files = Object.fromEntries(Object.entries(req.files).map(([key, value]) => [key.trim(), value]));
-            if (files.avatar) {
-                console.log("Avatar Image Found:", files.avatar);
-                const avatarImageFile = files.avatar;
-                const avatarImageUUID = (0, uuid_1.v4)() + path_1.default.extname(avatarImageFile.name);
-                const avatarImagePath = path_1.default.join(profileUploads, avatarImageUUID);
-                yield avatarImageFile.mv(avatarImagePath);
-                const avatarImage = `profile_images/${avatarImageUUID}`;
-                const success = yield (0, database_1.updateUserProfileImage)(userId, avatarImage);
-                if (!success) {
-                    return res.status(500).json({ error: "Failed to update avatar" });
-                }
-                return res.status(200).json({ success: true, message: "Avatar updated" });
-            }
+        if (!req.files || !req.files.avatar) {
+            return res.status(400).json({ error: "No avatar image provided" });
         }
-        return res.status(400).json({ error: "No avatar image provided" });
+        const avatarImageFile = req.files.avatar;
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!allowedMimeTypes.includes(avatarImageFile.mimetype)) {
+            return res.status(400).json({ error: "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+        }
+        const avatarImageUUID = (0, uuid_1.v4)() + path_1.default.extname(avatarImageFile.name);
+        const avatarImagePath = path_1.default.join(profileUploads, avatarImageUUID);
+        yield avatarImageFile.mv(avatarImagePath);
+        const avatarImage = `profile_images/${avatarImageUUID}`;
+        const success = yield (0, usersDatabase_1.updateUserProfileImage)(userId, avatarImage);
+        if (!success) {
+            return res.status(500).json({ error: "Failed to update avatar" });
+        }
+        return res.status(200).json({ success: true, message: "Avatar updated", profile_image: avatarImage });
     }
     catch (error) {
         console.error("Error saving avatar image:", error);
@@ -107,7 +107,7 @@ router.post("/update-user-avatar", auth_handler_1.authHandler, (req, res) => __a
 }));
 router.post("/update-user-header", auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
@@ -115,24 +115,23 @@ router.post("/update-user-header", auth_handler_1.authHandler, (req, res) => __a
         if (!fs_1.default.existsSync(headerUploads)) {
             fs_1.default.mkdirSync(headerUploads, { recursive: true });
         }
-        if (req.files) {
-            console.log("Uploaded Files:", req.files);
-            const files = Object.fromEntries(Object.entries(req.files).map(([key, value]) => [key.trim(), value]));
-            if (files.header) {
-                console.log("Header Image Found:", files.header);
-                const headerImageFile = files.header;
-                const headerImageUUID = (0, uuid_1.v4)() + path_1.default.extname(headerImageFile.name);
-                const headerImagePath = path_1.default.join(headerUploads, headerImageUUID);
-                yield headerImageFile.mv(headerImagePath);
-                const headerImage = `profile_images/${headerImageUUID}`;
-                const success = yield (0, database_1.updateProfileHeaderImage)(userId, headerImage);
-                if (!success) {
-                    return res.status(500).json({ error: "Failed to update header" });
-                }
-                return res.status(200).json({ success: true, message: "Header updated" });
-            }
+        if (!req.files || !req.files.header) {
+            return res.status(400).json({ error: "No header image provided" });
         }
-        return res.status(400).json({ error: "No header image provided" });
+        const headerImageFile = req.files.header;
+        const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!allowedMimeTypes.includes(headerImageFile.mimetype)) {
+            return res.status(400).json({ error: "Invalid file type. Only JPG, PNG, and GIF are allowed." });
+        }
+        const headerImageUUID = (0, uuid_1.v4)() + path_1.default.extname(headerImageFile.name);
+        const headerImagePath = path_1.default.join(headerUploads, headerImageUUID);
+        yield headerImageFile.mv(headerImagePath);
+        const headerImage = `profile_images/${headerImageUUID}`;
+        const success = yield (0, usersDatabase_1.updateProfileHeaderImage)(userId, headerImage);
+        if (!success) {
+            return res.status(500).json({ error: "Failed to update header" });
+        }
+        return res.status(200).json({ success: true, message: "Header updated", header_image: headerImage });
     }
     catch (error) {
         console.error("Error saving header image:", error);
@@ -141,7 +140,7 @@ router.post("/update-user-header", auth_handler_1.authHandler, (req, res) => __a
 }));
 router.get("/get-user-avatar", auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
@@ -158,7 +157,7 @@ router.get("/get-user-avatar", auth_handler_1.authHandler, (req, res) => __await
 }));
 router.get("/get-user-header", auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const userId = yield (0, database_1.getUserID)(req.session.user);
+        const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
         if (!userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.moderatorHandler = exports.adminHandler = exports.authHandler = void 0;
-const database_1 = require("../database");
+const usersDatabase_1 = require("../usersDatabase");
 function authHandler(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         if ((req.session).user) {
@@ -27,7 +27,7 @@ function adminHandler(req, res, next) {
         if ((req.session).user) {
             const username = (req.session).user;
             try {
-                const role = yield (0, database_1.getUserRole)(username);
+                const role = yield (0, usersDatabase_1.getUserRole)(username);
                 if (role === 'admin') {
                     next();
                 }
@@ -50,7 +50,7 @@ function moderatorHandler(req, res, next) {
         if ((req.session).user) {
             const username = (req.session).user;
             try {
-                const role = yield (0, database_1.getUserRole)(username);
+                const role = yield (0, usersDatabase_1.getUserRole)(username);
                 if (role === 'moderator' || role === 'admin') {
                     next();
                 }
