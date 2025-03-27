@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Discovery</title>
-    <!-- Use a leading slash so the browser requests /style/style.css -->
     <link rel="stylesheet" href="/style/style.css">
-    <!-- Same for discovery.js -->
+    <!-- Optionally include a discovery.js if additional client‑side logic is needed -->
     <script src="/src/discovery.js" defer></script>
 </head>
 <body>
@@ -14,47 +13,61 @@
     <h1>Whaaa</h1>
     <div class="home-buttons">
         <a href="/">Home</a>
-        <a href ="/discovery">Discovery</a>
+        <a href="/discovery">Discovery</a>
         <a href="/events">Events</a>
         <a href="/rnd">Free Space</a>
         <a href="/about-us">About us</a>
     </div>
     <div class="user-buttons">
-        <button><a href="/login" id="login-button">Log in</a></button>
-        <button><a href="/register" id="register-button">Register</a></button>
-        <span id="username"></span>
-        <span id="dashboard-button"></span>
-        <span id="logout-button"></span>
+        <% if (user && user.username) { %>
+            <span>Logged in as: <%= user.username %></span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <button><a href="/login" id="login-button">Log in</a></button>
+            <button><a href="/register" id="register-button">Register</a></button>
+        <% } %>
     </div>
 </div>
 
 <div class="discovery-content">
     <h1>Discovery</h1>
 
-    <!-- The search UI -->
+    <!-- Search UI -->
     <input type="text" id="searchBoardInput" placeholder="Search by name, description, or hashtags...">
     <button id="searchBoardButton">Search</button>
 
-    <!-- IMPORTANT: Use this container so discovery.js can fill it -->
-    <ul id="boardResults" class="board-container"></ul>
+    <!-- Board list rendered using the same markup as in dashboard.ejs -->
+    <div>
+        <h2>Boards</h2>
+        <div id="userBoardList">
+            <% boards.forEach(board => { %>
+                <div class="board-item" data-board-id="<%= board.id %>">
+                    <div class="header-container">
+                        <img src="/<%= board.header_image %>" alt="<%= board.name %> header" class="header-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_header.png';" />
+                        <img src="/<%= board.profile_image %>" alt="<%= board.name %> profile" class="profile-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_profile.png';" />
+                    </div>
+                    <h2><%= board.name %></h2>
+                    <p><%= board.description %></p>
+                    <a href="/board/<%= board.id %>" target="_self">Open Board</a>
+                </div>
+            <% }) %>
+        </div>
+    </div>
 </div>
 
-
-
 <script>
+    // When the search button is clicked, reload the page with a query parameter.
     document.addEventListener('DOMContentLoaded', () => {
-        fetch('/username')
-            .then(response => response.json())
-            .then(data => {
-                if (data.username) {
-                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
-                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
-                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
-                    document.getElementById('login-button').style.display = 'none';
-                    document.getElementById('register-button').style.display = 'none';
-                }
-            });
+        document.getElementById("searchBoardButton").addEventListener("click", () => {
+            const searchTerm = document.getElementById("searchBoardInput").value.trim();
+            // Reload the page with ?search=... so your route can filter boards
+            window.location.href = `/discovery?search=${encodeURIComponent(searchTerm)}`;
+        });
     });
 </script>
+
 </body>
 </html>
