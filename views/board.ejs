@@ -8,10 +8,31 @@
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/fL9NL4F6/logo.png">
 </head>
 <body>
-<div class="profile-header-container">
-    <img class="header-image" src="/<%= board.header_image %>" alt="Header Image" onerror="this.onerror=null;this.src='/uploads/default_header.png';">
-    <img class="profile-image" src="/<%= board.profile_image %>" alt="Profile Image" onerror="this.onerror=null;this.src='/uploads/default_profile.png';">
+
+<div class="header">
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href="/discovery">Discovery</a>
+        <a href="/events">Events</a>
+        <a href="/rnd">Free Space</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <!-- Make sure 'user' is available in this template. Otherwise adjust accordingly. -->
+        <span id = "username"><>></span>
+        <span id="dashboard-button"></span>
+        <span id="logout-button"></span>
+    </div>
 </div>
+<!-- END HEADER -->
+
+<div class="profile-header-container">
+    <img class="header-image" src="/<%= board.header_image %>" alt="Header Image"
+         onerror="this.onerror=null;this.src='/uploads/default_header.png';">
+    <img class="profile-image" src="/<%= board.profile_image %>" alt="Profile Image"
+         onerror="this.onerror=null;this.src='/uploads/default_profile.png';">
+</div>
+
 <div class="board-content">
     <h1 class="board-Title"><%= board.name %></h1>
     <p class="board-description"><%= board.description %></p>
@@ -22,6 +43,7 @@
         </form>
     <% } %>
 </div>
+
 <div class="board-general">
     <div class="board-header">
         <div class="board-tabs">
@@ -35,12 +57,11 @@
         </div>
     </div>
 
-
     <div id="posts" class="tab-content">
         <div class="post-buttons">
             <button id="createPostButton" onclick="openModal()">Create Post</button>
 
-            <!-- Add this modal structure at the end of the body -->
+            <!-- Modal for creating a post -->
             <div id="postModal" class="modal">
                 <div class="modal-content">
                     <span class="close" onclick="closeModal()">&times;</span>
@@ -62,22 +83,22 @@
                     </form>
                 </div>
             </div>
+
             <form action="/searchPosts/<%= board.id %>" method="POST">
                 <input type="text" name="search" placeholder="Search Posts">
                 <button type="submit">Search</button>
             </form>
-
         </div>
         <h2>Posts</h2>
     </div>
+
     <div id="chat" class="tab-content" style="display:none;">
         <h2>Chat</h2>
     </div>
+
     <div id="source" class="tab-content" style="display:none;">
         <h2>Source</h2>
     </div>
-
-
 </div>
 
 <script>
@@ -96,6 +117,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+        // Open first tab by default
         document.querySelector(".tab-button").click();
     });
 
