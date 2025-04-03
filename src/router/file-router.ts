@@ -66,7 +66,19 @@ router.get('/discovery', authHandler, async (req, res) => {
             return res.status(400).send('Username is undefined');
         }
         const user = await giveUserInformation(username);
-        const boards = await getBoards();
+        let boards = await getBoards();
+
+        // If a search query exists, filter boards by name, description, or hashtag
+        const { search } = req.query;
+        if (search) {
+            const searchTerm = search.toString().toLowerCase();
+            boards = boards.filter(board =>
+                board.name.toLowerCase().includes(searchTerm) ||
+                board.description.toLowerCase().includes(searchTerm) ||
+                (board.hashtag && board.hashtag.toLowerCase().includes(searchTerm))
+            );
+        }
+
         res.render('discovery', { user, boards });
     } catch (error) {
         console.error("Error fetching boards:", error);

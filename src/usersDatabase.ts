@@ -44,7 +44,13 @@ export async function giveUserInformation(username: string) {
     return {
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        bio: user.bio,
+        pronouns: user.pronouns,
+        links: user.links,
+        badges: user.badges,
+        profile_image: user.profile_image,
+        header_image: user.header_image
     };
 }
 

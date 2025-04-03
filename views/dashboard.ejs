@@ -7,34 +7,80 @@
     <link rel="stylesheet" href="/style/style.css">
 </head>
 <body>
+
 <div class="header">
+    <h1>Whaaa</h1>
     <div class="home-buttons">
         <a href="/">Home</a>
-        <a href="/discovery">Discovery</a>
+        <a href ="/discovery">Discovery</a>
         <a href="/events">Events</a>
         <a href="/rnd">Free Space</a>
         <a href="/about-us">About us</a>
     </div>
     <div class="user-buttons">
-        <span id="username"><%= user.username %></span>
+        <button><a href="/login" id="login-button">Log in</a></button>
+        <button><a href="/register" id="register-button">Register</a></button>
+        <span id="username"></span>
         <span id="dashboard-button"></span>
         <span id="logout-button"></span>
     </div>
 </div>
+
+
+<!-- Dashboard-specific content -->
 <div class="profile-header-container">
-    <img id="userheaderImage" class="header-image" src="<%= userHeaderImage %>" alt="Header Image">
-    <img id="userprofileImage" class="profile-image" src="<%= userProfileImage %>" alt="Profile Image">
+    <!-- Add onerror fallback for user header image -->
+    <img
+            id="userheaderImage"
+            class="header-image"
+            src="<%= userHeaderImage %>"
+            alt="Header Image"
+            onerror="this.onerror=null;this.src='/uploads/default_header.png';"
+    >
+    <!-- Add onerror fallback for user profile image -->
+    <img
+            id="userprofileImage"
+            class="profile-image"
+            src="<%= userProfileImage %>"
+            alt="Profile Image"
+            onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
+    >
+
     <input type="file" id="profileImageInput" style="display: none;">
     <input type="file" id="headerImageInput" style="display: none;">
 </div>
+
 <div class="user-profile-infos">
-    <div class="profile-info"><span class="label">Username:</span> <span id="fetchUsername" class="editable-box" contenteditable="false"><%= user.username %></span></div>
-    <div class="profile-info"><span class="label">Bio:</span> <span id="fetchBio" class="editable-box" contenteditable="true"><%= user.bio %></span></div>
-    <div class="profile-info"><span class="label">Email:</span> <span id="fetchEmail" class="editable-box" contenteditable="false"><%= user.email %></span></div>
-    <div class="profile-info"><span class="label">Role:</span> <span id="fetchRole" class="editable-box" contenteditable="false"><%= user.role %></span></div>
-    <div class="profile-info"><span class="label">Pronouns:</span> <span id="fetchPronouns" class="editable-box" contenteditable="true"><%= user.pronouns %></span></div>
-    <div class="profile-info"><span class="label">Links:</span> <span id="fetchLinks" class="editable-box" contenteditable="true"><%= user.links %></span></div>
-    <div class="profile-info"><span class="label">Badges:</span> <span id="fetchBadges" class="editable-box" contenteditable="false"><%= user.badges %></span></div>
+    <div class="profile-info">
+        <span class="label">Username:</span>
+        <span id="fetchUsername" class="editable-box" contenteditable="false"><%= user.username %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Bio:</span>
+        <span id="fetchBio" class="editable-box" contenteditable="true"><%= user.bio %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Email:</span>
+        <span id="fetchEmail" class="editable-box" contenteditable="false"><%= user.email %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Role:</span>
+        <span id="fetchRole" class="editable-box" contenteditable="false"><%= user.role %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Pronouns:</span>
+        <span id="fetchPronouns" class="editable-box" contenteditable="true"><%= user.pronouns %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Links:</span>
+        <span id="fetchLinks" class="editable-box" contenteditable="true"><%= user.links %></span>
+    </div>
+    <div class="profile-info">
+        <span class="label">Badges:</span>
+        <span id="fetchBadges" class="editable-box-badge" contenteditable="false"><%= user.badges %></span>
+    </div>
+    <!-- Here's the Save button to update fields at once -->
+    <button id="saveProfileButton">Save Changes</button>
 </div>
 
 <div>
@@ -48,7 +94,7 @@
                 </div>
                 <h2><%= board.name %></h2>
                 <p><%= board.description %></p>
-                <a href="/board/<%= board.id %>" target="_blank">Open Board</a>
+                <a href="/board/<%= board.id %>" target="_self">Open Board</a>
             </div>
         <% }) %>
     </div>
@@ -82,30 +128,37 @@
         <div id="hashtagList"></div>
     </form>
 </div>
+
 <div class="online-users">
     <h3>Online users</h3>
     <ul id="onlineUsers">
-        <% onlineUsers.forEach(user => { %>
-            <li><%= user %></li>
+        <% onlineUsers.forEach(onlineUser => { %>
+            <li><%= onlineUser %></li>
         <% }) %>
     </ul>
 </div>
 
 <button><a href="/home">home</a></button>
 <button><a href="/logout">logout</a></button>
-<button id="adminButton" style="display: <%= user.role === 'admin' ? 'block' : 'none' %>;"><a href="/admin">Admin Dashboard</a></button>
-
+<button id="adminButton" style="display: <%= user.role === 'admin' ? 'block' : 'none' %>;">
+    <a href="/admin">Admin Dashboard</a>
+</button>
+<!-- Fix scripts after some while i really got no fucking clue what happened here -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        let hashtagsSet = new Set();
-        document.getElementById('userprofileImage').addEventListener('click', () => {
+        // Make the profile image clickable -> triggers file input
+        const profileImageEl = document.getElementById('userprofileImage');
+        const headerImageEl  = document.getElementById('userheaderImage');
+
+        profileImageEl.addEventListener('click', () => {
             document.getElementById('profileImageInput').click();
         });
 
-        document.getElementById('userheaderImage').addEventListener('click', () => {
+        headerImageEl.addEventListener('click', () => {
             document.getElementById('headerImageInput').click();
         });
 
+        // If you have the old code for updating images via fetch:
         document.getElementById('profileImageInput').addEventListener('change', async (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -117,7 +170,6 @@
                         method: 'POST',
                         body: formData
                     });
-
                     if (response.ok) {
                         location.reload();
                     } else {
@@ -140,7 +192,6 @@
                         method: 'POST',
                         body: formData
                     });
-
                     if (response.ok) {
                         location.reload();
                     } else {
@@ -152,88 +203,48 @@
             }
         });
 
-        document.getElementById("addHashtagButton").addEventListener("click", () => {
-            const hashtagInput = document.getElementById("boardHashtags");
-            let tag = hashtagInput.value.trim();
-
-            if (!tag || hashtagsSet.has(tag)) return;
-
-            if (hashtagsSet.size >= 5) {
-                alert("You can only add up to 5 hashtags.");
-                document.getElementById("addHashtagButton").disabled = true;
-                return;
-            }
-
-            hashtagsSet.add(tag);
-            updateHashtagDisplay();
-            hashtagInput.value = "";
-
-            if (hashtagsSet.size >= 5) {
-                document.getElementById("addHashtagButton").disabled = true;
-            }
-        });
-
-        function updateHashtagDisplay() {
-            const hashtagList = document.getElementById("hashtagList");
-            hashtagList.innerHTML = "";
-            hashtagsSet.forEach(tag => {
-                const span = document.createElement("span");
-                span.textContent = `#${tag} `;
-                hashtagList.appendChild(span);
+        // ... the rest of dashboard JS (hashtags, board creation, etc.) ...
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/username')
+            .then(response => response.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
+                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
+                    document.getElementById('login-button').style.display = 'none';
+                    document.getElementById('register-button').style.display = 'none';
+                }
             });
-        }
-
-        document.getElementById("createBoardForm").addEventListener("submit", async (event) => {
-            event.preventDefault();
-
-            const name = document.getElementById('boardName').value.trim();
-            const description = document.getElementById('boardDescription').value.trim();
-            const boardType = document.getElementById('boardType').value;
-
-            if (!name || !description) {
-                alert("Name and description are required!");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('description', description);
-            formData.append('visibility', boardType);
-
-            const hashtagsArray = Array.from(hashtagsSet).slice(0, 5);
-            if (hashtagsArray.length > 0) {
-                formData.append("hashtags", JSON.stringify(hashtagsArray));
-            }
-
-            const profileImage = document.getElementById('profileImage').files[0];
-            if (profileImage) {
-                formData.append('profileImage', profileImage);
-            }
-
-            const headerImage = document.getElementById('headerImage').files[0];
-            if (headerImage) {
-                formData.append('headerImage', headerImage);
-            }
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // "Save Changes" updates all fields in one request
+        document.getElementById('saveProfileButton').addEventListener('click', async () => {
+            const bio = document.getElementById('fetchBio').textContent.trim();
+            const pronouns = document.getElementById('fetchPronouns').textContent.trim();
+            const links = document.getElementById('fetchLinks').textContent.trim();
+            const badges = document.getElementById('fetchBadges').textContent.trim();
 
             try {
-                const response = await fetch('/create', {
+                const response = await fetch('/update-user', {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bio, pronouns, links, badges })
                 });
 
                 if (response.ok) {
-                    hashtagsSet.clear();
-                    updateHashtagDisplay();
-                    document.getElementById("createBoardForm").reset();
+                    alert('Profile updated successfully!');
+                    // Optionally reload the page:
+                    // location.reload();
                 } else {
-                    alert(`Error: ${await response.text()}`);
+                    console.error('Failed to update user fields.');
                 }
             } catch (error) {
-                console.error("Error creating board:", error);
-                alert("Failed to create board. Please try again.");
+                console.error('Error updating user fields:', error);
             }
         });
     });
 </script>
+
 </body>
 </html>

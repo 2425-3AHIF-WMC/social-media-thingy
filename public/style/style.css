@@ -307,6 +307,23 @@ body {
   color: white;
 }
 
+.editable-box-badge {
+  border: 1px solid black;
+  border-radius: 8px;
+  padding: 5px;
+  min-width: 200px;
+  min-height: 20px;
+  cursor: pointer;
+  background-color: rgba(108, 108, 108, 0.5);
+  color: white;
+  outline: 1px solid white;
+}
+
+.editable-box-badge:empty::before {
+  content: "You can't change this >:(";
+  color: white;
+}
+
 .clickable-image {
   cursor: pointer;
   border: 2px solid transparent;
