@@ -7,6 +7,7 @@ import fileRouter from './router/file-router';
 import roleRouter from "./router/role-router";
 import boardRouter from './router/board-router';
 import userRouter from './router/users-router';
+import postRouter from './router/post-router';
 
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
@@ -48,6 +49,7 @@ app.use('/', fileRouter);
 app.use('/', roleRouter);
 app.use('/', boardRouter);
 app.use('/', userRouter);
+app.use('/', postRouter);
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

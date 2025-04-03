@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import {Router, Request, Response, NextFunction} from 'express';
 import { authHandler } from "../middleware/auth-handler";
 import { body, validationResult } from 'express-validator';
 import fileUpload from 'express-fileupload';
@@ -8,13 +8,30 @@ import { v4 as uuidv4 } from 'uuid';
 import {getUserID} from "../usersDatabase";
 import {createPost, likePost, unlikePost} from "../postDatabase";
 
+
 const router = Router();
 router.use(fileUpload());
 
+const validateFileType = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.files || !req.files.image) {
+        return next();
+    }
 
-//create post
-router.put('/createPost',
+    const file = req.files.image as fileUpload.UploadedFile;
+    const fileTypes = /jpeg|jpg|png|gif/;
+    const extname = fileTypes.test(path.extname(file.name).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+
+    if (extname && mimetype) {
+        return next();
+    } else {
+        return res.status(400).json({ error: 'Invalid file type. Only JPEG, PNG, and GIF files are allowed.' });
+    }
+};
+
+router.post('/createPost',
     authHandler,
+    validateFileType,
     [
         body('title').isString().notEmpty().withMessage('Title is required'),
         body('content').isString().notEmpty().withMessage('Content is required'),
@@ -26,20 +43,7 @@ router.put('/createPost',
         body('image').optional().isString()
     ],
     async (req: Request, res: Response) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { title, content, userId, boardId, type, createdAt, hashtag, image } = req.body;
-
-        try {
-            const post = await createPost(title, content, userId, boardId, type, createdAt, hashtag, image);
-            return res.status(201).json(post);
-        } catch (error) {
-            console.error("Error creating post:", error);
-            return res.status(500).json({ error: 'Failed to create post' });
-        }
+     console.log(req.body);
     }
 );
 
@@ -73,3 +77,5 @@ router.post('/unlike/:postId', authHandler, async (req: Request, res: Response) 
         return res.status(500).json({ error: 'Failed to unlike post' });
     }
 });
+
+export default router;

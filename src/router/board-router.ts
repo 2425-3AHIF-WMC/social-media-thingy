@@ -33,7 +33,6 @@ router.post('/create', authHandler, [
 
     let { name, description, visibility, hashtags } = req.body;
 
-    // Ensure hashtags are parsed correctly
     try {
         if (typeof hashtags === "string") {
             hashtags = JSON.parse(hashtags);
