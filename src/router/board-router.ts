@@ -186,7 +186,8 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const currentUserName = req.session.user;
         const isMember = await isUserMemberOfBoard(currentUserId, boardId);
         const posts = await getPostsForBoard(boardId);
-        res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, currentUserName, user: req.session.user });
+        const isOwner = ownerId === currentUserId;
+        res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, currentUserName, isOwner, user: req.session.user });
     } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });

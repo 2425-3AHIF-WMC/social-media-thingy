@@ -54,10 +54,7 @@
             <button class="tab-button" onclick="openTab('posts')">Posts</button>
             <button class="tab-button" onclick="openTab('chat')">Chat</button>
             <button class="tab-button" onclick="openTab('source')">Source</button>
-        </div>
-        <div class="board-members">
-            <h2>Board Members</h2>
-            <!-- List of board members here -->
+            <button class="tab-button" onclick="openTab('projects')">Projects</button>
         </div>
     </div>
 
@@ -71,6 +68,10 @@
 
     <div id="source" class="tab-content" style="display:none;">
         <h2>Source</h2>
+    </div>
+
+    <div id="projects" class="tab-content" style="display: none">
+        <h2><%= isOwner ? "Your Projects" : "Projects" %></h2>
     </div>
 </div>
 
