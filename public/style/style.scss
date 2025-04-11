@@ -555,3 +555,28 @@ body{
 .close-button:hover {
     color: red;
 }
+
+#openModalButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 30px;
+}
+
+#openModalButton:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+#openModalButton:active {
+    background-color: #3e8e41;
+    transform: scale(0.98);
+}
