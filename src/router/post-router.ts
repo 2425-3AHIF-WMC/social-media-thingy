@@ -29,24 +29,6 @@ const validateFileType = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-router.post('/createPost',
-    authHandler,
-    validateFileType,
-    [
-        body('title').isString().notEmpty().withMessage('Title is required'),
-        body('content').isString().notEmpty().withMessage('Content is required'),
-        body('userId').isInt().withMessage('User ID must be an integer'),
-        body('boardId').isInt().withMessage('Board ID must be an integer'),
-        body('type').isString().notEmpty().withMessage('Type is required'),
-        body('createdAt').isISO8601().toDate().withMessage('Created At must be a valid date'),
-        body('hashtag').optional().isString(),
-        body('image').optional().isString()
-    ],
-    async (req: Request, res: Response) => {
-     console.log(req.body);
-    }
-);
-
 //get all posts for certain board
 
 //get all posts

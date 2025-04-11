@@ -11,14 +11,15 @@ import {
     getUserBoard,
     getBoardById,
     getBoardOwnerName,
-    getBoardOwnerId, joinBoard, isUserMemberOfBoard
+    getBoardOwnerId, joinBoard, isUserMemberOfBoard, addHashtagToBoard
 } from '../boardsDatabase';
-import {getUserID} from "../usersDatabase";
+import {getUserID, getUserNameById} from "../usersDatabase";
 import {getPostsForBoard} from "../postDatabase";
 
 const router = Router();
 router.use(fileUpload());
 
+/*
 router.post('/create', authHandler, [
     body('name').notEmpty().withMessage('Name is required'),
     body('description').notEmpty().withMessage('Description is required'),
@@ -88,6 +89,90 @@ router.post('/create', authHandler, [
     }
 });
 
+*/
+
+router.post(
+    '/createBoard',
+    authHandler,
+    [
+        body('name').notEmpty().withMessage('Name is required'),
+        body('description').notEmpty().withMessage('Description is required'),
+        body('visibility')
+            .notEmpty()
+            .withMessage('Visibility is required')
+            .isIn(['public', 'private'])
+            .withMessage('Visibility must be either public or private'),
+        body('boardTypeId').isInt().withMessage('Board type ID must be an integer'),
+    ],
+    async (req: Request, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name, description, visibility, hashtag = '', boardTypeId } = req.body;
+        const userId = await getUserID(req.session.user);
+
+        let profileImage = 'default_profile.jpg';
+        let headerImage = 'default_header.jpg';
+
+        try {
+            const uploadsDir = path.resolve(__dirname, '..', 'uploads');
+
+            // Ensure the uploads directory exists
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true });
+            }
+
+            if (req.files) {
+                const files = req.files as { [key: string]: fileUpload.UploadedFile };
+
+                // Handle profile image upload
+                if (files.profileImage) {
+                    const profileImageUUID = uuidv4() + path.extname(files.profileImage.name);
+                    const profileImagePath = path.join(uploadsDir, profileImageUUID);
+                    await files.profileImage.mv(profileImagePath);
+                    profileImage = profileImageUUID;
+                }
+
+                // Handle header image upload
+                if (files.headerImage) {
+                    const headerImageUUID = uuidv4() + path.extname(files.headerImage.name);
+                    const headerImagePath = path.join(uploadsDir, headerImageUUID);
+                    await files.headerImage.mv(headerImagePath);
+                    headerImage = headerImageUUID;
+                }
+            }
+
+            // Create the board in the database
+            const newBoard = await createBoard(
+                userId,
+                name,
+                description,
+                visibility,
+                hashtag,
+                boardTypeId,
+                `uploads/${profileImage}`,
+                `uploads/${headerImage}`
+            );
+
+            const hashtagsArray = hashtag
+                .split(',')
+                .map((tag: string) => tag.trim())
+                .filter((tag:string)=> tag.length > 0);
+
+            if (hashtagsArray.length > 0){
+                await addHashtagToBoard(newBoard.id, hashtagsArray);
+            }
+
+            return res.status(201).json(newBoard);
+        } catch (error) {
+            console.error('Error creating board:', error);
+            return res.status(500).json({ error: 'Failed to create board' });
+        }
+    }
+);
+
 router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
     const boardId = parseInt(req.params.id);
     try {
@@ -98,9 +183,10 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const ownerName = await getBoardOwnerName(boardId);
         const ownerId = await getBoardOwnerId(boardId);
         const currentUserId = await getUserID(req.session.user);
+        const currentUserName = req.session.user;
         const isMember = await isUserMemberOfBoard(currentUserId, boardId);
         const posts = await getPostsForBoard(boardId);
-        res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, user: req.session.user });
+        res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, currentUserName, user: req.session.user });
     } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });

@@ -19,11 +19,13 @@
         <a href="/about-us">About us</a>
     </div>
     <div class="user-buttons">
-        <button><a href="/login" id="login-button">Log in</a></button>
-        <button><a href="/register" id="register-button">Register</a></button>
-        <span id="username"></span>
-        <span id="dashboard-button"></span>
-        <span id="logout-button"></span>
+        <% if (user) { %>
+            <span>Logged in as: <%= user %></span>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <a href="/login">Log in</a>
+            <a href="/register">Register</a>
+        <% } %>
     </div>
 </div>
 <!-- END HEADER -->
@@ -60,57 +62,6 @@
     </div>
 
     <div id="posts" class="tab-content">
-        <div class="post-buttons">
-            <button id="createPostButton" onclick="openModal()">Create Post</button>
-
-            <!-- Modal for creating a post -->
-            <div id="postModal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="closeModal()">&times;</span>
-                    <form id="createPostForm" action="/createPost" method="POST" enctype="multipart/form-data">
-                        <input type="hidden" name="_method" value="PUT">
-                        <input type="hidden" id="userId" name="userId" value="<%= currentUserId %>">
-                        <input type="hidden" id="createdAt" name="createdAt" value="">
-                        <input type="hidden" name="boardId" value="<%= board.id %>">
-                        <div class="form-group">
-                            <label for="title">Title:</label>
-                            <input type="text" id="title" name="title" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="content">Content:</label>
-                            <textarea id="content" name="content" required></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="type">Post Type:</label>
-                            <select id="type" name="type">
-                                <option value="public">Art</option>
-                                <option value="private">Comic</option>
-                                <option value="private">Chapter</option>
-                                <option value="private">Text</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="image">Image:</label>
-                            <input type="file" id="image" name="image">
-                        </div>
-                        <div class="form-group">
-                            <label for="hashtags">Hashtags:</label>
-                            <input type="text" id="hashtags" name="hashtags">
-
-                        </div>
-                        <div class="form-group">
-                            <button type="submit">Post</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <form action="/searchPosts/<%= board.id %>" method="POST">
-                <input type="text" name="search" placeholder="Search Posts">
-                <button type="submit">Search</button>
-            </form>
-        </div>
         <h2>Posts</h2>
     </div>
 
@@ -142,122 +93,6 @@
         document.querySelector(".tab-button").click();
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('createPostForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const userIdElement = document.getElementById('userId');
-            const boardIdElement = document.querySelector('input[name="boardId"]');
-            const titleElement = document.getElementById('title');
-            const contentElement = document.getElementById('content');
-            const typeElement = document.getElementById('type');
-            const imageElement = document.getElementById('image');
-            const hashtagsElement = document.getElementById('hashtags');
-
-            if (!userIdElement || !boardIdElement || !titleElement || !contentElement || !typeElement || !imageElement || !hashtagsElement) {
-                console.error('One or more form elements are missing');
-                return;
-            }
-
-            const userId = userIdElement.value;
-            const createdAt = new Date().toISOString();
-            const boardId = boardIdElement.value;
-            const title = titleElement.value;
-            const content = contentElement.value;
-            const type = typeElement.value;
-            const image = imageElement.files[0];
-            const hashtags = hashtagsElement.value;
-
-            if (!title || !content || !type) {
-                alert('Please fill out all required fields');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('userId', userId);
-            formData.append('createdAt', createdAt);
-            formData.append('boardId', boardId);
-            formData.append('title', title);
-            formData.append('content', content);
-            formData.append('type', type);
-            formData.append('image', image);
-            formData.append('hashtags', hashtags);
-
-            try {
-                const response = await fetch('/createPost', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    console.log('Post created successfully');
-                    closeModal();
-                    location.reload();
-                } else {
-                    alert('Error creating post');
-                }
-            } catch (error) {
-                console.error('Error creating post:', error);
-                alert('Error creating post');
-            }
-        });
-
-        const postModal = document.getElementById("postModal");
-
-        function openModal() {
-            if (postModal) {
-                postModal.style.display = "block";
-            }
-        }
-
-        function closeModal() {
-            if (postModal) {
-                console.log('Closing modal');
-                postModal.style.display = "none";
-            }
-        }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById("postModal");
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/username')
-            .then(response => response.json())
-            .then(data => {
-                if (data.username) {
-                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
-                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
-                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
-                    document.getElementById('login-button').style.display = 'none';
-                    document.getElementById('register-button').style.display = 'none';
-                }
-            });
-    });
-        window.onclick = function(event) {
-            if (event.target === postModal) {
-                closeModal();
-            }
-        }
-
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/username')
-            .then(response => response.json())
-            .then(data => {
-                if (data.username) {
-                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
-                    document.getElementById('dashboard-button').innerHTML = `<a href="/dashboard">Dashboard</a>`;
-                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
-                    document.getElementById('login-button').style.display = 'none';
-                    document.getElementById('register-button').style.display = 'none';
-                }
-            });
-    });
 </script>
 </body>
 </html>

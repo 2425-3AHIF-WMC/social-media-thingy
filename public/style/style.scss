@@ -371,3 +371,187 @@ body{
 .profile-image:hover {
     border-color: #f50057;
 }
+
+#boardResults {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.board-item {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+    list-style: none;
+    width: 400px;
+    max-height: 400px;
+    position: relative;
+    color: black;
+    overflow: hidden;
+    margin-left: 20px;
+    margin-right: 20px;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.header-container {
+    position: relative;
+    height: 200px;
+}
+
+.header-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid white;
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+}
+
+.create-board-container {
+    width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #f9f9f9;
+    font-family: "Roboto", sans-serif;
+}
+
+.create-board-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.create-board-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.create-board-container label {
+    font-weight: bold;
+    color: #555;
+}
+
+.create-board-container input[type="text"],
+.create-board-container input[type="number"],
+.create-board-container input[type="file"],
+.create-board-container textarea,
+.create-board-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.create-board-container textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.create-board-container button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2fda56;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.create-board-container button:hover {
+    background-color: #28c34a;
+}
+
+#createBoardForm #addHashtagButton {
+    background-color: #f50057;
+    color: white;
+    font-size: 14px;
+    padding: 8px;
+    margin-top: 5px;
+}
+
+#createBoardForm #addHashtagButton:hover {
+    background-color: #d4004e;
+}
+
+#createBoardForm #hashtagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.hashtag-item {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.remove-hashtag {
+    margin-left: 5px;
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+}
+
+.modal-content {
+    background-color: #f9f9f9;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+}
+
+.close-button:hover {
+    color: red;
+}

@@ -68,6 +68,15 @@ export async function getUserID(username?: string ) : Promise<number> {
     return user.id;
 }
 
+export async function getUserNameById(userId: number) {
+   await init();
+    const user = await db.get('SELECT username FROM users WHERE id = ?', userId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+    return user.username;
+}
+
 //Update functions
 export async function updateUserFieldInDB(userId: number, field: string, value: string): Promise<boolean> {
     try {

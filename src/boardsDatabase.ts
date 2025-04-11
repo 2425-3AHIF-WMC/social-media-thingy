@@ -7,6 +7,8 @@ import CustomSession from "./model/session";
 import {db, init} from "./database";
 
 //createBoard(userId, name, description, profileImage, headerImage, visibility);
+
+/*
 export async function createBoard(ownerID: number, name: string, description: string, profileImage: string = 'uploads/default_profile.png', headerImage: string = 'uploads/default_header.png', visibility: string = 'public', hashtag: string = '') {
     await init();
 
@@ -16,6 +18,38 @@ export async function createBoard(ownerID: number, name: string, description: st
     );
 
     return { id: result.lastID, name, description, profileImage, headerImage, visibility, hashtag };
+}*/
+
+export async function createBoard(
+    ownerId: number,
+    name: string,
+    description: string,
+    visibility: string,
+    hashtag: string = '',
+    boardTypeId: number,
+    profileImage: string = 'uploads/default_profile.jpg',
+    headerImage: string = 'uploads/default_header.jpg'
+) {
+    await init();
+
+    const result = await db.run(
+        `INSERT INTO boards (name, description, ownerId, profile_image, header_image, visibility, hashtag,
+                             board_type_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, description, ownerId, profileImage, headerImage, visibility, hashtag, boardTypeId]
+    );
+
+    return {
+        id: result.lastID,
+        name,
+        description,
+        ownerId,
+        profileImage,
+        headerImage,
+        visibility,
+        hashtag,
+        boardTypeId
+    };
 }
 
 export async function getBoards() {
@@ -81,4 +115,27 @@ export async function isUserMemberOfBoard(userId: number, boardId: number): Prom
     await init();
     const result = await db.get('SELECT COUNT(*) as count FROM BoardMembers WHERE userId = ? AND boardId = ?', [userId, boardId]);
     return result.count > 0;
+}
+
+export async function addHashtagToBoard(boardId: number | undefined, hashtags: string[]){
+    const uniqueHashtags = [...new Set(hashtags.map(tag => tag.trim().toLowerCase()))];
+
+    for (const tag of uniqueHashtags) {
+        let hashtagId;
+
+        const existingHashtag = await db.get('SELECT id FROM hashtags WHERE name = ?', [tag]);
+        if (existingHashtag) {
+            hashtagId = existingHashtag.id;
+        } else {
+
+            const result = await db.run('INSERT INTO hashtags (name) VALUES (?)', [tag]);
+            hashtagId = result.lastID;
+        }
+
+        await db.run(
+            'INSERT OR IGNORE INTO board_hashtags (board_id, hashtag_id) VALUES (?, ?)',
+            [boardId, hashtagId]
+        );
+
+    }
 }
