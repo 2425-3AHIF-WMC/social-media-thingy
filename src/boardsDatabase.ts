@@ -5,6 +5,7 @@ import fs from 'fs';
 import {Database} from "sqlite";
 import CustomSession from "./model/session";
 import {db, init} from "./database";
+import {Post} from "./model/IPost";
 
 //createBoard(userId, name, description, profileImage, headerImage, visibility);
 
@@ -138,4 +139,54 @@ export async function addHashtagToBoard(boardId: number | undefined, hashtags: s
         );
 
     }
+}
+
+export async function createProject(
+    name: string,
+    description: string,
+    boardId: number
+) {
+    await init();
+
+    const result = await db.run(
+        `INSERT INTO project (name, description, board_id) VALUES (?, ?, ?)`,
+        [name, description, boardId]
+    );
+
+    return {
+        id: result.lastID,
+        name,
+        description,
+        boardId
+    };
+}
+
+export async function getProjectsForBoard(boardId: number) {
+    await init();
+    return await db.all('SELECT * FROM project WHERE board_id = ?', [boardId]);
+}
+
+export async function getPostsByBoard(boardId: number): Promise<Post[]> {
+    await init();
+    return db.all<Post[]>(
+        `SELECT
+       p.id,
+       p.title,
+       p.content,
+       p.type,
+       p.image,
+       p.createdAt,
+       p.userId,
+       p.boardId,
+       p.project_id    AS projectId,
+       GROUP_CONCAT(h.name) AS hashtags
+     FROM Posts p
+     LEFT JOIN post_hashtags ph ON ph.post_id = p.id
+     LEFT JOIN hashtags h        ON h.id         = ph.hashtag_id
+     WHERE p.boardId = ?
+     GROUP BY p.id
+     ORDER BY p.createdAt DESC;
+    `,
+        [boardId]
+    );
 }

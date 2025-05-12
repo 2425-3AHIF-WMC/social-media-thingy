@@ -59,7 +59,186 @@
     </div>
 
     <div id="posts" class="tab-content">
-        <h2>Posts</h2>
+        <div>
+            <h2>Posts</h2>
+            <button id="openPostModalButton">Create a New Post</button>
+
+            <% if (posts.length === 0) { %>
+                <p>No posts yet. Be the first to post!</p>
+            <% } else { %>
+                <div class="posts-list">
+                    <% posts.forEach(post => { %>
+                        <div class="post-card">
+                            <h3><%= post.title %></h3>
+                            <p><%= post.content %></p>
+
+                            <% if (post.type    === 'image' && post.image) { %>
+                                <img src="/<%= post.image %>" alt="Post Image" class="post-image"/>
+                            <% } %>
+
+                            <p class="post-meta">
+                                Posted on <%= new Date(post.createdAt).toLocaleString() %>
+                                by User: <%= user %>
+                            </p>
+
+                            <% if (post.hashtags.length) { %>
+                                <div class="post-hashtags">
+                                    <% post.hashtags.forEach(tag => { %>
+                                        <span class="hashtag-item">#<%= tag %></span>
+                                    <% }) %>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                </div>
+
+            <% } %>
+
+            <div>
+                <div id="createPostModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-button" id="closePostModalButton">&times;</span>
+                        <div class="create-post-container">
+                            <h2>Create a New Post</h2>
+                            <form id="createPostForm" enctype="multipart/form-data">
+                                <label for="title">Title:</label>
+                                <input type="text" id="title" name="title" required>
+
+                                <label for="content">Content:</label>
+                                <textarea id="content" name="content" required></textarea>
+
+                                <label for="type">Type:</label>
+                                <select id="type" name="type" required>
+                                    <option value="text">Text</option>
+                                    <option value="image">Image</option>
+                                </select>
+
+                                <label for="hashtagInput">Add Hashtags:</label>
+                                <input type="text" id="hashtagInput" placeholder="Enter a hashtag">
+                                <button type="button" id="addHashtagButton">Add Hashtag</button>
+                                <div id="hashtagList"></div>
+                                <input type="hidden" id="hashtags" name="hashtag">
+
+                                <label for="image">Image:</label>
+                                <input type="file" id="image" name="image" accept="image/*">
+
+                                <% if (isOwner) { %>
+                                    <div id="projectField">
+                                        <label for="projectId">Select Project:</label>
+                                        <select id="projectId" name="projectId">
+                                            <option value="">None</option>
+                                        </select>
+                                    </div>
+                                <% } %>
+
+                                <input type="hidden" id="boardId" name="boardId" value="<%= board.id %>">
+                                <button type="submit">Create Post</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const openPostModalButton = document.getElementById('openPostModalButton');
+                const closePostModalButton = document.getElementById('closePostModalButton');
+                const createPostModal = document.getElementById('createPostModal');
+                const hashtagInput = document.getElementById('hashtagInput'); // Fixed
+                const addHashtagButton = document.getElementById('addHashtagButton'); // Fixed
+                const hashtagList = document.getElementById('hashtagList'); // Fixed
+                const hashtagsField = document.getElementById('hashtags'); // Fixed
+                let hashtags = [];
+
+                // Open the modal
+                openPostModalButton.addEventListener('click', () => {
+                    createPostModal.style.display = 'block';
+                });
+
+                // Close the modal
+                closePostModalButton.addEventListener('click', () => {
+                    createPostModal.style.display = 'none';
+                });
+
+                // Close the modal when clicking outside the modal content
+                window.addEventListener('click', (event) => {
+                    if (event.target === createPostModal) {
+                        createPostModal.style.display = 'none';
+                    }
+                });
+
+                // Add hashtag to the list
+                addHashtagButton.addEventListener('click', () => {
+                    const hashtag = hashtagInput.value.trim();
+                    if (hashtag && !hashtags.includes(hashtag)) {
+                        hashtags.push(hashtag);
+                        updateHashtagList();
+                        hashtagInput.value = '';
+                    }
+                });
+
+                // Update the displayed hashtag list
+                function updateHashtagList() {
+                    hashtagList.innerHTML = '';
+                    hashtags.forEach((tag, index) => {
+                        const tagElement = document.createElement('span');
+                        tagElement.textContent = `#${tag}`;
+                        tagElement.className = 'hashtag-item';
+
+                        // Add a remove button for each hashtag
+                        const removeButton = document.createElement('button');
+                        removeButton.textContent = 'x';
+                        removeButton.className = 'remove-hashtag';
+                        removeButton.addEventListener('click', () => {
+                            hashtags.splice(index, 1);
+                            updateHashtagList();
+                        });
+
+                        tagElement.appendChild(removeButton);
+                        hashtagList.appendChild(tagElement);
+                    });
+
+                    hashtagsField.value = hashtags.join(',');
+                }
+
+                // Handle form submission
+                document.getElementById('createPostForm').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const form = event.target;
+                    const formData = new FormData(form);
+
+                    // Add hashtags to the form data
+                    formData.set('hashtags', hashtags.join(','));
+
+                    console.log('FormData:', [...formData.entries()]);
+
+                    try {
+                        const response = await fetch('/createPost', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            alert('Post created successfully!');
+                            window.location.reload();
+                        } else {
+                            try {
+                                const errorData = await response.json();
+                                alert(`Error: ${errorData.error || 'Failed to create post'}`);
+                            } catch (parseError) {
+                                console.error('Failed to parse JSON response:', parseError);
+                                alert('An unexpected error occurred. Please try again.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error creating post:', error);
+                        alert('An error occurred while creating the post.');
+                    }
+                });
+            });
+        </script>
     </div>
 
     <div id="chat" class="tab-content" style="display:none;">
@@ -72,6 +251,93 @@
 
     <div id="projects" class="tab-content" style="display: none">
         <h2><%= isOwner ? "Your Projects" : "Projects" %></h2>
+        <button id="openProjectModalButton">Create a New Project</button>
+        <div id="createProjectModal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" id="closeProjectModalButton">&times;</span>
+                <div class="create-project-container">
+                    <h2>Create a New Project</h2>
+                    <form id="createProjectForm">
+                        <label for="projectName">Project Name:</label>
+                        <input type="text" id="projectName" name="name" required>
+
+                        <label for="projectDescription">Description:</label>
+                        <textarea id="projectDescription" name="description" required></textarea>
+
+                        <input type="hidden" id="boardId" name="boardId" value="<%= board.id %>">
+
+                        <button type="submit">Create Project</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const openProjectModalButton = document.getElementById('openProjectModalButton');
+                const closeProjectModalButton = document.getElementById('closeProjectModalButton');
+                const createProjectModal = document.getElementById('createProjectModal');
+
+                openProjectModalButton.addEventListener('click', () => {
+                    createProjectModal.style.display = 'block';
+                });
+
+                closeProjectModalButton.addEventListener('click', () => {
+                    createProjectModal.style.display = 'none';
+                });
+
+                window.addEventListener('click', (event) => {
+                    if (event.target === createProjectModal) {
+                        createProjectModal.style.display = 'none';
+                    }
+                });
+
+                document.getElementById('createProjectForm').addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const form = event.target;
+                    const formData = new FormData(form);
+
+                    try {
+                        const response = await fetch('/createProject', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            alert('Project created successfully!');
+                            window.location.reload();
+                        } else {
+                            const errorData = await response.json();
+                            alert(`Error: ${errorData.error || 'Failed to create project'}`);
+                        }
+                    } catch (error) {
+                        console.error('Error creating project:', error);
+                        alert('An error occurred while creating the project.');
+                    }
+                });
+            });
+            document.addEventListener('DOMContentLoaded', async () => {
+                const projectDropdown = document.getElementById('projectId');
+
+                try {
+                    const response = await fetch(`/board/<%= board.id %>/projects`);
+                    if (response.ok) {
+                        const projects = await response.json();
+                        projects.forEach(project => {
+                            const option = document.createElement('option');
+                            option.value = project.id;
+                            option.textContent = project.name;
+                            projectDropdown.appendChild(option);
+                        });
+                    } else {
+                        console.error('Failed to fetch projects');
+                    }
+                } catch (error) {
+                    console.error('Error fetching projects:', error);
+                }
+            });
+        </script>
     </div>
 </div>
 

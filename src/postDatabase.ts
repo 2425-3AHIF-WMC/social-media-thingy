@@ -5,8 +5,9 @@ import fs from 'fs';
 import {Database} from "sqlite";
 import CustomSession from "./model/session";
 import {db, init} from "./database";
+import { getBoardOwnerId } from './boardsDatabase';
 
-export async function createPost(
+export async function createPostWithProject(
     title: string,
     content: string,
     userId: number,
@@ -14,12 +15,54 @@ export async function createPost(
     type: string,
     createdAt: Date,
     hashtag: string,
-    image?: string
+    image: string | null,
+    projectId?: number | null
 ) {
     await init();
 
+    console.log('Calling createPostWithProject with', {
+        title, content, userId, boardId, type, hashtag, image, projectId
+    });
+    const boardOwnerId = await getBoardOwnerId(boardId);
+
+    if (userId !== boardOwnerId && projectId) {
+        throw new Error('Only the board owner can associate a post with a project.');
+    }
+
     const result = await db.run(
-        'INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        `INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image, project_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, content, userId, boardId, type, createdAt, hashtag, image || null, projectId || null]
+    );
+
+    return {
+        id: result.lastID,
+        title,
+        content,
+        userId,
+        boardId,
+        type,
+        createdAt,
+        hashtag,
+        image: image || null,
+        projectId: projectId || null
+    };
+}
+
+export async function createPostWithoutProject(
+    title: string,
+    content: string,
+    userId: number,
+    boardId: number,
+    type: string,
+    createdAt: Date,
+    hashtag: string,
+    image: string | null
+){
+    await init();
+    const result = await db.run(
+        `INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [title, content, userId, boardId, type, createdAt, hashtag, image || null]
     );
 
@@ -99,4 +142,26 @@ export async function hasLikedPost(postId: number, userId: number): Promise<bool
     return result.count > 0;
 }
 
+export async function ensureHashtag(tag: string): Promise<number> {
+    await db.run(
+        `INSERT OR IGNORE INTO hashtags (name) VALUES (?)`,
+        [tag]
+    );
 
+    const row = await db.get<{ id: number }>(
+        `SELECT id FROM hashtags WHERE name = ?`,
+        [tag]
+    );
+    if (!row) throw new Error(`Konnte Hashtag ${tag} nicht finden oder anlegen`);
+    return row.id;
+}
+
+export async function addHashtagsToPost(postId: number, tags: string[]): Promise<void> {
+    for (const tag of tags) {
+        const hashtagId = await ensureHashtag(tag.trim());
+        await db.run(
+            `INSERT OR IGNORE INTO post_hashtags (post_id, hashtag_id) VALUES (?, ?)`,
+            [postId, hashtagId]
+        );
+    }
+}

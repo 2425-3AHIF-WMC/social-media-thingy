@@ -160,4 +160,171 @@ button#joinButton:active {
   background-color: #45a049;
 }
 
+#createProjectModal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#createProjectModal .modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+#createProjectModal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+#createProjectModal .close-button:hover {
+  color: red;
+}
+
+.create-project-container {
+  width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #f9f9f9;
+  font-family: "Roboto", sans-serif;
+}
+.create-project-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+.create-project-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.create-project-container label {
+  font-weight: bold;
+  color: #555;
+}
+.create-project-container input[type=text],
+.create-project-container textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+.create-project-container textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+.create-project-container button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.create-project-container button:hover {
+  background-color: #45a049;
+}
+
+/* Modal Styles */
+#openProjectModalButton {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+#openProjectModalButton:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+#openProjectModalButton:active {
+  background-color: #3e8e41;
+  transform: scale(0.98);
+}
+
+#closeProjectModalButton {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+#closeProjectModalButton:hover {
+  color: red;
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.post-card {
+  background: #fff;
+  color: #333;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.75rem;
+}
+.post-card .post-image {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  margin: 0.75rem 0;
+}
+.post-card .post-meta {
+  font-size: 0.8rem;
+  color: #657786;
+}
+.post-card .post-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.post-card .post-hashtags .hashtag-item {
+  background: #e1e8ed;
+  color: #1da1f2;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+}
+
 /*# sourceMappingURL=board.css.map */

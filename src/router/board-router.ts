@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
 import { authHandler } from "../middleware/auth-handler";
 import { body, validationResult } from 'express-validator';
-import fileUpload from 'express-fileupload';
 import path from 'path';
 import fs from 'fs';
+import multer from "multer";
 import { v4 as uuidv4 } from 'uuid';
 import {
     createBoard,
@@ -11,13 +11,13 @@ import {
     getUserBoard,
     getBoardById,
     getBoardOwnerName,
-    getBoardOwnerId, joinBoard, isUserMemberOfBoard, addHashtagToBoard
+    getBoardOwnerId, joinBoard, isUserMemberOfBoard, addHashtagToBoard,
+    createProject, getProjectsForBoard, getPostsByBoard
 } from '../boardsDatabase';
 import {getUserID, getUserNameById} from "../usersDatabase";
 import {getPostsForBoard} from "../postDatabase";
 
 const router = Router();
-router.use(fileUpload());
 
 /*
 router.post('/create', authHandler, [
@@ -91,9 +91,27 @@ router.post('/create', authHandler, [
 
 */
 
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        cb(null, uploadsDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = uuidv4() + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({ storage });
+
 router.post(
     '/createBoard',
     authHandler,
+    upload.fields([{ name: 'profileImage' }, { name: 'headerImage' }]),
     [
         body('name').notEmpty().withMessage('Name is required'),
         body('description').notEmpty().withMessage('Description is required'),
@@ -117,30 +135,16 @@ router.post(
         let headerImage = 'default_header.jpg';
 
         try {
-            const uploadsDir = path.resolve(__dirname, '..', 'uploads');
-
-            // Ensure the uploads directory exists
-            if (!fs.existsSync(uploadsDir)) {
-                fs.mkdirSync(uploadsDir, { recursive: true });
-            }
 
             if (req.files) {
-                const files = req.files as { [key: string]: fileUpload.UploadedFile };
+                const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-                // Handle profile image upload
-                if (files.profileImage) {
-                    const profileImageUUID = uuidv4() + path.extname(files.profileImage.name);
-                    const profileImagePath = path.join(uploadsDir, profileImageUUID);
-                    await files.profileImage.mv(profileImagePath);
-                    profileImage = profileImageUUID;
+                if (files.profileImage && files.profileImage[0]) {
+                    profileImage = `uploads/${files.profileImage[0].filename}`;
                 }
 
-                // Handle header image upload
-                if (files.headerImage) {
-                    const headerImageUUID = uuidv4() + path.extname(files.headerImage.name);
-                    const headerImagePath = path.join(uploadsDir, headerImageUUID);
-                    await files.headerImage.mv(headerImagePath);
-                    headerImage = headerImageUUID;
+                if (files.headerImage && files.headerImage[0]) {
+                    headerImage = `uploads/${files.headerImage[0].filename}`;
                 }
             }
 
@@ -152,16 +156,16 @@ router.post(
                 visibility,
                 hashtag,
                 boardTypeId,
-                `uploads/${profileImage}`,
-                `uploads/${headerImage}`
+                profileImage,
+                headerImage
             );
 
             const hashtagsArray = hashtag
                 .split(',')
                 .map((tag: string) => tag.trim())
-                .filter((tag:string)=> tag.length > 0);
+                .filter((tag: string) => tag.length > 0);
 
-            if (hashtagsArray.length > 0){
+            if (hashtagsArray.length > 0) {
                 await addHashtagToBoard(newBoard.id, hashtagsArray);
             }
 
@@ -172,6 +176,50 @@ router.post(
         }
     }
 );
+
+router.post(
+    '/createProject',
+    authHandler,
+    [
+        body('name').notEmpty().withMessage('Name is required'),
+        body('description').notEmpty().withMessage('Description is required'),
+        body('boardId').isInt().withMessage('Board ID must be an integer'),
+    ],
+    async (req: Request, res: Response) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name, description, boardId } = req.body;
+        const userId = await getUserID(req.session.user);
+
+        try {
+            const boardOwnerId = await getBoardOwnerId(boardId);
+            if (userId !== boardOwnerId) {
+                return res.status(403).json({ error: 'Only the board owner can create a project.' });
+            }
+
+            const newProject = await createProject(name, description, boardId);
+            return res.status(201).json(newProject);
+        } catch (error) {
+            console.error('Error creating project:', error);
+            return res.status(500).json({ error: 'Failed to create project' });
+        }
+    }
+);
+
+router.get('/board/:id/projects', authHandler, async (req: Request, res: Response) => {
+    const boardId = parseInt(req.params.id);
+
+    try {
+        const projects = await getProjectsForBoard(boardId);
+        return res.status(200).json(projects);
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        return res.status(500).json({ error: 'Failed to fetch projects' });
+    }
+});
 
 router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
     const boardId = parseInt(req.params.id);
@@ -185,8 +233,17 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const currentUserId = await getUserID(req.session.user);
         const currentUserName = req.session.user;
         const isMember = await isUserMemberOfBoard(currentUserId, boardId);
-        const posts = await getPostsForBoard(boardId);
         const isOwner = ownerId === currentUserId;
+
+
+        const rawPosts = await getPostsByBoard(boardId);
+        const posts = rawPosts.map(p => ({
+            ...p,
+            hashtags: p.hashtags ? p.hashtags.split(',') : []
+        }));
+        console.log('Posts for board', boardId, posts);
+
+
         res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, currentUserName, isOwner, user: req.session.user });
     } catch (error) {
         console.error("Error fetching board:", error);
