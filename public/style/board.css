@@ -20,7 +20,7 @@ button#joinButton:active {
 }
 
 .board-content {
-  position: relative; /* Add relative positioning to the container */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -95,7 +95,6 @@ button#joinButton:active {
   overflow-y: auto;
 }
 
-/* Add these styles for the modal */
 .modal {
   display: none;
   position: fixed;
@@ -247,7 +246,6 @@ button#joinButton:active {
   background-color: #45a049;
 }
 
-/* Modal Styles */
 #openProjectModalButton {
   display: inline-block;
   padding: 10px 20px;
@@ -325,6 +323,65 @@ button#joinButton:active {
   padding: 4px 8px;
   border-radius: 16px;
   font-size: 0.85rem;
+}
+
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+
+.project-item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.project-item:hover {
+  background: #b1bb10;
+}
+
+.modal.project-modal {
+  display: none;
+  color: #333333;
+  position: fixed;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.project-detail {
+  display: flex;
+  height: 100%;
+}
+
+.project-posts {
+  color: #333333;
+  flex: 2;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+  padding: 12px;
+}
+
+.project-info {
+  color: #333333;
+  flex: 1;
+  padding: 12px;
+}
+
+.project-post-item {
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.project-post-item img {
+  max-width: 100%;
+  border-radius: 4px;
 }
 
 /*# sourceMappingURL=board.css.map */

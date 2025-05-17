@@ -4,8 +4,8 @@
   "description": "",
   "scripts": {
     "build": "tsc --outDir build",
-    "serve": "concurrently --kill-others \"tsc --watch\" \"nodemon ./tmp/app.js \"",
-    "start": "node build/app.js"
+    "serve": "concurrently --kill-others \"tsc --watch\" \"nodemon --watch build --exec node build/server.js\"",
+    "start": "node build/server.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,7 @@
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.8.1",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "uuid": "^11.0.2"

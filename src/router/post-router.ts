@@ -7,12 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUserID } from '../usersDatabase';
 import { createPostWithProject, createPostWithoutProject, likePost, unlikePost, addHashtagsToPost } from '../postDatabase';
 import multer from 'multer';
+import {getBoardOwnerId, isUserMemberOfBoard} from "../boardsDatabase";
 
 const router = Router();
 
 // Multer configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, file, cb ) => {
         const uploadsDir = path.resolve(__dirname, '..', 'uploads');
         if (!fs.existsSync(uploadsDir)) {
             fs.mkdirSync(uploadsDir, { recursive: true });
@@ -40,10 +41,6 @@ router.post(
         body('hashtags').optional().isString().withMessage('Hashtags must be a comma-separated string')
     ],
     async (req: Request, res: Response) => {
-        console.log('--- New /createPost Request ---');
-        console.log('Content-Type:', req.headers['content-type']);
-        console.log('req.body:', req.body);
-        console.log('req.file:', req.file);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -51,10 +48,18 @@ router.post(
         }
 
         try {
+
             const userId: number = await getUserID(req.session.user);
+            const boardId: number = parseInt(req.body.boardId);
+
+            const ownerId = await getBoardOwnerId(boardId);
+            const isMember = await isUserMemberOfBoard(userId, boardId);
+            if (ownerId !== userId && !isMember) {
+                return res.status(403).json({ error: 'Forbidden: You must join the board to post.' });
+            }
+
             const title: string = req.body.title;
             const content: string = req.body.content;
-            const boardId: number = parseInt(req.body.boardId, 10);
             const type: string = req.body.type;
 
             if (!title || !content) {
@@ -71,9 +76,6 @@ router.post(
                 .split(',')
                 .map(tag => tag.trim())
                 .filter(tag => tag);
-
-            console.log('Parsed hashtags:', hashtagsArray);
-
 
             let post;
             if (projectId !== null) {

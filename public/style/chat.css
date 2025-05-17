@@ -1,0 +1,172 @@
+.chat-window {
+  height: 400px;
+  overflow-y: auto;
+  background: #f6f6f6;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 12px;
+}
+
+.chat-message-header strong {
+  color: #5865f2;
+  font-weight: 600;
+}
+
+.chat-message-header time {
+  font-style: normal;
+  color: #999;
+  margin-left: 8px;
+}
+
+.chat-form {
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: #5865f2;
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+}
+
+.chat-send-btn {
+  padding: 0 16px;
+  font-size: 1rem;
+  border: none;
+  background: #5865f2;
+  color: white;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-send-btn:hover {
+  background: #4752c4;
+}
+
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 100%;
+  margin-bottom: 12px;
+}
+
+.chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chat-message-content {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  flex-grow: 1;
+}
+
+.chat-message-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+.chat-message-body {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.chat-flex-container {
+  display: flex;
+  gap: 16px;
+}
+
+.chat-main {
+  flex: 3;
+}
+
+.chat-online-container {
+  flex: 1;
+  background: #f2f3f5;
+  padding: 8px;
+  border-radius: 8px;
+  max-height: 500px;
+  overflow-y: auto;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.chat-online-container h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.online-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.online-user {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.online-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
+.online-name {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* role badge styling */
+.role-badge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.role-badge.owner {
+  background: #ffe58f;
+  color: #663c00;
+}
+
+.role-badge.member {
+  background: #d9f7be;
+  color: #135200;
+}
+
+.role-badge.moderator {
+  background: #bae7ff;
+  color: #0050b3;
+}
+
+/*# sourceMappingURL=chat.css.map */

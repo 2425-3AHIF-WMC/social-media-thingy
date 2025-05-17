@@ -9,4 +9,5 @@ export interface Post {
     boardId: number;
     projectId: number | null;
     hashtags: string | null;
+    username: string;
 }

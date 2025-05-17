@@ -8,6 +8,7 @@ import roleRouter from "./router/role-router";
 import boardRouter from './router/board-router';
 import userRouter from './router/users-router';
 import postRouter from './router/post-router';
+import chatRouter from './router/chat-router';
 
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
@@ -50,11 +51,10 @@ app.use('/', roleRouter);
 app.use('/', boardRouter);
 app.use('/', userRouter);
 app.use('/', postRouter);
+app.use('/', chatRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
-});
+export default app;

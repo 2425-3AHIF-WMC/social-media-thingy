@@ -119,6 +119,20 @@ export async function updateProfileHeaderImage(userId: number, headerImage: stri
 }
 
 
+export async function getUserById(userId: number): Promise<{
+    id: number;
+    username: string;
+    profile_image: string;
+} | undefined> {
+    await init();
+    return db.get(
+        `SELECT id, username, profile_image
+     FROM users
+     WHERE id = ?`,
+        [userId]
+    );
+}
+
 init().catch(console.error);
 
 

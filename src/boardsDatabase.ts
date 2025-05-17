@@ -114,8 +114,18 @@ export async function doesUserExist(userId: number): Promise<boolean> {
 
 export async function isUserMemberOfBoard(userId: number, boardId: number): Promise<boolean> {
     await init();
-    const result = await db.get('SELECT COUNT(*) as count FROM BoardMembers WHERE userId = ? AND boardId = ?', [userId, boardId]);
-    return result.count > 0;
+    const row = await db.get<{ 1: number }>(
+        `SELECT 1 FROM BoardMembers WHERE userId = ? AND boardId = ?`,
+        [userId, boardId]
+    );
+    return !!row;
+}
+
+export async function addBoardMember(userId: number, boardId: number, role = 'member'): Promise<void> {
+    await db.run(
+        `INSERT INTO BoardMembers (userId, boardId, role) VALUES (?, ?, ?)`,
+        [userId, boardId, role]
+    );
 }
 
 export async function addHashtagToBoard(boardId: number | undefined, hashtags: string[]){
@@ -170,23 +180,43 @@ export async function getPostsByBoard(boardId: number): Promise<Post[]> {
     await init();
     return db.all<Post[]>(
         `SELECT
-       p.id,
-       p.title,
-       p.content,
-       p.type,
-       p.image,
-       p.createdAt,
-       p.userId,
-       p.boardId,
-       p.project_id    AS projectId,
-       GROUP_CONCAT(h.name) AS hashtags
-     FROM Posts p
-     LEFT JOIN post_hashtags ph ON ph.post_id = p.id
-     LEFT JOIN hashtags h        ON h.id         = ph.hashtag_id
-     WHERE p.boardId = ?
-     GROUP BY p.id
-     ORDER BY p.createdAt DESC;
-    `,
+             p.id,
+             p.title,
+             p.content,
+             p.type,
+             p.image,
+             p.createdAt,
+             p.userId,
+             u.username         AS username,
+             GROUP_CONCAT(h.name) AS hashtags
+         FROM Posts p
+                  LEFT JOIN users u        ON u.id         = p.userId
+                  LEFT JOIN post_hashtags ph  ON ph.post_id = p.id
+                  LEFT JOIN hashtags h        ON h.id         = ph.hashtag_id
+         WHERE p.boardId = ?
+         GROUP BY p.id
+         ORDER BY p.createdAt DESC;
+
+        `,
         [boardId]
     );
+}
+
+export async function getPostsByProject(projectId: number) {
+    await init();
+    return db.all(`
+    SELECT
+      p.id,
+      p.title,
+      p.content,
+      p.type,
+      p.image,
+      p.createdAt,
+      u.username       AS username,
+      u.profile_image  AS avatar
+    FROM Posts p
+    JOIN users u        ON u.id = p.userId
+    WHERE p.project_id = ?
+    ORDER BY p.createdAt DESC
+  `, [projectId]);
 }

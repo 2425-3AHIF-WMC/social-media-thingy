@@ -12,10 +12,10 @@ import {
     getBoardById,
     getBoardOwnerName,
     getBoardOwnerId, joinBoard, isUserMemberOfBoard, addHashtagToBoard,
-    createProject, getProjectsForBoard, getPostsByBoard
+    createProject, getProjectsForBoard, getPostsByBoard, addBoardMember, getPostsByProject
 } from '../boardsDatabase';
-import {getUserID, getUserNameById} from "../usersDatabase";
-import {getPostsForBoard} from "../postDatabase";
+import {getUserById, getUserID, getUserNameById} from "../usersDatabase";
+import {getPostById, getPostOwnerName, getPostsForBoard} from "../postDatabase";
 
 const router = Router();
 
@@ -148,7 +148,6 @@ router.post(
                 }
             }
 
-            // Create the board in the database
             const newBoard = await createBoard(
                 userId,
                 name,
@@ -199,9 +198,8 @@ router.post(
             if (userId !== boardOwnerId) {
                 return res.status(403).json({ error: 'Only the board owner can create a project.' });
             }
-
-            const newProject = await createProject(name, description, boardId);
-            return res.status(201).json(newProject);
+            await createProject(name, description, boardId);
+            return res.redirect(`/board/${boardId}`);
         } catch (error) {
             console.error('Error creating project:', error);
             return res.status(500).json({ error: 'Failed to create project' });
@@ -234,17 +232,20 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const currentUserName = req.session.user;
         const isMember = await isUserMemberOfBoard(currentUserId, boardId);
         const isOwner = ownerId === currentUserId;
-
+        const currentUserRecord = await getUserById(currentUserId);
+        const userAvatar = currentUserRecord?.profile_image || 'uploads/default_profile.png';
+        const projects = await getProjectsForBoard(boardId);
 
         const rawPosts = await getPostsByBoard(boardId);
         const posts = rawPosts.map(p => ({
             ...p,
             hashtags: p.hashtags ? p.hashtags.split(',') : []
         }));
-        console.log('Posts for board', boardId, posts);
 
 
-        res.render('board', { board, ownerName, ownerId, currentUserId, isMember, posts, currentUserName, isOwner, user: req.session.user });
+        res.render('board', { board, ownerName, ownerId, currentUserId, isMember,
+            posts, currentUserName,
+            isOwner, userAvatar, projects, user: req.session.user });
     } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });
@@ -284,17 +285,42 @@ router.get('/user-boards', authHandler, async (req: Request, res: Response) => {
     }
 });
 
-router.post('/join/:id', authHandler, async (req: Request, res: Response) => {
-    const boardId = parseInt(req.params.id);
-    const userId = await getUserID(req.session.user);
+router.post('/join/:boardId', authHandler, async (req: Request, res: Response) => {
+    const userId: number = await getUserID(req.session.user);
+    const boardId: number = parseInt(req.params.boardId, 10);
+
     try {
-        await joinBoard(boardId, userId);
-        return res.status(204).send();
-    } catch (error) {
-        console.error("Error joining board:", error);
-        return res.status(500).json({ error: 'Failed to join board' });
+        const ownerId = await getBoardOwnerId(boardId);
+        if (ownerId === null) {
+            return res.status(404).send('Board not found');
+        }
+        if (ownerId === userId) {
+            return res.status(400).send('Owner is already a member');
+        }
+
+        if (await isUserMemberOfBoard(userId, boardId)) {
+            return res.status(400).send('Already a member');
+        }
+
+        await addBoardMember(userId, boardId);
+        return res.redirect(`/board/${boardId}`);
+    } catch (err: any) {
+        console.error('Error joining board:', err);
+        return res.status(500).send('Server error');
     }
 });
+
+router.get('/project/:projectId/posts', authHandler, async (req, res) => {
+    const projectId = Number(req.params.projectId);
+    try {
+        const posts = await getPostsByProject(projectId);
+        res.json(posts);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Could not fetch project posts' });
+    }
+});
+
 
 
 export default router;
