@@ -135,7 +135,6 @@ router.post('/createBoard', auth_handler_1.authHandler, upload.fields([{ name: '
                 headerImage = `uploads/${files.headerImage[0].filename}`;
             }
         }
-        // Create the board in the database
         const newBoard = yield (0, boardsDatabase_1.createBoard)(userId, name, description, visibility, hashtag, boardTypeId, profileImage, headerImage);
         const hashtagsArray = hashtag
             .split(',')
