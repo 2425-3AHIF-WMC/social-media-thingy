@@ -22,6 +22,7 @@ const usersDatabase_1 = require("../usersDatabase");
 const postDatabase_1 = require("../postDatabase");
 const multer_1 = __importDefault(require("multer"));
 const boardsDatabase_1 = require("../boardsDatabase");
+const chaptersDatabase_1 = require("../chaptersDatabase");
 const router = (0, express_1.Router)();
 // Multer configuration
 const storage = multer_1.default.diskStorage({
@@ -37,54 +38,107 @@ const storage = multer_1.default.diskStorage({
         cb(null, uniqueName);
     }
 });
-const upload = (0, multer_1.default)({ storage });
+const upload = (0, multer_1.default)({ storage }).fields([
+    { name: 'image', maxCount: 1 }, // your existing single‐image posts
+    { name: 'chapterFile', maxCount: 1 }, // for .txt/.docx/.pdf
+    { name: 'comicPages', maxCount: 50 } // for multiple comic pages
+]);
 // POST /createPost
-router.post('/createPost', auth_handler_1.authHandler, upload.single('image'), [
+router.post('/createPost', auth_handler_1.authHandler, upload, [
     (0, express_validator_1.body)('title').notEmpty().withMessage('Title is required'),
     (0, express_validator_1.body)('content').notEmpty().withMessage('Content is required'),
     (0, express_validator_1.body)('boardId').isInt().withMessage('Board ID must be an integer'),
-    (0, express_validator_1.body)('type').notEmpty().withMessage('Type is required'),
-    (0, express_validator_1.body)('hashtags').optional().isString().withMessage('Hashtags must be a comma-separated string')
+    (0, express_validator_1.body)('type')
+        .isIn(['text', 'image', 'chapter', 'comic'])
+        .withMessage('Type must be one of text, image, chapter or comic'),
+    (0, express_validator_1.body)('hashtags')
+        .optional()
+        .isString()
+        .withMessage('Hashtags must be a comma-separated string'),
+    (0, express_validator_1.body)('projectId')
+        .optional()
+        .isInt()
+        .withMessage('Project ID, if provided, must be an integer'),
 ], (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    // 1. Validation
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
+        // 2. Auth & permissions
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
-        const boardId = parseInt(req.body.boardId);
+        const boardId = parseInt(req.body.boardId, 10);
         const ownerId = yield (0, boardsDatabase_1.getBoardOwnerId)(boardId);
-        const isMember = yield (0, boardsDatabase_1.isUserMemberOfBoard)(userId, boardId);
-        if (ownerId !== userId && !isMember) {
-            return res.status(403).json({ error: 'Forbidden: You must join the board to post.' });
+        const member = yield (0, boardsDatabase_1.isUserMemberOfBoard)(userId, boardId);
+        if (ownerId !== userId && !member) {
+            return res
+                .status(403)
+                .json({ error: 'Forbidden: You must join the board to post.' });
         }
-        const title = req.body.title;
-        const content = req.body.content;
-        const type = req.body.type;
-        if (!title || !content) {
-            return res.status(400).json({ error: 'Title and Content cannot be empty' });
-        }
-        const imagePath = req.file ? path_1.default.join('uploads', req.file.filename) : '';
-        const projectIdRaw = req.body.projectId;
-        const projectId = projectIdRaw ? parseInt(projectIdRaw, 10) : null;
-        const hashtagsField = req.body.hashtags || '';
-        const hashtagsArray = hashtagsField
+        // 3. Common fields
+        const { title, content, type } = req.body;
+        const projectId = req.body.projectId
+            ? parseInt(req.body.projectId, 10)
+            : null;
+        const hashtags = (req.body.hashtags || '')
             .split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag);
-        let post;
-        if (projectId !== null) {
-            post = yield (0, postDatabase_1.createPostWithProject)(title, content, userId, boardId, type, new Date(), hashtagsArray[0] || '', imagePath, projectId);
+            .map((t) => t.trim())
+            .filter((t) => t);
+        let postId;
+        // 4a. Chapter upload
+        if (type === 'chapter') {
+            const file = (_b = (_a = req.files) === null || _a === void 0 ? void 0 : _a.chapterFile) === null || _b === void 0 ? void 0 : _b[0];
+            if (!file) {
+                return res.status(400).json({ error: 'Chapter file required' });
+            }
+            const ext = path_1.default
+                .extname(file.originalname)
+                .slice(1)
+                .toLowerCase(); // 'txt' | 'docx' | 'pdf'
+            const post = yield (0, postDatabase_1.createPostWithProject)(title, content, userId, boardId, 'chapter', new Date(), hashtags[0] || '', '', // no image
+            projectId, file.path, // file_path
+            ext // file_format
+            );
+            postId = post.id;
+            // 4b. Comic upload
+        }
+        else if (type === 'comic') {
+            const pages = req.files.comicPages;
+            if (!(pages === null || pages === void 0 ? void 0 : pages.length)) {
+                return res.status(400).json({ error: 'Comic pages required' });
+            }
+            const post = yield (0, postDatabase_1.createPostWithProject)(title, content, userId, boardId, 'comic', new Date(), hashtags[0] || '', '', projectId);
+            postId = post.id;
+            for (let i = 0; i < pages.length; i++) {
+                const file = pages[i];
+                // **DON’T** use path.join here—build the URL path manually:
+                const publicPath = `uploads/${file.filename}`;
+                yield (0, chaptersDatabase_1.insertComicPage)(postId, i + 1, publicPath);
+            }
         }
         else {
-            post = yield (0, postDatabase_1.createPostWithoutProject)(title, content, userId, boardId, type, new Date(), hashtagsArray[0] || '', imagePath);
+            const imgFile = (_d = (_c = req.files) === null || _c === void 0 ? void 0 : _c.image) === null || _d === void 0 ? void 0 : _d[0];
+            const imagePath = imgFile
+                ? path_1.default.join('uploads', imgFile.filename)
+                : '';
+            const createFn = projectId
+                ? postDatabase_1.createPostWithProject
+                : postDatabase_1.createPostWithoutProject;
+            const post = yield createFn(title, content, userId, boardId, type, new Date(), hashtags[0] || '', imagePath, projectId);
+            postId = post.id;
         }
-        yield (0, postDatabase_1.addHashtagsToPost)(post.id, hashtagsArray);
-        return res.status(201).json(post);
+        // 5. Attach hashtags
+        if (hashtags.length) {
+            yield (0, postDatabase_1.addHashtagsToPost)(postId, hashtags);
+        }
+        // 6. Respond
+        return res.status(201).json({ id: postId });
     }
-    catch (error) {
-        console.error('Error creating post:', error);
-        return res.status(500).json({ error: error.message });
+    catch (err) {
+        console.error('Error creating post:', err);
+        return res.status(500).json({ error: err.message });
     }
 }));
 // like and unlike post

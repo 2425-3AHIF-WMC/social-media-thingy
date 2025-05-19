@@ -25,31 +25,17 @@ exports.hasLikedPost = hasLikedPost;
 exports.ensureHashtag = ensureHashtag;
 exports.addHashtagsToPost = addHashtagsToPost;
 const database_1 = require("./database");
-const boardsDatabase_1 = require("./boardsDatabase");
-function createPostWithProject(title, content, userId, boardId, type, createdAt, hashtag, image, projectId) {
+function createPostWithProject(title, content, userId, boardId, type, createdAt, hashtag, image, projectId, filePath, // new
+fileFormat // new
+) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, database_1.init)();
-        console.log('Calling createPostWithProject with', {
-            title, content, userId, boardId, type, hashtag, image, projectId
-        });
-        const boardOwnerId = yield (0, boardsDatabase_1.getBoardOwnerId)(boardId);
-        if (userId !== boardOwnerId && projectId) {
-            throw new Error('Only the board owner can associate a post with a project.');
-        }
-        const result = yield database_1.db.run(`INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image, project_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [title, content, userId, boardId, type, createdAt, hashtag, image || null, projectId || null]);
-        return {
-            id: result.lastID,
-            title,
-            content,
-            userId,
-            boardId,
-            type,
-            createdAt,
-            hashtag,
-            image: image || null,
-            projectId: projectId || null
-        };
+        const result = yield database_1.db.run(`INSERT INTO Posts
+       (title, content, userId, boardId, type, createdAt, hashtag, image,
+        project_id, file_path, file_format)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`, [title, content, userId, boardId, type, createdAt.toISOString(),
+            hashtag, image, projectId, filePath || null, fileFormat || null]);
+        return { id: result.lastID, /*…other fields…*/ };
     });
 }
 function createPostWithoutProject(title, content, userId, boardId, type, createdAt, hashtag, image) {

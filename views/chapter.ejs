@@ -1,0 +1,82 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= post.title %></title>
+    <link rel="stylesheet" href="/style/style.css">
+    <link rel="stylesheet" href="/style/board.css">
+    <link rel="stylesheet" href="/style/chapter.css">
+    <!-- Book-style font -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital@0;1&display=swap" rel="stylesheet">
+
+</head>
+<body>
+<div class="chapter-container">
+    <h1 class="chapter-title"><%= post.title %></h1>
+
+    <% if (post.file_format === 'pdf') { %>
+        <div class="chapter-body">
+            <canvas id="pdfCanvas"></canvas>
+        </div>
+        <div class="chapter-nav">
+            <button id="prevPage">&larr; Prev</button>
+            <span>Page <span id="pageNum">1</span> / <span id="pageCount">?</span></span>
+            <button id="nextPage">Next &rarr;</button>
+        </div>
+        <script src="/pdfjs/build/pdf.js"></script>
+        <script>
+            const url = '/<%= post.file_path %>';
+            let pdfDoc = null, pageNum = 1;
+            const canvas = document.getElementById('pdfCanvas');
+            const ctx = canvas.getContext('2d');
+            pdfjsLib.getDocument(url).promise.then(doc => {
+                pdfDoc = doc;
+                document.getElementById('pageCount').textContent = doc.numPages;
+                renderPage(pageNum);
+            });
+            function renderPage(num) {
+                pdfDoc.getPage(num).then(page => {
+                    const vp = page.getViewport({ scale:1.4 });
+                    canvas.height = vp.height; canvas.width = vp.width;
+                    page.render({ canvasContext:ctx, viewport:vp });
+                    document.getElementById('pageNum').textContent = num;
+                });
+            }
+            document.getElementById('nextPage').onclick = () => { if (pageNum < pdfDoc.numPages) renderPage(++pageNum); };
+            document.getElementById('prevPage').onclick = () => { if (pageNum > 1) renderPage(--pageNum); };
+        </script>
+    <% } else { %>
+        <div class="chapter-body"><%- html %></div>
+    <% } %>
+
+    <div class="chapter-nav">
+        <% if (prev) { %>
+            <a href="/<%= prev.type %>/<%= prev.id %>">&larr; Previous</a>
+        <% } else { %><span></span><% } %>
+
+        <% if (next) { %>
+            <a href="/<%= next.type %>/<%= next.id %>">Next &rarr;</a>
+        <% } else { %><span></span><% } %>
+    </div>
+
+</div>
+
+<script>
+    // Adjacent links
+    const prevAdj = <%- JSON.stringify(prev || null) %>;
+    const nextAdj = <%- JSON.stringify(next || null) %>;
+    const prevLink = prevAdj ? `/${prevAdj.type}/${prevAdj.id}` : null;
+    const nextLink = nextAdj ? `/${nextAdj.type}/${nextAdj.id}` : null;
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft' && prevLink) {
+            window.location = prevLink;
+        }
+        if (e.key === 'ArrowRight' && nextLink) {
+            window.location = nextLink;
+        }
+    });
+</script>
+</body>
+</html>
+

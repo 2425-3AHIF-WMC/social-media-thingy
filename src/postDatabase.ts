@@ -15,39 +15,23 @@ export async function createPostWithProject(
     type: string,
     createdAt: Date,
     hashtag: string,
-    image: string | null,
-    projectId?: number | null
+    image: string,
+    projectId: number,
+    filePath?: string,           // new
+    fileFormat?: string          // new
 ) {
     await init();
-
-    console.log('Calling createPostWithProject with', {
-        title, content, userId, boardId, type, hashtag, image, projectId
-    });
-    const boardOwnerId = await getBoardOwnerId(boardId);
-
-    if (userId !== boardOwnerId && projectId) {
-        throw new Error('Only the board owner can associate a post with a project.');
-    }
-
     const result = await db.run(
-        `INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image, project_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, content, userId, boardId, type, createdAt, hashtag, image || null, projectId || null]
+        `INSERT INTO Posts
+       (title, content, userId, boardId, type, createdAt, hashtag, image,
+        project_id, file_path, file_format)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
+        [title, content, userId, boardId, type, createdAt.toISOString(),
+            hashtag, image, projectId, filePath||null, fileFormat||null]
     );
-
-    return {
-        id: result.lastID,
-        title,
-        content,
-        userId,
-        boardId,
-        type,
-        createdAt,
-        hashtag,
-        image: image || null,
-        projectId: projectId || null
-    };
+    return { id: result.lastID, /*…other fields…*/ };
 }
+
 
 export async function createPostWithoutProject(
     title: string,

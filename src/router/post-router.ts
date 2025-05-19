@@ -8,6 +8,7 @@ import { getUserID } from '../usersDatabase';
 import { createPostWithProject, createPostWithoutProject, likePost, unlikePost, addHashtagsToPost } from '../postDatabase';
 import multer from 'multer';
 import {getBoardOwnerId, isUserMemberOfBoard} from "../boardsDatabase";
+import {insertComicPage} from "../chaptersDatabase";
 
 const router = Router();
 
@@ -26,89 +27,143 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage }).fields([
+    { name: 'image', maxCount: 1 },        // your existing single‐image posts
+    { name: 'chapterFile', maxCount: 1 },  // for .txt/.docx/.pdf
+    { name: 'comicPages', maxCount: 50 }   // for multiple comic pages
+]);
 
 // POST /createPost
 router.post(
     '/createPost',
     authHandler,
-    upload.single('image'),
+    upload,
     [
         body('title').notEmpty().withMessage('Title is required'),
         body('content').notEmpty().withMessage('Content is required'),
         body('boardId').isInt().withMessage('Board ID must be an integer'),
-        body('type').notEmpty().withMessage('Type is required'),
-        body('hashtags').optional().isString().withMessage('Hashtags must be a comma-separated string')
+        body('type')
+            .isIn(['text', 'image', 'chapter', 'comic'])
+            .withMessage('Type must be one of text, image, chapter or comic'),
+        body('hashtags')
+            .optional()
+            .isString()
+            .withMessage('Hashtags must be a comma-separated string'),
+        body('projectId')
+            .optional()
+            .isInt()
+            .withMessage('Project ID, if provided, must be an integer'),
     ],
     async (req: Request, res: Response) => {
-
+        // 1. Validation
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
 
         try {
-
-            const userId: number = await getUserID(req.session.user);
-            const boardId: number = parseInt(req.body.boardId);
-
+            // 2. Auth & permissions
+            const userId = await getUserID(req.session.user!);
+            const boardId = parseInt(req.body.boardId, 10);
             const ownerId = await getBoardOwnerId(boardId);
-            const isMember = await isUserMemberOfBoard(userId, boardId);
-            if (ownerId !== userId && !isMember) {
-                return res.status(403).json({ error: 'Forbidden: You must join the board to post.' });
+            const member = await isUserMemberOfBoard(userId, boardId);
+            if (ownerId !== userId && !member) {
+                return res
+                    .status(403)
+                    .json({ error: 'Forbidden: You must join the board to post.' });
             }
 
-            const title: string = req.body.title;
-            const content: string = req.body.content;
-            const type: string = req.body.type;
-
-            if (!title || !content) {
-                return res.status(400).json({ error: 'Title and Content cannot be empty' });
-            }
-
-            const imagePath: string = req.file ? path.join('uploads', req.file.filename) : '';
-            const projectIdRaw: string | undefined = req.body.projectId;
-            const projectId: number | null = projectIdRaw ? parseInt(projectIdRaw, 10) : null;
-
-
-            const hashtagsField: string = req.body.hashtags || '';
-            const hashtagsArray: string[] = hashtagsField
+            // 3. Common fields
+            const { title, content, type } = req.body;
+            const projectId = req.body.projectId
+                ? parseInt(req.body.projectId, 10)
+                : null;
+            const hashtags = (req.body.hashtags || '')
                 .split(',')
-                .map(tag => tag.trim())
-                .filter(tag => tag);
+                .map((t: string) => t.trim())
+                .filter((t: string) => t);
 
-            let post;
-            if (projectId !== null) {
-                post = await createPostWithProject(
+            let postId: number;
+
+            // 4a. Chapter upload
+            if (type === 'chapter') {
+                const file = (req.files as any)?.chapterFile?.[0];
+                if (!file) {
+                    return res.status(400).json({ error: 'Chapter file required' });
+                }
+                const ext = path
+                    .extname(file.originalname)
+                    .slice(1)
+                    .toLowerCase(); // 'txt' | 'docx' | 'pdf'
+
+                const post = await createPostWithProject(
                     title,
                     content,
                     userId,
                     boardId,
-                    type,
+                    'chapter',
                     new Date(),
-                    hashtagsArray[0] || '',
-                    imagePath,
-                    projectId
+                    hashtags[0] || '',
+                    '',          // no image
+                    projectId!,
+                    file.path,   // file_path
+                    ext          // file_format
                 );
+                postId = post.id!;
+
+                // 4b. Comic upload
+            } else if (type === 'comic') {
+                const pages = (req.files as any).comicPages;
+                if (!pages?.length) {
+                    return res.status(400).json({ error: 'Comic pages required' });
+                }
+
+                const post = await createPostWithProject(
+                    title, content, userId, boardId, 'comic',
+                    new Date(), hashtags[0] || '', '', projectId!
+                );
+                postId = post.id!;
+
+                for (let i = 0; i < pages.length; i++) {
+                    const file = pages[i];
+                    // **DON’T** use path.join here—build the URL path manually:
+                    const publicPath = `uploads/${file.filename}`;
+                    await insertComicPage(postId, i + 1, publicPath);
+                }
             } else {
-                post = await createPostWithoutProject(
+                const imgFile = (req.files as any)?.image?.[0];
+                const imagePath = imgFile
+                    ? path.join('uploads', imgFile.filename)
+                    : '';
+
+                const createFn = projectId
+                    ? createPostWithProject
+                    : createPostWithoutProject;
+
+                const post = await createFn(
                     title,
                     content,
                     userId,
                     boardId,
                     type,
                     new Date(),
-                    hashtagsArray[0] || '',
-                    imagePath
+                    hashtags[0] || '',
+                    imagePath,
+                    projectId!
                 );
+                postId = post.id!;
             }
 
-            await addHashtagsToPost(post.id!, hashtagsArray);
+            // 5. Attach hashtags
+            if (hashtags.length) {
+                await addHashtagsToPost(postId, hashtags);
+            }
 
-            return res.status(201).json(post);
-        } catch (error: any) {
-            console.error('Error creating post:', error);
-            return res.status(500).json({ error: error.message });
+            // 6. Respond
+            return res.status(201).json({ id: postId });
+        } catch (err: any) {
+            console.error('Error creating post:', err);
+            return res.status(500).json({ error: err.message });
         }
     }
 );

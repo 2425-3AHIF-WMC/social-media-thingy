@@ -9,6 +9,8 @@ import boardRouter from './router/board-router';
 import userRouter from './router/users-router';
 import postRouter from './router/post-router';
 import chatRouter from './router/chat-router';
+import readRouter from "./router/read-router";
+import sourceRouter from "./router/source-router";
 
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
@@ -52,6 +54,8 @@ app.use('/', boardRouter);
 app.use('/', userRouter);
 app.use('/', postRouter);
 app.use('/', chatRouter);
+app.use('/', readRouter);
+app.use('/', sourceRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));

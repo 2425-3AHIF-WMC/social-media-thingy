@@ -322,5 +322,4 @@ router.get('/project/:projectId/posts', authHandler, async (req, res) => {
 });
 
 
-
 export default router;

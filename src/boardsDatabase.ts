@@ -188,6 +188,7 @@ export async function getPostsByBoard(boardId: number): Promise<Post[]> {
              p.createdAt,
              p.userId,
              u.username         AS username,
+             u.profile_image    AS avatar,
              GROUP_CONCAT(h.name) AS hashtags
          FROM Posts p
                   LEFT JOIN users u        ON u.id         = p.userId

@@ -70,16 +70,33 @@
                 <div class="posts-list">
                     <% posts.forEach(post => { %>
                         <div class="post-card">
+                            <div class="post-header">
+                                <img
+                                        src="/<%= post.avatar || 'default_profile.png' %>"
+                                        alt="<%= post.username %>'s avatar"
+                                        class="post-avatar"
+                                />
+                                <strong class="post-username"><%= post.username %></strong>
+                            </div>
                             <h3><%= post.title %></h3>
-                            <p><%= post.content %></p>
 
+                            <% if (post.type === 'chapter') { %>
+                                <p><%= post.content %></p>
+                                <a href="/chapter/<%= post.id %>">📖 Read Chapter</a>
+
+                            <% } else if (post.type === 'comic') { %>
+                                <p><%= post.content %></p>
+                                <a href="/comic/<%= post.id %>">🎞️ Read Comic</a>
+
+                            <% } else { %>
+                                <p><%= post.content %></p>
+                            <% } %>
                             <% if (post.type === 'image' && post.image) { %>
                                 <img src="/<%= post.image %>" alt="Post Image" class="post-image"/>
                             <% } %>
 
                             <p class="post-meta">
                                 Posted on <%= new Date(post.createdAt).toLocaleString() %>
-                                by User: <%= post.username %>
                             </p>
 
                             <% if (post.hashtags.length) { %>
@@ -111,7 +128,25 @@
                                 <select id="type" name="type" required>
                                     <option value="text">Text</option>
                                     <option value="image">Image</option>
+                                    <option value="chapter">Chapter (.txt/.docx/.pdf)</option>
+                                    <option value="comic">Comic (multiple images)</option>
                                 </select>
+
+                                <div id="field-image" class="file-field">
+                                    <label for="image">Image:</label>
+                                    <input type="file" id="image" name="image" accept="image/*">
+                                </div>
+
+                                <div id="field-chapter" class="file-field" style="display:none;">
+                                    <label for="chapterFile">Chapter File:</label>
+                                    <input type="file" id="chapterFile" name="chapterFile" accept=".txt,.docx,.pdf">
+                                </div>
+
+                                <div id="field-comic" class="file-field" style="display:none;">
+                                    <label for="comicPages">Comic Pages:</label>
+                                    <input type="file" id="comicPages" name="comicPages" accept="image/*" multiple>
+                                </div>
+
 
                                 <label for="hashtagInput">Add Hashtags:</label>
                                 <input type="text" id="hashtagInput" placeholder="Enter a hashtag">
@@ -141,6 +176,22 @@
         </div>
 
         <script>
+
+            // show/hide upload fields based on type
+            const typeSelect      = document.getElementById('type');
+            const fileFields      = document.querySelectorAll('.file-field');
+
+            typeSelect.addEventListener('change', () => {
+                fileFields.forEach(div => div.style.display = 'none');
+                const chosen = typeSelect.value;
+                if (chosen === 'image')    document.getElementById('field-image').style.display = 'block';
+                else if (chosen === 'chapter') document.getElementById('field-chapter').style.display = 'block';
+                else if (chosen === 'comic')   document.getElementById('field-comic').style.display = 'block';
+            });
+            // trigger once on load
+            typeSelect.dispatchEvent(new Event('change'));
+
+
             document.addEventListener('DOMContentLoaded', () => {
                 const openPostModalButton = document.getElementById('openPostModalButton');
                 const closePostModalButton = document.getElementById('closePostModalButton');
@@ -313,10 +364,43 @@
         </script>
     </div>
 
-
     <div id="source" class="tab-content" style="display:none;">
         <h2>Source</h2>
+        <% if (isOwner) { %>
+            <button id="editSourceBtn">Edit Source Tab</button>
+        <% } %>
+        <section>
+            <h3>Characters</h3>
+            <ul id="charList" class="source-list"></ul>
+        </section>
+        <section>
+            <h3>Credits</h3>
+            <ul id="creditList" class="source-list"></ul>
+        </section>
+        <% if (isOwner) { %>
+            <div id="editSourceModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-button">&times;</span>
+                    <h3>Add Character</h3>
+                    <form id="addCharForm" enctype="multipart/form-data">
+                        <input name="name" placeholder="Name" required />
+                        <input type="file" name="image" accept="image/*" />
+                        <textarea name="description" placeholder="Description"></textarea>
+                        <textarea name="spoiler" placeholder="Spoiler (hidden)"></textarea>
+                        <button type="submit">Save Character</button>
+                    </form>
+                    <hr/>
+                    <h3>Add Credit</h3>
+                    <form id="addCreditForm">
+                        <input name="label" placeholder="Credit Label" required />
+                        <input name="url" placeholder="URL (optional)" />
+                        <button type="submit">Save Credit</button>
+                    </form>
+                </div>
+            </div>
+        <% } %>
     </div>
+
 
     <div id="projects" class="tab-content" style="display: none">
         <h2><%= isOwner ? "Your Projects" : "Projects" %></h2>
@@ -375,6 +459,44 @@
 </div>
 
 <script>
+
+
+    let currentProjectId = <%= projects && projects.length ? projects[0].id : 'null' %>;
+
+    // 2. loadSource() uses that ID
+    async function loadSource() {
+        if (!currentProjectId) {
+            document.getElementById('charList').innerHTML = '<li>Select a project first</li>';
+            document.getElementById('creditList').innerHTML = '';
+            return;
+        }
+        const res = await fetch(`/project/${currentProjectId}/source`);
+        const { characterDescriptions, credits } = await res.json();
+
+        // Render characters
+        const charList = document.getElementById('charList'); charList.innerHTML = '';
+        characterDescriptions.forEach(c => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+          ${c.image_path ? `<img src="/${c.image_path}" class="char-thumb"/>` : ''}
+          <strong>${c.name}</strong>
+          <p>${c.description || ''}</p>
+          ${c.spoiler ? `<details><summary>Spoiler</summary><p>${c.spoiler}</p></details>` : ''}
+        `;
+            charList.appendChild(li);
+        });
+
+        // Render credits
+        const creditList = document.getElementById('creditList'); creditList.innerHTML = '';
+        credits.forEach(c => {
+            const li = document.createElement('li');
+            if (c.url) li.innerHTML = `<a href="${c.url}" target="_blank">${c.label}</a>`;
+            else li.textContent = c.label;
+            creditList.appendChild(li);
+        });
+    }
+
+
     function openTab(tabName) {
         var i, tabcontent, tabbuttons;
         tabcontent = document.getElementsByClassName("tab-content");
@@ -412,35 +534,66 @@
             const res   = await fetch(`/project/${projectId}/posts`);
             const posts = await res.json();
 
-            posts.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'post-card';
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
 
-            const h3 = document.createElement('h3');
-            h3.innerText = post.title;
-            card.appendChild(h3);
+                    // Title
+                    const h3 = document.createElement('h3');
+                    h3.innerText = post.title;
+                    card.appendChild(h3);
 
-            const p = document.createElement('p');
-            p.innerText = post.content;
-            card.appendChild(p);
+                    // Content / Link / Image depending on type
+                    if (post.type === 'image' && post.image) {
+                        const img = document.createElement('img');
+                        img.src       = `/${post.image}`;
+                        img.alt       = post.title;
+                        img.className = 'post-image';
+                        card.appendChild(img);
 
-            if (post.type === 'image' && post.image) {
-            const img = document.createElement('img');
-            img.src       = `/${post.image}`;
-            img.alt       = post.title;
-            img.className = 'post-image';
-            card.appendChild(img);
-        }
+                    } else if (post.type === 'chapter') {
+                        const link = document.createElement('a');
+                        link.href        = `/chapter/${post.id}`;
+                        link.textContent = '📖 Read Chapter';
+                        card.appendChild(link);
 
-            const meta = document.createElement('p');
-            meta.className = 'post-meta';
-            meta.innerText =
-            `Posted on ${new Date(post.createdAt).toLocaleString()} by ${post.username}`;
-            card.appendChild(meta);
+                    } else if (post.type === 'comic') {
+                        const link = document.createElement('a');
+                        link.href        = `/comic/${post.id}`;
+                        link.textContent = '🎞️ Read Comic';
+                        card.appendChild(link);
 
-            container.appendChild(card);
-        });
-        } catch (err) {
+                    } else {
+                        // fallback to plain text
+                        const p = document.createElement('p');
+                        p.innerText = post.content;
+                        card.appendChild(p);
+                    }
+
+                    // Meta
+                    const meta = document.createElement('p');
+                    meta.className = 'post-meta';
+                    meta.innerText =
+                        `Posted on ${new Date(post.createdAt).toLocaleString()} by ${post.username}`;
+                    card.appendChild(meta);
+
+                    // Hashtags, if any
+                    if (post.hashtags && post.hashtags.length) {
+                        const tags = document.createElement('div');
+                        tags.className = 'post-hashtags';
+                        post.hashtags.forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'hashtag-item';
+                            span.textContent = `#${tag}`;
+                            tags.appendChild(span);
+                        });
+                        card.appendChild(tags);
+                    }
+
+                    document.getElementById('projectPostsList').appendChild(card);
+                });
+
+            } catch (err) {
             console.error('Failed loading project posts:', err);
         }
 
@@ -455,6 +608,51 @@
                     document.getElementById('projectModal').style.display = 'none';
             });
         });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Tab navigation
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', () => openTab(btn.getAttribute('onclick').match(/'(.+)'/)[1]));
+        });
+
+        // Project selection
+        document.getElementById('projectList').addEventListener('click', e => {
+            const li = e.target.closest('.project-item'); if (!li) return;
+            currentProjectId = li.dataset.id;
+            loadProjectPosts(currentProjectId);
+        });
+
+        // Source tab click triggers load
+        const sourceBtn = document.querySelector("button[onclick=\"openTab('source')\"]");
+        if (sourceBtn) sourceBtn.addEventListener('click', loadSource);
+
+        <% if (isOwner) { %>
+        // Edit Source Modal
+        const editBtn   = document.getElementById('editSourceBtn');
+        const editModal = document.getElementById('editSourceModal');
+        const closeBtn  = editModal.querySelector('.close-button');
+
+        editBtn.addEventListener('click', e => { e.stopPropagation(); editModal.classList.add('open'); });
+        closeBtn.addEventListener('click', () => editModal.classList.remove('open'));
+        window.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('open'); });
+
+        // Character form submit
+        document.getElementById('addCharForm').addEventListener('submit', async e => {
+            e.preventDefault(); const fd = new FormData(e.target);
+            const resp = await fetch(`/project/${currentProjectId}/source/character`, { method:'POST', body:fd });
+            if (resp.ok) { editModal.classList.remove('open'); loadSource(); } else alert('Failed to save character');
+        });
+
+        // Credit form submit
+        document.getElementById('addCreditForm').addEventListener('submit', async e => {
+            e.preventDefault(); const data = { label:e.target.label.value.trim(), url:e.target.url.value.trim() };
+            const resp = await fetch(`/project/${currentProjectId}/source/credit`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            if (resp.ok) { editModal.classList.remove('open'); loadSource(); } else alert('Failed to save credit');
+        });
+        <% } %>
+    });
 </script>
+
+
 </body>
 </html>

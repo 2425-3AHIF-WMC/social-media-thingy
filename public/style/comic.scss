@@ -1,0 +1,57 @@
+body { background: #fafafa; margin: 0; padding: 0; }
+.comic-container {
+    color: #333;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 10px;
+  text-align: center;
+}
+.comic-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  font-family: sans-serif;
+}
+.comic-viewer {
+  position: relative;
+  overflow: hidden;
+}
+.comic-page {
+  display: none;
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  margin: 0 auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.comic-page.active {
+  display: block;
+}
+.comic-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+.comic-nav button,
+.comic-nav a {
+  padding: 0.5rem 1rem;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 1rem;
+}
+.comic-nav button:hover,
+.comic-nav a:hover {
+  background: #1e7e34;
+}
+.comic-nav span {
+  font-family: sans-serif;
+}

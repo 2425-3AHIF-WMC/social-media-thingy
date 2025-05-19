@@ -112,6 +112,7 @@ button#joinButton:active {
 }
 
 .modal-content {
+  color: #333333;
   background-color: #fefefe;
   margin: 15% auto;
   padding: 20px;
@@ -338,6 +339,27 @@ button#joinButton:active {
   }
 }
 
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.post-username {
+  font-size: 1rem;
+  color: #333;
+}
+
+
 
 .project-list {
   list-style: none;
@@ -391,3 +413,62 @@ button#joinButton:active {
   max-width: 100%;
   border-radius: 4px;
 }
+
+.source-list {
+  padding: 0;
+  margin: 0;
+}
+
+.source-list li {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.source-list li:last-child {
+  border-bottom: none;
+}
+
+.char-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.source-list strong {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.source-list p {
+  margin: 0.25rem 0;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Spoiler details styling */
+.source-list details {
+  margin-top: 0.5rem;
+}
+.source-list summary {
+  cursor: pointer;
+  color: #007bff;
+}
+.source-list details p {
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid #ddd;
+}
+
+
+.modal.open {
+  display: flex !important;
+}
+
