@@ -6,6 +6,11 @@ import {Database} from "sqlite";
 import CustomSession from "./model/session";
 import {db, init} from "./database";
 import { getBoardOwnerId } from './boardsDatabase';
+import {Post} from "./model/IPost";
+
+// in postDatabase.ts, drop createdAt entirely from the INSERT:
+
+// src/database/postDatabase.ts
 
 export async function createPostWithProject(
     title: string,
@@ -13,25 +18,41 @@ export async function createPostWithProject(
     userId: number,
     boardId: number,
     type: string,
-    createdAt: Date,
     hashtag: string,
-    image: string,
-    projectId: number,
-    filePath?: string,           // new
-    fileFormat?: string          // new
-) {
+    image: string | null,
+    projectId?: number | null
+): Promise<{ id: number | undefined }> {
     await init();
     const result = await db.run(
+        // ← exactly 8 columns here:
         `INSERT INTO Posts
-       (title, content, userId, boardId, type, createdAt, hashtag, image,
-        project_id, file_path, file_format)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-        [title, content, userId, boardId, type, createdAt.toISOString(),
-            hashtag, image, projectId, filePath||null, fileFormat||null]
+       (title,
+        content,
+        userId,
+        boardId,
+        type,
+        hashtag,
+        image,
+        project_id)
+     VALUES
+       (?, ?, ?, ?, ?, ?, ?, ?)`,   // ← exactly 8 placeholders
+        [
+            title,
+            content,
+            userId,
+            boardId,
+            type,
+            hashtag,
+            image,
+            projectId || null
+        ]
     );
-    return { id: result.lastID, /*…other fields…*/ };
+    return { id: result.lastID };
 }
 
+
+
+// src/database/postDatabase.ts
 
 export async function createPostWithoutProject(
     title: string,
@@ -39,29 +60,35 @@ export async function createPostWithoutProject(
     userId: number,
     boardId: number,
     type: string,
-    createdAt: Date,
     hashtag: string,
     image: string | null
-){
+): Promise<{ id: number | undefined }> {
     await init();
     const result = await db.run(
-        `INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, content, userId, boardId, type, createdAt, hashtag, image || null]
-    );
-
-    return {
-        id: result.lastID,
-        title,
+        // exactly 7 columns:
+        `INSERT INTO Posts
+       (title,
         content,
         userId,
         boardId,
         type,
-        createdAt,
         hashtag,
-        image: image || null
-    };
+        image)
+     VALUES
+       (?, ?, ?, ?, ?, ?, ?)`,  // exactly 7 placeholders
+        [
+            title,
+            content,
+            userId,
+            boardId,
+            type,
+            hashtag,
+            image || null
+        ]
+    );
+    return { id: result.lastID };
 }
+
 
 export async function getPosts(boardId: number) {
     await init();
@@ -86,6 +113,34 @@ export async function getPostsForBoard (boardId: number) {
     await init();
     return await db.all('SELECT * FROM Posts WHERE boardId = ?', [boardId]);
 }
+
+export async function getPostsByBoard(boardId: number) {
+    await init();
+    return await db.all<Post[]>(`
+    SELECT *
+    FROM (
+      SELECT
+        p.id,
+        p.title,
+        p.content,
+        p.type,
+        p.image,
+        p.createdAt,
+        u.username         AS username,
+        u.profile_image    AS avatar,
+        GROUP_CONCAT(h.name) AS hashtags
+      FROM Posts p
+      LEFT JOIN users u           ON u.id = p.userId
+      LEFT JOIN post_hashtags ph  ON ph.post_id   = p.id
+      LEFT JOIN hashtags    h     ON h.id         = ph.hashtag_id
+      WHERE p.boardId = ?
+      GROUP BY p.id
+    )
+    ORDER BY datetime(createdAt) DESC,  -- newest timestamp first
+             id DESC                   -- tiebreak on auto-inc ID
+  `, [boardId]);
+}
+
 export async function getPostOwnerId(postId: number): Promise<number> {
     await init();
     const user = await db.get('SELECT userId FROM Posts WHERE id = ?', postId);
@@ -140,7 +195,7 @@ export async function ensureHashtag(tag: string): Promise<number> {
     return row.id;
 }
 
-export async function addHashtagsToPost(postId: number, tags: string[]): Promise<void> {
+export async function addHashtagsToPost(postId: number | undefined, tags: string[]): Promise<void> {
     for (const tag of tags) {
         const hashtagId = await ensureHashtag(tag.trim());
         await db.run(

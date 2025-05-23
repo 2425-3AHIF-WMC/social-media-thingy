@@ -15,6 +15,7 @@ exports.getPosts = getPosts;
 exports.getPostById = getPostById;
 exports.getPostOwnerName = getPostOwnerName;
 exports.getPostsForBoard = getPostsForBoard;
+exports.getPostsByBoard = getPostsByBoard;
 exports.getPostOwnerId = getPostOwnerId;
 exports.deletePost = deletePost;
 exports.editPost = editPost;
@@ -25,35 +26,63 @@ exports.hasLikedPost = hasLikedPost;
 exports.ensureHashtag = ensureHashtag;
 exports.addHashtagsToPost = addHashtagsToPost;
 const database_1 = require("./database");
-function createPostWithProject(title, content, userId, boardId, type, createdAt, hashtag, image, projectId, filePath, // new
-fileFormat // new
-) {
+// in postDatabase.ts, drop createdAt entirely from the INSERT:
+// src/database/postDatabase.ts
+function createPostWithProject(title, content, userId, boardId, type, hashtag, image, projectId) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, database_1.init)();
-        const result = yield database_1.db.run(`INSERT INTO Posts
-       (title, content, userId, boardId, type, createdAt, hashtag, image,
-        project_id, file_path, file_format)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?)`, [title, content, userId, boardId, type, createdAt.toISOString(),
-            hashtag, image, projectId, filePath || null, fileFormat || null]);
-        return { id: result.lastID, /*…other fields…*/ };
-    });
-}
-function createPostWithoutProject(title, content, userId, boardId, type, createdAt, hashtag, image) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield (0, database_1.init)();
-        const result = yield database_1.db.run(`INSERT INTO Posts (title, content, userId, boardId, type, createdAt, hashtag, image)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [title, content, userId, boardId, type, createdAt, hashtag, image || null]);
-        return {
-            id: result.lastID,
+        const result = yield database_1.db.run(
+        // ← exactly 8 columns here:
+        `INSERT INTO Posts
+       (title,
+        content,
+        userId,
+        boardId,
+        type,
+        hashtag,
+        image,
+        project_id)
+     VALUES
+       (?, ?, ?, ?, ?, ?, ?, ?)`, // ← exactly 8 placeholders
+        [
             title,
             content,
             userId,
             boardId,
             type,
-            createdAt,
             hashtag,
-            image: image || null
-        };
+            image,
+            projectId || null
+        ]);
+        return { id: result.lastID };
+    });
+}
+// src/database/postDatabase.ts
+function createPostWithoutProject(title, content, userId, boardId, type, hashtag, image) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, database_1.init)();
+        const result = yield database_1.db.run(
+        // exactly 7 columns:
+        `INSERT INTO Posts
+       (title,
+        content,
+        userId,
+        boardId,
+        type,
+        hashtag,
+        image)
+     VALUES
+       (?, ?, ?, ?, ?, ?, ?)`, // exactly 7 placeholders
+        [
+            title,
+            content,
+            userId,
+            boardId,
+            type,
+            hashtag,
+            image || null
+        ]);
+        return { id: result.lastID };
     });
 }
 function getPosts(boardId) {
@@ -82,6 +111,34 @@ function getPostsForBoard(boardId) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, database_1.init)();
         return yield database_1.db.all('SELECT * FROM Posts WHERE boardId = ?', [boardId]);
+    });
+}
+function getPostsByBoard(boardId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, database_1.init)();
+        return yield database_1.db.all(`
+    SELECT *
+    FROM (
+      SELECT
+        p.id,
+        p.title,
+        p.content,
+        p.type,
+        p.image,
+        p.createdAt,
+        u.username         AS username,
+        u.profile_image    AS avatar,
+        GROUP_CONCAT(h.name) AS hashtags
+      FROM Posts p
+      LEFT JOIN users u           ON u.id = p.userId
+      LEFT JOIN post_hashtags ph  ON ph.post_id   = p.id
+      LEFT JOIN hashtags    h     ON h.id         = ph.hashtag_id
+      WHERE p.boardId = ?
+      GROUP BY p.id
+    )
+    ORDER BY datetime(createdAt) DESC,  -- newest timestamp first
+             id DESC                   -- tiebreak on auto-inc ID
+  `, [boardId]);
     });
 }
 function getPostOwnerId(postId) {

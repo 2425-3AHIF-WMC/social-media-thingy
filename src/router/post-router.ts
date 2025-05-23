@@ -8,11 +8,11 @@ import { getUserID } from '../usersDatabase';
 import { createPostWithProject, createPostWithoutProject, likePost, unlikePost, addHashtagsToPost } from '../postDatabase';
 import multer from 'multer';
 import {getBoardOwnerId, isUserMemberOfBoard} from "../boardsDatabase";
-import {insertComicPage} from "../chaptersDatabase";
+import {createChapterFile, insertComicPage} from "../chaptersDatabase";
 
 const router = Router();
 
-// Multer configuration
+
 const storage = multer.diskStorage({
     destination: (req, file, cb ) => {
         const uploadsDir = path.resolve(__dirname, '..', 'uploads');
@@ -28,12 +28,12 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage }).fields([
-    { name: 'image', maxCount: 1 },        // your existing single‐image posts
-    { name: 'chapterFile', maxCount: 1 },  // for .txt/.docx/.pdf
-    { name: 'comicPages', maxCount: 50 }   // for multiple comic pages
+    { name: 'image', maxCount: 1 },
+    { name: 'chapterFile', maxCount: 1 },
+    { name: 'comicPages', maxCount: 50 }
 ]);
 
-// POST /createPost
+
 router.post(
     '/createPost',
     authHandler,
@@ -43,132 +43,127 @@ router.post(
         body('content').notEmpty().withMessage('Content is required'),
         body('boardId').isInt().withMessage('Board ID must be an integer'),
         body('type')
-            .isIn(['text', 'image', 'chapter', 'comic'])
+            .isIn(['text','image','chapter','comic'])
             .withMessage('Type must be one of text, image, chapter or comic'),
-        body('hashtags')
-            .optional()
-            .isString()
-            .withMessage('Hashtags must be a comma-separated string'),
-        body('projectId')
-            .optional()
-            .isInt()
-            .withMessage('Project ID, if provided, must be an integer'),
+        body('hashtags').optional().isString(),
+        body('projectId').optional({ checkFalsy: true }).isInt()
     ],
     async (req: Request, res: Response) => {
-        // 1. Validation
+
         const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+        if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
+        const userId  = await getUserID(req.session.user!);
+        const boardId = Number(req.body.boardId);
+        const ownerId = await getBoardOwnerId(boardId);
+        const isMember= await isUserMemberOfBoard(userId, boardId);
+        if (ownerId !== userId && !isMember) {
+            return res.status(403).json({ error: 'You must join the board to post.' });
         }
 
-        try {
-            // 2. Auth & permissions
-            const userId = await getUserID(req.session.user!);
-            const boardId = parseInt(req.body.boardId, 10);
-            const ownerId = await getBoardOwnerId(boardId);
-            const member = await isUserMemberOfBoard(userId, boardId);
-            if (ownerId !== userId && !member) {
-                return res
-                    .status(403)
-                    .json({ error: 'Forbidden: You must join the board to post.' });
+        const { title, content, type } = req.body as any;
+        const rawProj   = (req.body.projectId || '').toString().trim();
+        const projectId = rawProj ? Number(rawProj) : null;
+        const hashtags = (req.body.hashtags || '')
+            .split(',')
+            .map((t: string) => t.trim())
+            .filter((t: string) => t.length > 0);
+
+        let postId!: number | undefined;
+
+        if (type === 'chapter') {
+            if (projectId === null) {
+                return res.status(400).json({ error: 'Chapters must belong to a project.' });
             }
+            if (ownerId !== userId) {
+                return res.status(403).json({ error: 'Only the board owner can post chapters.' });
+            }
+            const fileArr = (req.files as any).chapterFile as Express.Multer.File[]|undefined;
+            const file    = fileArr?.[0];
+            if (!file) return res.status(400).json({ error: 'Chapter file required.' });
 
-            // 3. Common fields
-            const { title, content, type } = req.body;
-            const projectId = req.body.projectId
-                ? parseInt(req.body.projectId, 10)
-                : null;
-            const hashtags = (req.body.hashtags || '')
-                .split(',')
-                .map((t: string) => t.trim())
-                .filter((t: string) => t);
+            const ext = path.extname(file.originalname).slice(1).toLowerCase();
 
-            let postId: number;
+            const { id } = await createPostWithProject(
+                title, content, userId, boardId,
+                'chapter',
+                hashtags[0] || '', '', projectId
+            );
+            postId = id!;
 
-            // 4a. Chapter upload
-            if (type === 'chapter') {
-                const file = (req.files as any)?.chapterFile?.[0];
-                if (!file) {
-                    return res.status(400).json({ error: 'Chapter file required' });
-                }
-                const ext = path
-                    .extname(file.originalname)
-                    .slice(1)
-                    .toLowerCase(); // 'txt' | 'docx' | 'pdf'
+            await createChapterFile(postId, file.path, ext, projectId, title);
 
-                const post = await createPostWithProject(
-                    title,
-                    content,
-                    userId,
-                    boardId,
-                    'chapter',
-                    new Date(),
-                    hashtags[0] || '',
-                    '',          // no image
-                    projectId!,
-                    file.path,   // file_path
-                    ext          // file_format
+        } else if (type === 'comic') {
+            if (projectId === null) {
+                return res.status(400).json({ error: 'Comics must belong to a project.' });
+            }
+            if (ownerId !== userId) {
+                return res.status(403).json({ error: 'Only the board owner can post comics.' });
+            }
+            const pages = (req.files as any).comicPages as Express.Multer.File[]|undefined;
+            if (!pages?.length) return res.status(400).json({ error: 'Comic pages required.' });
+
+            const post = await createPostWithProject(
+                title,
+                content,
+                userId,
+                boardId,
+                'comic',
+                hashtags[0] || '',
+                '',
+                projectId
+            );
+            postId = post.id;
+
+            const chapterId = await createChapterFile(
+                postId!,
+                '',
+                'comic',
+                projectId,
+                title
+            );
+
+            for (let i = 0; i < pages.length; i++) {
+                await insertComicPage(
+                    chapterId!,
+                    i + 1,
+                    `uploads/${path.basename(pages[i].path)}`
                 );
-                postId = post.id!;
+            }
+        } else {
+            if (projectId !== null && ownerId !== userId) {
+                return res.status(403).json({ error: 'Only the board owner can assign to a project.' });
+            }
+            const imgArr = (req.files as any).image as Express.Multer.File[]|undefined;
+            const img    = imgArr?.[0];
+            const imagePath = img ? `uploads/${path.basename(img.path)}` : '';
 
-                // 4b. Comic upload
-            } else if (type === 'comic') {
-                const pages = (req.files as any).comicPages;
-                if (!pages?.length) {
-                    return res.status(400).json({ error: 'Comic pages required' });
-                }
-
-                const post = await createPostWithProject(
-                    title, content, userId, boardId, 'comic',
-                    new Date(), hashtags[0] || '', '', projectId!
-                );
-                postId = post.id!;
-
-                for (let i = 0; i < pages.length; i++) {
-                    const file = pages[i];
-                    // **DON’T** use path.join here—build the URL path manually:
-                    const publicPath = `uploads/${file.filename}`;
-                    await insertComicPage(postId, i + 1, publicPath);
-                }
-            } else {
-                const imgFile = (req.files as any)?.image?.[0];
-                const imagePath = imgFile
-                    ? path.join('uploads', imgFile.filename)
-                    : '';
-
-                const createFn = projectId
-                    ? createPostWithProject
-                    : createPostWithoutProject;
-
-                const post = await createFn(
-                    title,
-                    content,
-                    userId,
-                    boardId,
+            if (projectId !== null) {
+                const { id } = await createPostWithProject(
+                    title, content, userId, boardId,
                     type,
-                    new Date(),
-                    hashtags[0] || '',
-                    imagePath,
-                    projectId!
+                    hashtags.join(','), imagePath,
+                    projectId
                 );
-                postId = post.id!;
+                postId = id!;
+            } else {
+                const { id } = await createPostWithoutProject(
+                    title, content, userId, boardId,
+                    type,
+                    hashtags.join(','), imagePath
+                );
+                postId = id!;
             }
-
-            // 5. Attach hashtags
-            if (hashtags.length) {
-                await addHashtagsToPost(postId, hashtags);
-            }
-
-            // 6. Respond
-            return res.status(201).json({ id: postId });
-        } catch (err: any) {
-            console.error('Error creating post:', err);
-            return res.status(500).json({ error: err.message });
         }
+
+        if (hashtags.length) {
+            await addHashtagsToPost(postId, hashtags);
+        }
+
+        return res.status(201).json({ id: postId });
     }
 );
 
-// like and unlike post
 router.post('/like/:postId', authHandler, async (req: Request, res: Response) => {
     const postId: number = parseInt(req.params.postId, 10);
     const userId: number = await getUserID(req.session.user);

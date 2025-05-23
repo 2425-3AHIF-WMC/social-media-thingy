@@ -27,7 +27,6 @@ exports.getProjectsForBoard = getProjectsForBoard;
 exports.getPostsByBoard = getPostsByBoard;
 exports.getPostsByProject = getPostsByProject;
 const database_1 = require("./database");
-//createBoard(userId, name, description, profileImage, headerImage, visibility);
 /*
 export async function createBoard(ownerID: number, name: string, description: string, profileImage: string = 'uploads/default_profile.png', headerImage: string = 'uploads/default_header.png', visibility: string = 'public', hashtag: string = '') {
     await init();
@@ -176,26 +175,29 @@ function getProjectsForBoard(boardId) {
 function getPostsByBoard(boardId) {
     return __awaiter(this, void 0, void 0, function* () {
         yield (0, database_1.init)();
-        return database_1.db.all(`SELECT
-             p.id,
-             p.title,
-             p.content,
-             p.type,
-             p.image,
-             p.createdAt,
-             p.userId,
-             u.username         AS username,
-             u.profile_image    AS avatar,
-             GROUP_CONCAT(h.name) AS hashtags
-         FROM Posts p
-                  LEFT JOIN users u        ON u.id         = p.userId
-                  LEFT JOIN post_hashtags ph  ON ph.post_id = p.id
-                  LEFT JOIN hashtags h        ON h.id         = ph.hashtag_id
-         WHERE p.boardId = ?
-         GROUP BY p.id
-         ORDER BY p.createdAt DESC;
-
-        `, [boardId]);
+        return yield database_1.db.all(`
+    SELECT *
+    FROM (
+      SELECT
+        p.id,
+        p.title,
+        p.content,
+        p.type,
+        p.image,
+        p.createdAt,
+        u.username         AS username,
+        u.profile_image    AS avatar,
+        GROUP_CONCAT(h.name) AS hashtags
+      FROM Posts p
+      LEFT JOIN users u           ON u.id = p.userId
+      LEFT JOIN post_hashtags ph  ON ph.post_id   = p.id
+      LEFT JOIN hashtags    h     ON h.id         = ph.hashtag_id
+      WHERE p.boardId = ?
+      GROUP BY p.id
+    )
+    ORDER BY datetime(createdAt) DESC,  -- newest timestamp first
+             id DESC                   -- tiebreak on auto-inc ID
+  `, [boardId]);
     });
 }
 function getPostsByProject(projectId) {

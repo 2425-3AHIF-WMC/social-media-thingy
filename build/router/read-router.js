@@ -12,8 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// routes/read-router.ts
 const express_1 = require("express");
+const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const mammoth_1 = __importDefault(require("mammoth"));
 const database_1 = require("../database");
@@ -23,41 +23,45 @@ function getAdjacentPost(projectId, createdAt, direction) {
         const op = direction === 'next' ? '>' : '<';
         const ord = direction === 'next' ? 'ASC' : 'DESC';
         const row = yield database_1.db.get(`SELECT id, type
-     FROM Posts
-     WHERE project_id = ?
-       AND datetime(createdAt) ${op} datetime(?)
-     ORDER BY datetime(createdAt) ${ord}
-     LIMIT 1`, [projectId, createdAt]);
+       FROM Posts
+      WHERE project_id = ?
+        AND datetime(createdAt) ${op} datetime(?)
+      ORDER BY datetime(createdAt) ${ord}
+      LIMIT 1`, [projectId, createdAt]);
         return row || null;
     });
 }
-// GET /chapter/:id
 router.get('/chapter/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, database_1.init)();
-    const postId = parseInt(req.params.id, 10);
-    const post = yield database_1.db.get(`SELECT * FROM Posts WHERE id = ? AND type = 'chapter'`, [postId]);
+    const postId = Number(req.params.id);
+    const post = yield database_1.db.get(`SELECT id, title, createdAt, project_id
+       FROM Posts
+      WHERE id = ? AND type = 'chapter'`, [postId]);
     if (!post)
         return res.status(404).send('Chapter not found');
-    let html = null;
-    const fp = post.file_path;
-    const fmt = post.file_format;
+    const chapter = yield database_1.db.get(`SELECT source_path, file_type
+       FROM Chapters
+      WHERE post_id = ?`, [postId]);
+    if (!chapter)
+        return res.status(404).send('Chapter metadata missing');
+    const absPath = path_1.default.resolve(__dirname, '..', chapter.source_path);
+    let html = '';
     try {
-        if (fmt === 'txt') {
-            const txt = yield fs_1.default.promises.readFile(fp, 'utf8');
+        if (chapter.file_type === 'txt') {
+            const txt = yield fs_1.default.promises.readFile(absPath, 'utf8');
             html = txt
                 .split('\n\n')
                 .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
                 .join('');
         }
-        else if (fmt === 'docx') {
-            const result = yield mammoth_1.default.convertToHtml({ path: fp });
+        else if (chapter.file_type === 'docx') {
+            const result = yield mammoth_1.default.convertToHtml({ path: absPath });
             html = result.value;
         }
-        // if pdf, we'll let the EJS template handle PDF.js
     }
-    catch (e) {
-        console.error('Error converting chapter file:', e);
-        return res.status(500).send('Failed to load chapter');
+    catch (err) {
+        console.error('Error converting chapter file:', err);
+        return res.status(500).send('Failed to load chapter content');
     }
     const projectId = post.project_id;
     const prev = projectId
@@ -66,25 +70,39 @@ router.get('/chapter/:id', (req, res) => __awaiter(void 0, void 0, void 0, funct
     const next = projectId
         ? yield getAdjacentPost(projectId, post.createdAt, 'next')
         : null;
-    res.render('chapter', { post, html, prev, next });
+    res.render('chapter', {
+        post,
+        html,
+        prev,
+        next
+    });
 }));
 router.get('/comic/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, database_1.init)();
     const postId = +req.params.id;
     const post = yield database_1.db.get(`SELECT * FROM Posts WHERE id = ? AND type = 'comic'`, [postId]);
     if (!post)
-        return res.status(404).send('Not found');
-    const pages = yield database_1.db.all(`SELECT page_number, image_path 
-     FROM ComicPages 
-     WHERE post_id = ? 
-     ORDER BY page_number`, [postId]);
-    const projectId = post.project_id;
-    const prev = projectId
-        ? yield getAdjacentPost(projectId, post.createdAt, 'prev')
+        return res.status(404).send('Post nicht gefunden');
+    const chapter = yield database_1.db.get(`SELECT id, project_id, created_at
+       FROM Chapters
+      WHERE post_id = ?`, [postId]);
+    if (!chapter)
+        return res.status(404).send('Comic-Kapitel nicht gefunden');
+    const pages = yield database_1.db.all(`SELECT page_number, image_path
+       FROM ComicPages
+      WHERE chapter_id = ?
+      ORDER BY page_number`, [chapter.id]);
+    const prev = chapter.project_id
+        ? yield getAdjacentPost(chapter.project_id, chapter.created_at, 'prev')
         : null;
-    const next = projectId
-        ? yield getAdjacentPost(projectId, post.createdAt, 'next')
+    const next = chapter.project_id
+        ? yield getAdjacentPost(chapter.project_id, chapter.created_at, 'next')
         : null;
-    res.render('comic', { post, pages, prev, next });
+    res.render('comic', {
+        post,
+        pages,
+        prev,
+        next
+    });
 }));
 exports.default = router;
