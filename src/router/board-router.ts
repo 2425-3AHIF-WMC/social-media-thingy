@@ -220,32 +220,44 @@ router.get('/board/:id/projects', authHandler, async (req: Request, res: Respons
 });
 
 router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
-    const boardId = parseInt(req.params.id);
+    const boardId = parseInt(req.params.id, 10);
+
     try {
         const board = await getBoardById(boardId);
         if (!board) {
             return res.status(404).json({ error: 'Board not found' });
         }
-        const ownerName = await getBoardOwnerName(boardId);
-        const ownerId = await getBoardOwnerId(boardId);
-        const currentUserId = await getUserID(req.session.user);
-        const currentUserName = req.session.user;
-        const isMember = await isUserMemberOfBoard(currentUserId, boardId);
-        const isOwner = ownerId === currentUserId;
-        const currentUserRecord = await getUserById(currentUserId);
-        const userAvatar = currentUserRecord?.profile_image || 'uploads/default_profile.png';
-        const projects = await getProjectsForBoard(boardId);
 
+        const ownerName        = await getBoardOwnerName(boardId);
+        const ownerId          = await getBoardOwnerId(boardId);
+        const currentUserId    = await getUserID(req.session.user);
+        const isMember         = await isUserMemberOfBoard(currentUserId, boardId);
+        const isOwner          = ownerId === currentUserId;
+        const currentUserRecord= await getUserById(currentUserId);
+        const userAvatar       = currentUserRecord?.profile_image || 'uploads/default_profile.png';
+        const projects         = await getProjectsForBoard(boardId);
+
+        // normalize your post‐rows
         const rawPosts = await getPostsByBoard(boardId);
         const posts = rawPosts.map(p => ({
             ...p,
             hashtags: p.hashtags ? p.hashtags.split(',') : []
         }));
 
+        // *** Pass the full user object here ***
+        res.render('board', {
+            board,
+            ownerName,
+            ownerId,
+            currentUserId,
+            isMember,
+            isOwner,
+            posts,
+            projects,
+            user: currentUserRecord,   // user.username, user.id, user.email, etc.
+            userAvatar
+        });
 
-        res.render('board', { board, ownerName, ownerId, currentUserId, isMember,
-            posts, currentUserName,
-            isOwner, userAvatar, projects, user: req.session.user });
     } catch (error) {
         console.error("Error fetching board:", error);
         res.status(500).json({ error: 'Internal server error' });

@@ -10,22 +10,24 @@
 </head>
 <body>
 
+<pre><%= JSON.stringify(user, null, 2) %></pre>
 <div class="header">
     <h1>Whaaa</h1>
     <div class="home-buttons">
         <a href="/">Home</a>
-        <a href ="/discovery">Discovery</a>
+        <a href="/discovery">Discovery</a>
         <a href="/events">Events</a>
         <a href="/rnd">Free Space</a>
         <a href="/about-us">About us</a>
     </div>
     <div class="user-buttons">
-        <% if (user) { %>
-            <span>Logged in as: <%= user %></span>
+        <% if (user && user.id) { %>
+            <span>Logged in as: <%= user.name %></span>
+            <a href="/dashboard">Dashboard</a>
             <a href="/logout">Logout</a>
         <% } else { %>
-            <a href="/login">Log in</a>
-            <a href="/register">Register</a>
+            <button><a href="/login">Log in</a></button>
+            <button><a href="/register">Register</a></button>
         <% } %>
     </div>
 </div>
