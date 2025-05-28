@@ -17,13 +17,48 @@ const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
 const sourceDatabase_1 = require("../sourceDatabase");
 const auth_handler_1 = require("../middleware/auth-handler");
+const database_1 = require("../database");
 const router = (0, express_1.Router)();
-const upload = (0, multer_1.default)({
-    storage: multer_1.default.diskStorage({
-        destination: (req, file, cb) => cb(null, path_1.default.resolve(__dirname, '..', 'uploads')),
-        filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
-    })
-});
+const upload = (0, multer_1.default)({ dest: path_1.default.resolve(__dirname, '../uploads') });
+router.get('/project/:projectId/characters', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, database_1.init)();
+    const pid = Number(req.params.projectId);
+    const chars = yield database_1.db.all(`
+    SELECT c.*, GROUP_CONCAT(ci.image_path) AS images
+      FROM Characters c
+ LEFT JOIN CharacterImages ci ON ci.character_id = c.id
+     WHERE c.project_id = ?
+  GROUP BY c.id
+  `, [pid]);
+    res.json(chars);
+}));
+// --- Create or Update a character ---
+router.post('/project/:projectId/characters', upload.array('images', 5), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, database_1.init)();
+    const pid = Number(req.params.projectId);
+    const { id, name, description, spoiler } = req.body;
+    let charId;
+    if (id) {
+        // Update existing
+        yield database_1.db.run(`UPDATE Characters 
+            SET name=?, description=?, spoiler=?
+          WHERE id=?`, [name, description, spoiler, Number(id)]);
+        charId = Number(id);
+    }
+    else {
+        // New
+        const result = yield database_1.db.run(`INSERT INTO Characters (project_id,name,description,spoiler)
+         VALUES (?,?,?,?)`, [pid, name, description, spoiler]);
+        charId = result.lastID;
+    }
+    // Handle uploaded images
+    for (const file of req.files) {
+        const rel = path_1.default.join('uploads', path_1.default.basename(file.path));
+        yield database_1.db.run(`INSERT INTO CharacterImages (character_id, image_path, caption)
+         VALUES (?,?,?)`, [charId, rel, file.originalname]);
+    }
+    res.json({ success: true, id: charId });
+}));
 // GET source data for a project
 router.get('/project/:id/source', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pid = +req.params.id;

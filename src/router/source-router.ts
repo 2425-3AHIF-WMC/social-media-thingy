@@ -8,14 +8,64 @@ import {
     createProjectCredit
 } from '../sourceDatabase';
 import { authHandler } from '../middleware/auth-handler';
+import {db, init} from "../database";
 
 const router = Router();
-const upload = multer({
-    storage: multer.diskStorage({
-        destination: (req, file, cb) => cb(null, path.resolve(__dirname,'..','uploads')),
-        filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
-    })
+const upload = multer({ dest: path.resolve(__dirname,'../uploads') });
+
+router.get('/project/:projectId/characters', async (req, res) => {
+    await init();
+    const pid = Number(req.params.projectId);
+    const chars = await db.all(`
+    SELECT c.*, GROUP_CONCAT(ci.image_path) AS images
+      FROM Characters c
+ LEFT JOIN CharacterImages ci ON ci.character_id = c.id
+     WHERE c.project_id = ?
+  GROUP BY c.id
+  `,[pid]);
+    res.json(chars);
 });
+
+// --- Create or Update a character ---
+router.post(
+    '/project/:projectId/characters',
+    upload.array('images', 5),
+    async (req: Request, res: Response) => {
+        await init();
+        const pid = Number(req.params.projectId);
+        const { id, name, description, spoiler } = req.body;
+        let charId: number;
+
+        if (id) {
+            // Update existing
+            await db.run(
+                `UPDATE Characters 
+            SET name=?, description=?, spoiler=?
+          WHERE id=?`,[name,description,spoiler,Number(id)]
+            );
+            charId = Number(id);
+        } else {
+            // New
+            const result = await db.run(
+                `INSERT INTO Characters (project_id,name,description,spoiler)
+         VALUES (?,?,?,?)`,
+                [pid,name,description,spoiler]
+            );
+            charId = result.lastID!;
+        }
+
+        // Handle uploaded images
+        for (const file of (req.files as Express.Multer.File[])) {
+            const rel = path.join('uploads', path.basename(file.path));
+            await db.run(
+                `INSERT INTO CharacterImages (character_id, image_path, caption)
+         VALUES (?,?,?)`,
+                [charId, rel, file.originalname]
+            );
+        }
+
+        res.json({ success:true, id: charId });
+    });
 
 // GET source data for a project
 router.get('/project/:id/source', authHandler, async (req, res) => {
@@ -50,5 +100,7 @@ router.post(
         res.status(201).json(entry);
     }
 );
+
+
 
 export default router;
