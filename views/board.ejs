@@ -10,7 +10,6 @@
 </head>
 <body>
 
-<pre><%= JSON.stringify(user, null, 2) %></pre>
 <div class="header">
     <h1>Whaaa</h1>
     <div class="home-buttons">
@@ -22,7 +21,7 @@
     </div>
     <div class="user-buttons">
         <% if (user && user.id) { %>
-            <span>Logged in as: <%= user.name %></span>
+            <span>Logged in as: <%= user.username %></span>
             <a href="/dashboard">Dashboard</a>
             <a href="/logout">Logout</a>
         <% } else { %>

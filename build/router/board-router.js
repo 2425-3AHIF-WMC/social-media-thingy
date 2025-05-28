@@ -186,7 +186,7 @@ router.get('/board/:id/projects', auth_handler_1.authHandler, (req, res) => __aw
     }
 }));
 router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const boardId = parseInt(req.params.id);
+    const boardId = parseInt(req.params.id, 10);
     try {
         const board = yield (0, boardsDatabase_1.getBoardById)(boardId);
         if (!board) {
@@ -195,17 +195,27 @@ router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(voi
         const ownerName = yield (0, boardsDatabase_1.getBoardOwnerName)(boardId);
         const ownerId = yield (0, boardsDatabase_1.getBoardOwnerId)(boardId);
         const currentUserId = yield (0, usersDatabase_1.getUserID)(req.session.user);
-        const currentUserName = req.session.user;
         const isMember = yield (0, boardsDatabase_1.isUserMemberOfBoard)(currentUserId, boardId);
         const isOwner = ownerId === currentUserId;
         const currentUserRecord = yield (0, usersDatabase_1.getUserById)(currentUserId);
         const userAvatar = (currentUserRecord === null || currentUserRecord === void 0 ? void 0 : currentUserRecord.profile_image) || 'uploads/default_profile.png';
         const projects = yield (0, boardsDatabase_1.getProjectsForBoard)(boardId);
+        // normalize your post‐rows
         const rawPosts = yield (0, boardsDatabase_1.getPostsByBoard)(boardId);
         const posts = rawPosts.map(p => (Object.assign(Object.assign({}, p), { hashtags: p.hashtags ? p.hashtags.split(',') : [] })));
-        res.render('board', { board, ownerName, ownerId, currentUserId, isMember,
-            posts, currentUserName,
-            isOwner, userAvatar, projects, user: req.session.user });
+        // *** Pass the full user object here ***
+        res.render('board', {
+            board,
+            ownerName,
+            ownerId,
+            currentUserId,
+            isMember,
+            isOwner,
+            posts,
+            projects,
+            user: currentUserRecord, // user.username, user.id, user.email, etc.
+            userAvatar
+        });
     }
     catch (error) {
         console.error("Error fetching board:", error);
