@@ -11,6 +11,7 @@ import postRouter from './router/post-router';
 import chatRouter from './router/chat-router';
 import readRouter from "./router/read-router";
 import sourceRouter from "./router/source-router";
+import feedRouter from "./router/feed-router";
 
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
@@ -47,6 +48,7 @@ app.use('/profile_images', express.static(path.join(__dirname, 'profile_images')
     }
 }));
 
+app.use('/', feedRouter);
 app.use('/', authRouter);
 app.use('/', fileRouter);
 app.use('/', roleRouter);
