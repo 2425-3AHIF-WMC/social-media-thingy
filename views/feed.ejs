@@ -55,12 +55,16 @@
                     <h3 class="post-title"><%= item.title %></h3>
                     <p class="post-content"><%= item.content %></p>
 
+                    <% /* Wenn es ein Kapitel ist, verlinke zum Kapitel-Reader */ %>
+                    <% if (item.type === 'chapter') { %>
+                        <a href="/chapter/<%= item.id %>" class="view-post">📖 Read Chapter</a>
+                    <% } else if (item.type === 'comic') { %>
+                        <a href="/comic/<%= item.id %>" class="view-post">🎞️ Read Comic</a>
+                    <% } %>
+
+                    <% /* Falls es ein Bild-Post ist, zeige das Bild an */ %>
                     <% if (item.type === 'image' && item.image) { %>
-                        <img
-                                src="/<%= item.image %>"
-                                class="post-image"
-                                alt="Post image"
-                        >
+                        <img src="/<%= item.image %>" class="post-image" alt="Post image">
                     <% } %>
 
                     <% if (item.hashtags.length) { %>
@@ -71,8 +75,9 @@
                         </div>
                     <% } %>
 
-                    <!-- Button zum jeweiligen Board -->
+                    <% /* Unabhängig vom Typ: Button zum Board */ %>
                     <a href="/board/<%= item.boardId %>" class="view-board">View Board</a>
+
                 </li>
             <% }); %>
         </ul>
