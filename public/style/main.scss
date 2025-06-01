@@ -1,0 +1,1199 @@
+//=============================================
+// Variablen (hier Farben und grundlegende Werte)
+//=============================================
+$primary-color:       #3498db;
+$secondary-color:     #2ecc71;
+$accent-color:        #e74c3c;
+$background-color:    #f5f6fa;
+$card-background:     #ffffff;
+$text-color:          #2c3e50;
+$header-background:   #ffffff;
+$header-text-color:   $text-color;
+$border-radius:       0.5rem;
+$transition-speed:    0.3s;
+
+// Schriftfamilien
+$font-sans:           'Helvetica Neue', Arial, sans-serif;
+$font-serif:          'Merriweather', serif;
+
+
+//=====================================
+// 1) Reset & Grundlegende Global-Styles
+//=====================================
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: $font-sans;
+  background: $background-color;
+  color: $text-color;
+  line-height: 1.6;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-speed;
+  &:hover {
+    color: darken($primary-color, 10%);
+  }
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  background: $primary-color;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+  transition: background $transition-speed;
+  &:hover {
+    background: darken($primary-color, 10%);
+  }
+  &:disabled {
+    background: lighten($text-color, 50%);
+    cursor: not-allowed;
+  }
+}
+
+input, select, textarea {
+  font-family: inherit;
+  padding: 0.5rem;
+  border: 1px solid lighten($text-color, 50%);
+  border-radius: $border-radius;
+  transition: border-color $transition-speed;
+  &:focus {
+    border-color: $primary-color;
+    outline: none;
+  }
+}
+
+img {
+  max-width: 100%;
+  display: block;
+  border-radius: $border-radius;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+
+//=====================================
+// 2) Header (Navigation)
+//=====================================
+.header {
+  background: $header-background;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .logo {
+    height: 50px;
+    width: auto;
+  }
+
+  .home-buttons {
+    display: flex;
+    gap: 1rem;
+    a {
+      color: $header-text-color;
+      font-weight: 500;
+      transition: color $transition-speed;
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+
+  .user-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+
+    a {
+      color: $header-text-color;
+      transition: color $transition-speed;
+      &:hover {
+        color: $primary-color;
+      }
+    }
+
+    button {
+      background: transparent;
+      color: $header-text-color;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid $primary-color;
+      transition: background $transition-speed, color $transition-speed;
+      a {
+        color: inherit;
+      }
+      &:hover {
+        background: $primary-color;
+        color: #fff;
+      }
+    }
+  }
+}
+
+
+//=====================================================
+// 3) Profil-Header (Bilder: Header + Profilbild rund)
+//=====================================================
+.profile-header-container {
+  position: relative;
+  margin-bottom: 75px; // Abstand, weil Profilbild nach unten ragt
+
+  .header-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background: lighten($background-color, 5%);
+  }
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -75px;
+    left: 2rem;
+    background: $background-color;
+  }
+}
+
+
+//=====================================================
+// 4) BOARD-Seiten (board.ejs)
+//=====================================================
+// 4.1) Board-Info (Titel, Beschreibung, Owner, Join-Button)
+.board-content {
+  padding: 2rem;
+  background: $card-background;
+  margin-top: 2rem;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  .board-Title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .board-description {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .board-owner {
+    font-weight: 500;
+    color: lighten($text-color, 20%);
+    margin-bottom: 1rem;
+  }
+
+  #joinButton {
+    background: $secondary-color;
+    transition: background $transition-speed;
+    &:hover {
+      background: darken($secondary-color, 10%);
+    }
+  }
+}
+
+
+// 4.2) Tabs (Posts, Chat, Source, Projects)
+.board-general {
+  margin: 2rem;
+  .board-header {
+    border-bottom: 1px solid lighten($text-color, 60%);
+    .board-tabs {
+      display: flex;
+      gap: 1rem;
+
+      .tab-button {
+        background: none;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        color: $text-color;
+        cursor: pointer;
+        transition: color $transition-speed;
+        &.active, &:hover {
+          color: $primary-color;
+          border-bottom: 2px solid $primary-color;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 1rem 0;
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}
+
+
+// 4.3) POSTS-Tab: Karten-Layout
+.posts-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+
+  .post-card {
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .post-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+
+      .post-username {
+        font-weight: 600;
+      }
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      margin: 0.5rem 0;
+    }
+
+    p {
+      flex-grow: 1;
+      font-size: 1rem;
+      color: lighten($text-color, 10%);
+    }
+
+    a {
+      color: $accent-color;
+      font-weight: 500;
+      transition: color $transition-speed;
+      &:hover {
+        color: darken($accent-color, 10%);
+      }
+    }
+
+    .post-image {
+      margin-top: 0.5rem;
+      border-radius: $border-radius;
+    }
+
+    .post-meta {
+      font-size: 0.85rem;
+      color: lighten($text-color, 30%);
+      margin-top: 0.5rem;
+    }
+
+    .post-hashtags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+
+      .hashtag-item {
+        background: lighten($primary-color, 40%);
+        color: $primary-color;
+        padding: 0.2rem 0.5rem;
+        border-radius: $border-radius / 2;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+
+// 4.4) MODALS (Create Post, Add Character, Create Project u. ä.)
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  &.active {
+    display: flex;
+  }
+
+  .modal-content {
+    background: $card-background;
+    padding: 2rem;
+    border-radius: $border-radius;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .close-button, .close-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: $text-color;
+      transition: color $transition-speed;
+      &:hover {
+        color: $accent-color;
+      }
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      label {
+        font-weight: 500;
+      }
+
+      input[type="text"],
+      textarea,
+      select,
+      input[type="file"] {
+        width: 100%;
+      }
+
+      button[type="submit"],
+      button {
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+
+//=====================================================
+// 5) CHAT-Tab (board.ejs → Chat)
+//=====================================================
+.chat-flex-container {
+  display: flex;
+  gap: 1rem;
+
+  .chat-main {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+
+    .chat-window {
+      flex-grow: 1;
+      padding: 1rem;
+      overflow-y: auto;
+
+      .chat-message {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+
+        img.chat-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+        }
+
+        .chat-message-content {
+          background: lighten($secondary-color, 40%);
+          padding: 0.5rem 1rem;
+          border-radius: $border-radius;
+
+          .chat-message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            strong {
+              font-weight: 600;
+            }
+
+            time {
+              font-size: 0.75rem;
+              color: lighten($text-color, 40%);
+            }
+          }
+
+          .chat-message-body {
+            margin-top: 0.3rem;
+          }
+        }
+      }
+    }
+
+    .chat-form {
+      display: flex;
+      border-top: 1px solid lighten($text-color, 60%);
+
+      input.chat-input {
+        flex-grow: 1;
+        border: none;
+        padding: 0.75rem;
+        font-size: 1rem;
+        color: $text-color;
+        &:focus {
+          outline: none;
+        }
+      }
+
+      .chat-send-btn {
+        background: $primary-color;
+        border: none;
+        color: #fff;
+        padding: 0 1rem;
+        transition: background $transition-speed;
+        &:hover {
+          background: darken($primary-color, 10%);
+        }
+      }
+    }
+  }
+
+  .chat-online-container {
+    flex: 1;
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+
+    h3 {
+      margin-bottom: 0.5rem;
+      text-align: center;
+      color: $primary-color;
+    }
+
+    ul.online-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .online-user {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem 0;
+
+        img.online-avatar {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+        }
+
+        .online-name {
+          font-weight: 500;
+          color: $text-color;
+        }
+
+        .role-badge {
+          background: $secondary-color;
+          color: #fff;
+          padding: 0.2rem 0.5rem;
+          border-radius: $border-radius / 2;
+          text-transform: capitalize;
+          font-size: 0.75rem;
+          &.admin {
+            background: $accent-color;
+          }
+          &.member {
+            background: $secondary-color;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+//=====================================================
+// 6) SOURCE-Tab (board.ejs → Characters + Projects)
+//=====================================================
+// 6.1) Form-Gruppe (Dropdown + Label)
+.form-group {
+  margin: 1rem 0;
+  label {
+    font-weight: 500;
+    margin-right: 0.5rem;
+  }
+  select {
+    min-width: 200px;
+    padding: 0.5rem;
+    border: 1px solid lighten($text-color, 50%);
+    border-radius: $border-radius;
+    &:focus {
+      border-color: $primary-color;
+    }
+  }
+}
+
+// 6.2) “+ Add Character” Button (disabled, bis Projekt gewählt)
+#openAddCharModal {
+  &.btn {
+    background: $primary-color;
+    &:hover {
+      background: darken($primary-color, 10%);
+    }
+    &:disabled {
+      background: lighten($text-color, 50%);
+      cursor: not-allowed;
+    }
+  }
+}
+
+// 6.3) Character-Cards (Galerie)
+.character-card {
+  background: $card-background;
+  border-radius: $border-radius;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  padding: 1rem;
+  cursor: pointer;
+  transition: transform $transition-speed, box-shadow $transition-speed;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  img {
+    border-radius: $border-radius;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+
+  h4 {
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    color: $text-color;
+  }
+}
+
+// 6.4) Character-Modal (Detailansicht)
+#characterModal {
+  @extend .modal;
+  .modal-content {
+    max-width: 800px;
+
+    .modal-images {
+      display: flex;
+      gap: 1rem;
+      img {
+        border-radius: $border-radius;
+        max-height: 200px;
+        object-fit: cover;
+      }
+    }
+
+    #modalName {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    #modalProject {
+      font-weight: 500;
+      color: $primary-color;
+    }
+    #modalDesc {
+      margin: 1rem 0;
+      color: $text-color;
+    }
+    #modalSpoiler {
+      margin-top: 0.5rem;
+      font-style: italic;
+      color: #f99;
+    }
+  }
+}
+
+
+//=====================================================
+// 6.5) PROJECTS-Tab (board.ejs → Projects Listing + Modal)
+//=====================================================
+.project-list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  .project-item {
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    cursor: pointer;
+    transition: transform $transition-speed, box-shadow $transition-speed;
+    strong {
+      font-size: 1.1rem;
+      color: $text-color;
+    }
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.project-modal {
+  @extend .modal;
+  .modal-content.project-modal {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+
+    .project-posts {
+      flex: 1;
+      .posts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    .project-info {
+      flex: 1;
+      h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: $primary-color;
+      }
+      p {
+        font-size: 1rem;
+        color: $text-color;
+      }
+    }
+  }
+}
+
+
+//=====================================================
+// 7) CHAPTER-Seite (chapter.ejs)
+//=====================================================
+.chapter-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  .chapter-title {
+    font-family: $font-serif;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  .chapter-body {
+    background: $card-background;
+    padding: 1.5rem;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    font-family: $font-serif;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: $text-color;
+  }
+
+  .chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+
+    button, a {
+      background: $primary-color;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: $border-radius;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+
+    span {
+      font-size: 1rem;
+      color: $text-color;
+    }
+  }
+}
+
+
+//=====================================================
+// 8) COMIC-Seite (comic.ejs)
+//=====================================================
+.comic-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  text-align: center;
+
+  .comic-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: $primary-color;
+  }
+
+  .comic-viewer {
+    position: relative;
+
+    .comic-page {
+      display: none;
+      max-width: 100%;
+      border-radius: $border-radius;
+    }
+    .comic-page.active {
+      display: block;
+    }
+  }
+
+  .comic-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    button, a {
+      background: $primary-color;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: $border-radius;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+
+    span {
+      font-size: 1rem;
+      color: $text-color;
+    }
+  }
+}
+
+
+//=====================================================
+// 9) DASHBOARD-Seite (dashboard.ejs)
+//=====================================================
+// 9.1) Profil-Bereich (editierbare Felder)
+.user-profile-infos {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: $card-background;
+  padding: 2rem;
+  border-radius: $border-radius;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .profile-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .label {
+      font-weight: 500;
+      color: $text-color;
+    }
+
+    .editable-box,
+    .editable-box-badge {
+      background: lighten($background-color, 5%);
+      padding: 0.5rem;
+      border-radius: $border-radius / 2;
+      min-width: 200px;
+      word-break: break-word;
+    }
+
+    .editable-box-badge {
+      border: 1px solid lighten($text-color, 60%);
+    }
+  }
+
+  #saveProfileButton {
+    align-self: flex-end;
+  }
+}
+
+
+// 9.2) Liste der Boards des Nutzers
+#userBoardList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem;
+
+  .board-item {
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform $transition-speed, box-shadow $transition-speed;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-container {
+      position: relative;
+
+      .header-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+      }
+
+      .profile-image {
+        width: 80px;
+        height: 80px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        position: absolute;
+        bottom: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: $background-color;
+      }
+    }
+
+    h2 {
+      margin: 2rem 1rem 0.5rem 1rem;
+      font-size: 1.25rem;
+      text-align: center;
+      color: $text-color;
+    }
+
+    p {
+      font-size: 1rem;
+      color: lighten($text-color, 20%);
+      padding: 0 1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      background: $primary-color;
+      color: #fff;
+      margin: 0 1rem 1rem 1rem;
+      padding: 0.5rem;
+      border-radius: $border-radius;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+    }
+  }
+}
+
+
+// 9.3) Online-User Sidebar
+.online-users {
+  max-width: 300px;
+  background: $card-background;
+  padding: 1rem;
+  border-radius: $border-radius;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  margin: 2rem auto;
+
+  h3 {
+    margin-bottom: 1rem;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  ul {
+    list-style: none;
+    li {
+      padding: 0.5rem 0;
+      text-align: center;
+      border-bottom: 1px solid lighten($text-color, 60%);
+      color: $text-color;
+    }
+  }
+}
+
+
+//=====================================================
+// 10) DISCOVERY-Seite (discovery.ejs)
+//=====================================================
+.discovery-content {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  #searchBoardInput {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+  }
+
+  #searchBoardButton {
+    margin-bottom: 1rem;
+  }
+
+  #userBoardList {
+    @extend #userBoardList; // Styles aus dem Dashboard wiederverwenden
+  }
+}
+
+
+//=====================================================
+// 11) FEED-Seite (feed.ejs)
+//=====================================================
+.feed-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  .feed-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .feed-item {
+      background: $card-background;
+      border-radius: $border-radius;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .post-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .post-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+        }
+
+        strong {
+          font-weight: 600;
+        }
+
+        .post-board {
+          font-style: italic;
+          color: lighten($text-color, 20%);
+        }
+
+        .post-date {
+          margin-left: auto;
+          font-size: 0.85rem;
+          color: lighten($text-color, 40%);
+        }
+      }
+
+      .post-title {
+        font-size: 1.25rem;
+        margin: 0.5rem 0;
+      }
+
+      .post-content {
+        color: lighten($text-color, 10%);
+        margin-bottom: 0.5rem;
+      }
+
+      .post-image {
+        margin-bottom: 0.5rem;
+        border-radius: $border-radius;
+      }
+
+      .post-hashtags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+
+        .hashtag {
+          background: lighten($secondary-color, 40%);
+          color: $secondary-color;
+          padding: 0.2rem 0.5rem;
+          border-radius: $border-radius / 2;
+          font-size: 0.85rem;
+        }
+      }
+
+      .view-board {
+        display: inline-block;
+        margin-top: 0.5rem;
+        background: $primary-color;
+        color: #fff;
+        padding: 0.4rem 0.8rem;
+        border-radius: $border-radius;
+        transition: background $transition-speed;
+        &:hover {
+          background: darken($primary-color, 10%);
+        }
+      }
+    }
+  }
+}
+
+
+//=====================================================
+// 12) INDEX, LOGIN & REGISTER (index.html, login.html, register.html)
+//=====================================================
+// 12.1) Index – Unter dem Header
+.under-header {
+  background: url("../images/aegira-03.png");
+  color: #fff;
+  padding: 4rem 2rem;
+  text-align: center;
+  background-size: cover;
+  height: 890px;
+
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  button {
+    background: $secondary-color;
+    transition: background $transition-speed;
+    &:hover {
+      background: darken($secondary-color, 10%);
+    }
+    a {
+      color: #fff;
+      font-weight: 500;
+    }
+  }
+}
+
+// 12.2) Index – Cards im Main-Bereich
+.main-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem;
+
+  .card {
+    background: $card-background;
+    border-radius: $border-radius;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: $primary-color;
+      text-align: center;
+    }
+
+    p {
+      color: lighten($text-color, 20%);
+      font-size: 1rem;
+      text-align: center;
+    }
+  }
+}
+
+// 12.3) Login & Register
+.login,
+.register {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: $card-background;
+  border-radius: $border-radius;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  h1 {
+    margin-bottom: 1rem;
+    color: $primary-color;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+      align-self: flex-start;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid lighten($text-color, 50%);
+      border-radius: $border-radius / 2;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 1rem;
+    }
+  }
+}
+
+
+
+//=====================================================
+// 13) Utility-Klassen
+//=====================================================
+.hidden {
+  display: none !important;
+}
+
+.flex {
+  display: flex !important;
+}
