@@ -692,6 +692,29 @@
                 projectModal.style.display = 'none';
             }
         });
+
+        const openProjectModalButton    = document.getElementById('openProjectModalButton');
+        const createProjectModal        = document.getElementById('createProjectModal');
+        const closeProjectModalButton   = document.getElementById('closeProjectModalButton');
+
+        if (openProjectModalButton && createProjectModal) {
+            openProjectModalButton.addEventListener('click', () => {
+                createProjectModal.style.display = 'block';
+            });
+        }
+
+        if (closeProjectModalButton && createProjectModal) {
+            closeProjectModalButton.addEventListener('click', () => {
+                createProjectModal.style.display = 'none';
+            });
+        }
+
+
+        window.addEventListener('click', (event) => {
+            if (event.target === createProjectModal) {
+                createProjectModal.style.display = 'none';
+            }
+        });
     });
 
 </script>
