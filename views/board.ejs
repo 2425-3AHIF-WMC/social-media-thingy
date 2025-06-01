@@ -592,7 +592,108 @@
                 }
             });
         }
+
+        const projectListUl = document.getElementById('projectList');
+        const projectModal  = document.getElementById('projectModal');
+        const closeProjBtn  = document.getElementById('closeProjectModal');
+        const postsContainer = document.getElementById('projectPostsList');
+        const projNameEl    = document.getElementById('projectName');
+        const projDescEl    = document.getElementById('projectDesc');
+
+        projectListUl.addEventListener('click', async e => {
+            const li = e.target.closest('.project-item');
+            if (!li) return;
+            const projectId   = li.dataset.id;
+            const projectName = li.dataset.name;
+            const projectDesc = li.dataset.desc;
+
+            // Kopfbereich des Modals setzen
+            projNameEl.textContent = projectName;
+            projDescEl.textContent = projectDesc;
+
+            // Container leeren
+            postsContainer.innerHTML = '';
+
+            try {
+                // Posts aus Server holen
+                const res = await fetch(`/project/${projectId}/posts`);
+                const posts = await res.json();
+
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+
+                    // Titel
+                    const h3 = document.createElement('h3');
+                    h3.innerText = post.title;
+                    card.appendChild(h3);
+
+                    // Inhalt/Link/Media je nach post.type
+                    if (post.type === 'image' && post.image) {
+                        const img = document.createElement('img');
+                        img.src = `/${post.image}`;
+                        img.alt = post.title;
+                        img.className = 'post-image';
+                        card.appendChild(img);
+
+                    } else if (post.type === 'chapter') {
+                        const link = document.createElement('a');
+                        link.href        = `/chapter/${post.id}`;
+                        link.textContent = '📖 Read Chapter';
+                        card.appendChild(link);
+
+                    } else if (post.type === 'comic') {
+                        const link = document.createElement('a');
+                        link.href        = `/comic/${post.id}`;
+                        link.textContent = '🎞️ Read Comic';
+                        card.appendChild(link);
+
+                    } else {
+                        // Fallback: reiner Text-Post
+                        const p = document.createElement('p');
+                        p.innerText = post.content;
+                        card.appendChild(p);
+                    }
+
+                    // Meta (Datum + Autor)
+                    const meta = document.createElement('p');
+                    meta.className = 'post-meta';
+                    meta.innerText =
+                        `Posted on ${new Date(post.createdAt).toLocaleString()} by ${post.username}`;
+                    card.appendChild(meta);
+
+                    // Hashtags, falls vorhanden
+                    if (post.hashtags && post.hashtags.length) {
+                        const tags = document.createElement('div');
+                        tags.className = 'post-hashtags';
+                        post.hashtags.forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'hashtag-item';
+                            span.textContent = `#${tag}`;
+                            tags.appendChild(span);
+                        });
+                        card.appendChild(tags);
+                    }
+
+                    postsContainer.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Failed loading project posts:', err);
+            }
+
+            projectModal.style.display = 'block';
+        });
+
+        closeProjBtn.addEventListener('click', () => {
+            projectModal.style.display = 'none';
+        });
+        window.addEventListener('click', e => {
+            if (e.target === projectModal) {
+                projectModal.style.display = 'none';
+            }
+        });
     });
+
 </script>
 
 

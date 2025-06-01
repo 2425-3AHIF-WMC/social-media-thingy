@@ -19,9 +19,6 @@ const usersDatabase_1 = require("../usersDatabase");
 const boardsDatabase_1 = require("../boardsDatabase");
 const authDatabase_1 = require("../authDatabase");
 const router = express_1.default.Router();
-router.get('/', (req, res) => {
-    res.send("hello there!");
-});
 router.get('/register', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/register.html'));
 });
@@ -54,9 +51,6 @@ router.get('/dashboard', auth_handler_1.authHandler, (req, res) => __awaiter(voi
 }));
 router.get('/about-us', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/aboutus.html'));
-});
-router.get('/rnd', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../../public/Rnd.html'));
 });
 router.get('/events', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../../public/Events.html'));

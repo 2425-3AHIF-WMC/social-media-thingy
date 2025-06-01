@@ -16,6 +16,7 @@ const post_router_1 = __importDefault(require("./router/post-router"));
 const chat_router_1 = __importDefault(require("./router/chat-router"));
 const read_router_1 = __importDefault(require("./router/read-router"));
 const source_router_1 = __importDefault(require("./router/source-router"));
+const feed_router_1 = __importDefault(require("./router/feed-router"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = 3001;
@@ -44,6 +45,7 @@ app.use('/profile_images', express_1.default.static(path_1.default.join(__dirnam
         }
     }
 }));
+app.use('/', feed_router_1.default);
 app.use('/', auth_router_1.default);
 app.use('/', file_router_1.default);
 app.use('/', role_router_1.default);
