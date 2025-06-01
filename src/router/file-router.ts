@@ -8,10 +8,6 @@ import {getOnlineUsers} from "../authDatabase";
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-    res.send("hello there!");
-});
-
 router.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/register.html'));
 });
@@ -49,10 +45,6 @@ router.get('/dashboard', authHandler, async (req, res) => {
 
 router.get('/about-us', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/aboutus.html'));
-});
-
-router.get('/rnd', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/Rnd.html'));
 });
 
 router.get('/events', (req, res) => {
@@ -106,5 +98,4 @@ router.get('/admin', adminHandler, (req, res) => {
 router.get('/moderator', moderatorHandler, (req, res) => {
     res.sendFile(path.join(__dirname, '../../views/moderatordashboard.html'));
 });
-
 export default router;

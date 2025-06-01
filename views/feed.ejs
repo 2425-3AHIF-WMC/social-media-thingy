@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>For You — Whaaa</title>
+    <link rel="stylesheet" href="/style/style.css">
+</head>
+<body>
+
+<div class="header">
+    <h1>Whaaa</h1>
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href="/discovery">Discovery</a>
+        <a href="/events">Events</a>
+        <a href="/feed">For you</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <% if (user && user.id) { %>
+            <span>Logged in as: <%= user.username %></span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <button><a href="/login">Log in</a></button>
+            <button><a href="/register">Register</a></button>
+        <% } %>
+    </div>
+</div>
+
+<main class="feed-container">
+    <h2>Your Feed</h2>
+
+    <% if (!feedItems.length) { %>
+        <p>You haven’t joined any boards yet, or there are no posts to show.</p>
+    <% } else { %>
+        <ul class="feed-list">
+            <% feedItems.forEach(item => { %>
+                <li class="feed-item">
+                    <div class="post-header">
+                        <img src="/<%= item.avatar || 'default_profile.png' %>" alt="<%= item.username %>’s avatar" class="post-avatar">
+                        <strong><%= item.username %></strong>
+                        <span class="post-board">in <em><%= item.boardName %></em></span>
+                        <span class="post-date"><%= new Date(item.createdAt).toLocaleString() %></span>
+                    </div>
+
+                    <h3 class="post-title"><%= item.title %></h3>
+                    <p class="post-content"><%= item.content %></p>
+
+                    <% if (item.type === 'image' && item.image) { %>
+                        <img src="/<%= item.image %>" class="post-image" alt="Post image">
+                    <% } %>
+
+                    <% if (item.hashtags.length) { %>
+                        <div class="post-hashtags">
+                            <% item.hashtags.forEach(tag => { %>
+                                <span class="hashtag">#<%= tag %></span>
+                            <% }) %>
+                        </div>
+                    <% } %>
+
+                    <a href="/board/<%= item.boardId %>" class="view-board">View Board</a>
+                </li>
+            <% }); %>
+        </ul>
+    <% } %>
+</main>
+
+</body>
+</html>
