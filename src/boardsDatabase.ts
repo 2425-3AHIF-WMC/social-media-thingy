@@ -220,3 +220,14 @@ export async function getPostsByProject(projectId: number) {
     ORDER BY p.createdAt DESC
   `, [projectId]);
 }
+
+export async function getMemberBoards(userId: number) {
+    await init();
+    return await db.all(
+        `SELECT b.*
+       FROM boards b
+       JOIN BoardMembers bm ON b.id = bm.boardId
+      WHERE bm.userId = ?`,
+        [userId]
+    );
+}

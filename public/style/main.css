@@ -336,6 +336,7 @@ img {
   border-radius: 0.5rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  height: 500px;
 }
 .chat-flex-container .chat-main .chat-window {
   flex-grow: 1;
@@ -665,7 +666,7 @@ img {
 
 .user-profile-infos {
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 2rem;
   background: #ffffff;
   padding: 2rem;
   border-radius: 0.5rem;
@@ -696,6 +697,10 @@ img {
 }
 .user-profile-infos #saveProfileButton {
   align-self: flex-end;
+}
+
+.your-boards-container {
+  padding: 30px;
 }
 
 #userBoardList, .discovery-content #userBoardList {

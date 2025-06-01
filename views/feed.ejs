@@ -22,8 +22,8 @@
             <a href="/dashboard">Dashboard</a>
             <a href="/logout">Logout</a>
         <% } else { %>
-            <button><a href="/login" id="login-button">Log in</a></button>
-            <button><a href="/register" id="register-button">Register</a></button>
+            <button id="login-button"><a href="/login">Log in</a></button>
+            <button id="register-button"><a href="/register">Register</a></button>
         <% } %>
     </div>
 </div>
@@ -38,17 +38,29 @@
             <% feedItems.forEach(item => { %>
                 <li class="feed-item">
                     <div class="post-header">
-                        <img src="/<%= item.avatar || 'default_profile.png' %>" alt="<%= item.username %>’s avatar" class="post-avatar">
+                        <img
+                                src="/<%= item.avatar || 'default_profile.png' %>"
+                                alt="<%= item.username %>’s avatar"
+                                class="post-avatar"
+                        >
                         <strong><%= item.username %></strong>
-                        <span class="post-board">in <em><%= item.boardName %></em></span>
-                        <span class="post-date"><%= new Date(item.createdAt).toLocaleString() %></span>
+                        <span class="post-board">
+              in <em><%= item.boardName %></em>
+            </span>
+                        <span class="post-date">
+              <%= new Date(item.createdAt).toLocaleString() %>
+            </span>
                     </div>
 
                     <h3 class="post-title"><%= item.title %></h3>
                     <p class="post-content"><%= item.content %></p>
 
                     <% if (item.type === 'image' && item.image) { %>
-                        <img src="/<%= item.image %>" class="post-image" alt="Post image">
+                        <img
+                                src="/<%= item.image %>"
+                                class="post-image"
+                                alt="Post image"
+                        >
                     <% } %>
 
                     <% if (item.hashtags.length) { %>
@@ -59,6 +71,7 @@
                         </div>
                     <% } %>
 
+                    <!-- Button zum jeweiligen Board -->
                     <a href="/board/<%= item.boardId %>" class="view-board">View Board</a>
                 </li>
             <% }); %>

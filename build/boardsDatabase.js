@@ -26,6 +26,7 @@ exports.createProject = createProject;
 exports.getProjectsForBoard = getProjectsForBoard;
 exports.getPostsByBoard = getPostsByBoard;
 exports.getPostsByProject = getPostsByProject;
+exports.getMemberBoards = getMemberBoards;
 const database_1 = require("./database");
 /*
 export async function createBoard(ownerID: number, name: string, description: string, profileImage: string = 'uploads/default_profile.png', headerImage: string = 'uploads/default_header.png', visibility: string = 'public', hashtag: string = '') {
@@ -218,5 +219,14 @@ function getPostsByProject(projectId) {
     WHERE p.project_id = ?
     ORDER BY p.createdAt DESC
   `, [projectId]);
+    });
+}
+function getMemberBoards(userId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, database_1.init)();
+        return yield database_1.db.all(`SELECT b.*
+       FROM boards b
+       JOIN BoardMembers bm ON b.id = bm.boardId
+      WHERE bm.userId = ?`, [userId]);
     });
 }

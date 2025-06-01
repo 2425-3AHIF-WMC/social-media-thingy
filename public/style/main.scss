@@ -392,6 +392,9 @@ img {
 //=====================================================
 // 5) CHAT-Tab (board.ejs → Chat)
 //=====================================================
+// ==============================
+// Anpassung im Abschnitt “5) CHAT-Tab”
+// ==============================
 .chat-flex-container {
   display: flex;
   gap: 1rem;
@@ -405,9 +408,14 @@ img {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
     overflow: hidden;
 
+    // **HIER: feste Höhe setzen, damit die Chat-Box nicht endlos wächst**
+    height: 500px; // z. B. 500px oder nach Bedarf anpassen
+
     .chat-window {
       flex-grow: 1;
       padding: 1rem;
+
+      // schon vorhanden: scrollen, wenn zu viele Nachrichten da sind
       overflow-y: auto;
 
       .chat-message {
@@ -530,6 +538,7 @@ img {
     }
   }
 }
+
 
 
 //=====================================================
@@ -803,7 +812,7 @@ img {
 // 9.1) Profil-Bereich (editierbare Felder)
 .user-profile-infos {
   max-width: 600px;
-  margin: 2rem auto;
+  margin: 2rem;
   background: $card-background;
   padding: 2rem;
   border-radius: $border-radius;
@@ -839,6 +848,11 @@ img {
   #saveProfileButton {
     align-self: flex-end;
   }
+
+}
+
+.your-boards-container{
+  padding: 30px;
 }
 
 
