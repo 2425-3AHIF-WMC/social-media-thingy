@@ -237,14 +237,14 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
         const userAvatar       = currentUserRecord?.profile_image || 'uploads/default_profile.png';
         const projects         = await getProjectsForBoard(boardId);
 
-        // normalize your post‐rows
+
         const rawPosts = await getPostsByBoard(boardId);
         const posts = rawPosts.map(p => ({
             ...p,
             hashtags: p.hashtags ? p.hashtags.split(',') : []
         }));
 
-        // *** Pass the full user object here ***
+
         res.render('board', {
             board,
             ownerName,
@@ -254,7 +254,7 @@ router.get('/board/:id', authHandler, async (req: Request, res: Response) => {
             isOwner,
             posts,
             projects,
-            user: currentUserRecord,   // user.username, user.id, user.email, etc.
+            user: currentUserRecord,
             userAvatar
         });
 

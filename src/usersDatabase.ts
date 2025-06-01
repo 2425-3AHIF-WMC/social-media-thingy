@@ -77,7 +77,6 @@ export async function getUserNameById(userId: number) {
     return user.username;
 }
 
-//Update functions
 export async function updateUserFieldInDB(userId: number, field: string, value: string): Promise<boolean> {
     try {
         await init();

@@ -60,7 +60,6 @@ router.get('/discovery', authHandler, async (req, res) => {
         const user = await giveUserInformation(username);
         let boards = await getBoards();
 
-        // If a search query exists, filter boards by name, description, or hashtag
         const { search } = req.query;
         if (search) {
             const searchTerm = search.toString().toLowerCase();

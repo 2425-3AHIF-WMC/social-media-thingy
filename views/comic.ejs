@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,80 +7,135 @@
 </head>
 <body>
 <div class="comic-container">
+
     <h1 class="comic-title"><%= post.title %></h1>
-    <div class="comic-viewer">
+    <p class="comic-meta">Published on <%= new Date(post.createdAt).toLocaleDateString() %></p>
+
+
+    <a href="/board/<%= post.boardId %>" class="back-to-board">&larr; Back to Board</a>
+
+
+    <div class="comic-mode-toggle">
+        <button id="scrollModeBtn" class="active">Scroll Mode</button>
+        <button id="pageModeBtn">Page Mode</button>
+    </div>
+
+
+    <div style="margin:1rem 0; text-align:center;">
+        <% if (prev) { %>
+            <a href="/<%= prev.type %>/<%= prev.id %>" class="back-to-board">&larr; Go to Previous Chapter</a>
+        <% } %>
+        <% if (next) { %>
+            <a href="/<%= next.type %>/<%= next.id %>" class="back-to-board">Go to Next Chapter &rarr;</a>
+        <% } %>
+    </div>
+
+
+    <div id="viewer" class="comic-viewer scroll-mode">
         <% pages.forEach((pg, idx) => { %>
-            <img src="/<%= pg.image_path %>"
-                 class="comic-page<%= idx===0?' active':'' %>"
-                 data-page="<%= idx+1 %>"
-                 alt="Page <%= idx+1 %>" />
+            <img
+                    src="/<%= pg.image_path %>"
+                    class="comic-page"
+                    data-page="<%= idx + 1 %>"
+                    alt="Page <%= idx + 1 %>"
+            />
         <% }) %>
     </div>
 
-    <div class="comic-nav">
+
+    <div id="pageNav" class="comic-nav" style="display: none;">
         <button id="prevBtn">&larr; Prev</button>
         <span>Page <span id="curPage">1</span> / <%= pages.length %></span>
         <button id="nextBtn">Next &rarr;</button>
     </div>
+</div>
 
-    <script>
-        // Adjacent posts from server
-        const prevAdj = <%- JSON.stringify(prev || null) %>;
-        const nextAdj = <%- JSON.stringify(next || null) %>;
-        const prevLink = prevAdj ? `/${prevAdj.type}/${prevAdj.id}` : null;
-        const nextLink = nextAdj ? `/${nextAdj.type}/${nextAdj.id}` : null;
-
+<script>
+    (function() {
         let cur = 1;
         const total = <%= pages.length %>;
-        const updateCounter = () => document.getElementById('curPage').textContent = cur;
 
-        document.getElementById('nextBtn').onclick = () => {
-            if (cur < total) {
-                cur++;
-                switchPage(cur);
-            } else if (nextLink) {
-                window.location = nextLink;
+        const scrollModeBtn = document.getElementById('scrollModeBtn');
+        const pageModeBtn   = document.getElementById('pageModeBtn');
+        const viewer        = document.getElementById('viewer');
+        const prevBtn       = document.getElementById('prevBtn');
+        const nextBtn       = document.getElementById('nextBtn');
+        const curPageSpan   = document.getElementById('curPage');
+        const pageNav       = document.getElementById('pageNav');
+
+        let mode = 'scroll';
+        setupMode();
+
+        scrollModeBtn.addEventListener('click', () => {
+            mode = 'scroll';
+            setupMode();
+        });
+        pageModeBtn.addEventListener('click', () => {
+            mode = 'page';
+            setupMode();
+        });
+
+        function setupMode() {
+            if (mode === 'scroll') {
+                viewer.classList.add('scroll-mode');
+                document.querySelectorAll('.comic-page').forEach(img => {
+                    img.style.display = 'block';
+                });
+                pageNav.style.display = 'none';
+                scrollModeBtn.classList.add('active');
+                pageModeBtn.classList.remove('active');
+            } else {
+                viewer.classList.remove('scroll-mode');
+                document.querySelectorAll('.comic-page').forEach(img => {
+                    img.style.display = 'none';
+                });
+                showPage(cur);
+                pageNav.style.display = 'flex';
+                scrollModeBtn.classList.remove('active');
+                pageModeBtn.classList.add('active');
             }
-        };
-
-        document.getElementById('prevBtn').onclick = () => {
-            if (cur > 1) {
-                cur--;
-                switchPage(cur);
-            }
-        };
-
-        function switchPage(n) {
-            document.querySelector('.comic-page.active').classList.remove('active');
-            document.querySelector(`.comic-page[data-page="${n}"]`).classList.add('active');
-            updateCounter();
         }
 
-        // Keyboard nav
-        document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowLeft') {
-                if (cur > 1) {
-                    cur--;
-                    switchPage(cur);
-                } else if (prevLink) {
-                    window.location = prevLink;
-                }
+        function showPage(n) {
+            document.querySelectorAll('.comic-page').forEach(img => {
+                img.style.display = 'none';
+            });
+            const target = document.querySelector(`.comic-page[data-page="${n}"]`);
+            if (target) {
+                target.style.display = 'block';
+                curPageSpan.textContent = n;
             }
-            if (e.key === 'ArrowRight') {
-                if (cur < total) {
-                    cur++;
-                    switchPage(cur);
-                } else if (nextLink) {
-                    window.location = nextLink;
-                }
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (cur > 1) {
+                cur--;
+                showPage(cur);
+            } else {
+                <% if (prev) { %>
+                window.location = '/<%= prev.type %>/<%= prev.id %>';
+                <% } %>
             }
         });
-    </script>
+        nextBtn.addEventListener('click', () => {
+            if (cur < total) {
+                cur++;
+                showPage(cur);
+            } else {
+                <% if (next) { %>
+                window.location = '/<%= next.type %>/<%= next.id %>';
+                <% } %>
+            }
+        });
 
-    <div class="comic-nav" style="justify-content:flex-end;">
-        <a href="javascript:history.back()">&larr; Back</a>
-    </div>
+        document.addEventListener('keydown', e => {
+            if (mode !== 'page') return;
+            if (e.key === 'ArrowLeft')  prevBtn.click();
+            if (e.key === 'ArrowRight') nextBtn.click();
+        });
 
-</div>
+        setupMode();
+    })();
+</script>
 </body>
 </html>

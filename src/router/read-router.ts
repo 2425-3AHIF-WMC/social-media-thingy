@@ -11,8 +11,8 @@ async function getAdjacentPost(
     createdAt: string,
     direction: 'prev' | 'next'
 ): Promise<{ id: number; type: string } | null> {
-    const op  = direction === 'next' ? '>'  : '<';
-    const ord = direction === 'next' ? 'ASC': 'DESC';
+    const op = direction === 'next' ? '>' : '<';
+    const ord = direction === 'next' ? 'ASC' : 'DESC';
     const row = await db.get<any>(
         `SELECT id, type
        FROM Posts
@@ -25,35 +25,47 @@ async function getAdjacentPost(
     return row || null;
 }
 
-router.get('/chapter/:id', async (req, res) => {
+router.get('/chapter/:id', async (req: Request, res: Response) => {
     await init();
     const postId = Number(req.params.id);
 
+
     const post = await db.get<any>(
-        `SELECT id, title, createdAt, project_id
-       FROM Posts
-      WHERE id = ? AND type = 'chapter'`,
+        `SELECT
+       id,
+       title,
+       content,
+       createdAt,
+       boardId,
+       project_id
+     FROM Posts
+     WHERE id = ? AND type = 'chapter'`,
         [postId]
     );
-    if (!post) return res.status(404).send('Chapter not found');
+    if (!post) {
+        return res.status(404).send('Chapter not found');
+    }
 
     const chapter = await db.get<any>(
-        `SELECT source_path, file_type
-       FROM Chapters
-      WHERE post_id = ?`,
+        `SELECT
+       source_path,
+       file_type
+     FROM Chapters
+     WHERE post_id = ?`,
         [postId]
     );
-    if (!chapter) return res.status(404).send('Chapter metadata missing');
+    if (!chapter) {
+        return res.status(404).send('Chapter metadata missing');
+    }
 
     const absPath = path.resolve(__dirname, '..', chapter.source_path);
-
     let html = '';
     try {
         if (chapter.file_type === 'txt') {
             const txt = await fs.promises.readFile(absPath, 'utf8');
             html = txt
                 .split('\n\n')
-                .map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`)
+                .map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`)
                 .join('');
         } else if (chapter.file_type === 'docx') {
             const result = await mammoth.convertToHtml({ path: absPath });
@@ -72,6 +84,7 @@ router.get('/chapter/:id', async (req, res) => {
         ? await getAdjacentPost(projectId, post.createdAt, 'next')
         : null;
 
+
     res.render('chapter', {
         post,
         html,
@@ -80,37 +93,56 @@ router.get('/chapter/:id', async (req, res) => {
     });
 });
 
-router.get('/comic/:id', async (req, res) => {
+router.get('/comic/:id', async (req: Request, res: Response) => {
     await init();
-    const postId = +req.params.id;
+    const postId = Number(req.params.id);
+
 
     const post = await db.get<any>(
-        `SELECT * FROM Posts WHERE id = ? AND type = 'comic'`,
+        `SELECT
+       id,
+       title,
+       content,
+       createdAt,
+       boardId,
+       project_id
+     FROM Posts
+     WHERE id = ? AND type = 'comic'`,
         [postId]
     );
-    if (!post) return res.status(404).send('Post nicht gefunden');
+    if (!post) {
+        return res.status(404).send('Comic not found');
+    }
 
-    const chapter = await db.get<any>(
-        `SELECT id, project_id, created_at
-       FROM Chapters
-      WHERE post_id = ?`,
+    const chapterMeta = await db.get<any>(
+        `SELECT
+       id,
+       project_id,
+       created_at AS createdAt
+     FROM Chapters
+     WHERE post_id = ?`,
         [postId]
     );
-    if (!chapter) return res.status(404).send('Comic-Kapitel nicht gefunden');
+    if (!chapterMeta) {
+        return res.status(404).send('Comic chapter metadata not found');
+    }
 
     const pages = await db.all<any>(
-        `SELECT page_number, image_path
-       FROM ComicPages
-      WHERE chapter_id = ?
-      ORDER BY page_number`,
-        [chapter.id]
+        `SELECT
+       page_number AS page_number,
+       image_path  AS image_path
+     FROM ComicPages
+     WHERE chapter_id = ?
+     ORDER BY page_number`,
+        [chapterMeta.id]
     );
 
-    const prev = chapter.project_id
-        ? await getAdjacentPost(chapter.project_id, chapter.created_at, 'prev')
+    const projId = chapterMeta.project_id;
+    const prev = projId
+        ? await getAdjacentPost(projId, chapterMeta.createdAt, 'prev')
         : null;
-    const next = chapter.project_id
-        ? await getAdjacentPost(chapter.project_id, chapter.created_at, 'next')
+    const next = projId
+        ? await getAdjacentPost(projId, chapterMeta.createdAt, 'next')
         : null;
 
     res.render('comic', {
@@ -120,6 +152,7 @@ router.get('/comic/:id', async (req, res) => {
         next
     });
 });
+
 
 
 export default router;

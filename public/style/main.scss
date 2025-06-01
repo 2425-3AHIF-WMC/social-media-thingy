@@ -755,6 +755,26 @@ img {
 //=====================================================
 // 8) COMIC-Seite (comic.ejs)
 //=====================================================
+// ==================================================
+// 14) Erweiterte Styles für Comic- & Chapter-Ansichten
+// ==================================================
+
+// 14.1) Gemeinsame Rück-Button-Klasse
+.back-to-board {
+  display: inline-block;
+  margin: 1rem 0;
+  background: $secondary-color;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: $border-radius;
+  transition: background $transition-speed;
+  text-decoration: none;
+  &:hover {
+    background: darken($secondary-color, 10%);
+  }
+}
+
+// 14.2) COMIC-spezifische Styles
 .comic-container {
   max-width: 800px;
   margin: 2rem auto;
@@ -763,20 +783,58 @@ img {
 
   .comic-title {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: $primary-color;
   }
 
+  .comic-meta {
+    font-size: 0.9rem;
+    color: lighten($text-color, 30%);
+    margin-bottom: 1rem;
+  }
+
+  // Toggle-Buttons (Scroll vs Page)
+  .comic-mode-toggle {
+    margin-bottom: 1rem;
+    button {
+      background: $primary-color;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      margin: 0 0.5rem;
+      border-radius: $border-radius / 2;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+      &.active {
+        background: darken($primary-color, 5%);
+      }
+    }
+  }
+
+  // Page-Modus (jeweils ein Bild, verstecke alle bis auf .active)
   .comic-viewer {
     position: relative;
-
     .comic-page {
       display: none;
       max-width: 100%;
-      border-radius: $border-radius;
+      max-height: 80vh; // max Höhe 80% des Viewports
+      width: auto;
+      margin: 0 auto;
     }
     .comic-page.active {
       display: block;
+    }
+
+    // Scroll-Modus (alle Bilder untereinander, scrollbar, max-Höhe)
+    &.scroll-mode {
+      max-height: 80vh;
+      overflow-y: auto;
+      .comic-page {
+        display: block;
+        margin-bottom: 1rem;
+      }
     }
   }
 
@@ -796,6 +854,108 @@ img {
       &:hover {
         background: darken($primary-color, 10%);
       }
+      text-decoration: none;
+    }
+
+    span {
+      font-size: 1rem;
+      color: $text-color;
+    }
+  }
+}
+
+// 14.3) CHAPTER-spezifische Styles
+.chapter-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: $font-serif;
+
+  .chapter-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    color: $primary-color;
+  }
+
+  .chapter-meta {
+    font-size: 0.9rem;
+    color: lighten($text-color, 30%);
+    margin-bottom: 1rem;
+  }
+
+  // Toggle-Buttons für Scroll vs Page
+  .chapter-mode-toggle {
+    margin-bottom: 1rem;
+    button {
+      background: $primary-color;
+      color: #fff;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      margin: 0 0.5rem;
+      border-radius: $border-radius / 2;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+      &.active {
+        background: darken($primary-color, 5%);
+      }
+    }
+  }
+
+  // Scroll-Modus (einfach scrollbarer Textblock)
+  .chapter-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 1rem;
+    border-radius: $border-radius;
+    background: $card-background;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    line-height: 1.8;
+    font-size: 1.1rem;
+  }
+
+  // Page-Modus (je Seite wird nur ein Teil angezeigt):
+  // .page-mode-wrapper steckt mehrere .chapter-page-Blöcke übereinander
+  .page-mode-wrapper {
+    position: relative;
+    max-height: 70vh;
+    overflow: hidden;
+    .chapter-page {
+      display: none;
+      padding: 1rem;
+      border-radius: $border-radius;
+      background: $card-background;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      line-height: 1.8;
+      font-size: 1.1rem;
+    }
+    .chapter-page.active {
+      display: block;
+      overflow-y: auto; // Seite kann bei Bedarf scrollen (falls Text knapp über die Höhe ragt)
+      max-height: 70vh;
+    }
+  }
+
+  .chapter-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    button, a {
+      background: $primary-color;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: $border-radius;
+      transition: background $transition-speed;
+      &:hover {
+        background: darken($primary-color, 10%);
+      }
+      text-decoration: none;
+      border: none;
     }
 
     span {
@@ -1090,6 +1250,19 @@ img {
         }
       }
     }
+  }
+}
+
+.view-post {
+  display: inline-block;
+  margin: 0.5rem 0;
+  padding: 0.4rem 0.8rem;
+  background: $secondary-color;
+  color: #fff;
+  border-radius: $border-radius;
+  transition: background $transition-speed;
+  &:hover {
+    background: darken($secondary-color, 10%);
   }
 }
 

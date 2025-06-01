@@ -26,7 +26,6 @@ router.get('/project/:projectId/characters', async (req, res) => {
     res.json(chars);
 });
 
-// --- Create or Update a character ---
 router.post(
     '/project/:projectId/characters',
     upload.array('images', 5),
@@ -37,7 +36,7 @@ router.post(
         let charId: number;
 
         if (id) {
-            // Update existing
+
             await db.run(
                 `UPDATE Characters 
             SET name=?, description=?, spoiler=?
@@ -45,7 +44,7 @@ router.post(
             );
             charId = Number(id);
         } else {
-            // New
+
             const result = await db.run(
                 `INSERT INTO Characters (project_id,name,description,spoiler)
          VALUES (?,?,?,?)`,
@@ -54,7 +53,6 @@ router.post(
             charId = result.lastID!;
         }
 
-        // Handle uploaded images
         for (const file of (req.files as Express.Multer.File[])) {
             const rel = path.join('uploads', path.basename(file.path));
             await db.run(
@@ -67,7 +65,6 @@ router.post(
         res.json({ success:true, id: charId });
     });
 
-// GET source data for a project
 router.get('/project/:id/source', authHandler, async (req, res) => {
     const pid = +req.params.id;
     const chars = await getCharacterDescriptions(pid);
@@ -75,7 +72,6 @@ router.get('/project/:id/source', authHandler, async (req, res) => {
     res.json({ characterDescriptions: chars, credits });
 });
 
-// POST CharacterDescription (with optional image)
 router.post(
     '/project/:id/source/character',
     authHandler,
@@ -89,7 +85,6 @@ router.post(
     }
 );
 
-// POST Credit
 router.post(
     '/project/:id/source/credit',
     authHandler,
