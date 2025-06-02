@@ -16,17 +16,14 @@ const router = (0, express_1.Router)();
 router.get('/discovery', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, database_1.init)();
-        // 1) Prüfen, ob ein User in der Session liegt
         let user = null;
         if (req.session && req.session.user) {
             const username = req.session.user;
             const userId = yield (0, usersDatabase_1.getUserID)(username);
             user = yield (0, usersDatabase_1.getUserById)(userId);
         }
-        // 2) Optionaler Suchbegriff
         const { search } = req.query;
         const lowerSearch = typeof search === 'string' ? search.toLowerCase() : null;
-        // 3) Alle Boards + board_types + hashtag_list aus der DB holen
         const rows = yield database_1.db.all(`
       SELECT 
         b.id,
@@ -44,7 +41,6 @@ router.get('/discovery', (req, res) => __awaiter(void 0, void 0, void 0, functio
       GROUP BY b.id, bt.type_name
       ORDER BY bt.id, b.name
     `);
-        // 4) Filtern bei Suche
         let filtered = rows;
         if (lowerSearch) {
             filtered = rows.filter((board) => {
@@ -90,7 +86,6 @@ router.get('/discovery', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 });
             }
             else {
-                // Falls keine Hashtags → "Uncategorized"
                 const tag = '_uncategorized';
                 if (!allGroupsMap[tag]) {
                     allGroupsMap[tag] = { hashtag: 'Uncategorized', boards: [] };
@@ -98,7 +93,6 @@ router.get('/discovery', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 allGroupsMap[tag].boards.push(board);
             }
         });
-        // Map in sortiertes Array umwandeln
         const allGroups = Object.values(allGroupsMap).sort((a, b) => {
             if (a.hashtag === 'Uncategorized')
                 return 1;
@@ -106,9 +100,8 @@ router.get('/discovery', (req, res) => __awaiter(void 0, void 0, void 0, functio
                 return -1;
             return a.hashtag.localeCompare(b.hashtag);
         });
-        // 7) Rendern (user kann null sein)
         res.render('discovery', {
-            user, // entweder das User‐Objekt oder null
+            user,
             artBoards,
             writingBoards,
             comicBoards,

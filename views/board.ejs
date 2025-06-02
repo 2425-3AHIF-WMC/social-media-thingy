@@ -407,32 +407,11 @@
         </div>
     </div>
 
-
-
     <div id="projects" class="tab-content" style="display: none">
         <h2><%= isOwner ? "Your Projects" : "Projects" %></h2>
 
         <% if (isOwner) { %>
-
-            <button id="openProjectModalButton">Create a New Project</button>
-            <div id="createProjectModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-button" id="closeProjectModalButton">&times;</span>
-                    <div class="create-project-container">
-                        <h2>Create a New Project</h2>
-                        <form id="createProjectForm" method="POST" action="/createProject">
-                            <label for="projectName">Project Name:</label>
-                            <input type="text" id="projectName" name="name" required>
-
-                            <label for="projectDescription">Description:</label>
-                            <textarea id="projectDescription" name="description" required></textarea>
-
-                            <input type="hidden" name="boardId" value="<%= board.id %>">
-                            <button type="submit">Create Project</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            <button id="openProjectModalButton" class="add-post-btn">Create a New Project</button>
         <% } %>
 
         <ul id="projectList" class="project-list">
@@ -443,28 +422,146 @@
                         data-name="<%= prj.name.replace(/"/g,'&quot;') %>"
                         data-desc="<%= prj.description.replace(/"/g,'&quot;') %>"
                 >
-                    <strong><%= prj.name %></strong>
+
+                    <div class="project-banner">
+                        <%= prj.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="project-info">
+                        <h4><%= prj.name %></h4>
+                        <p><%= prj.description.length > 60 ? prj.description.slice(0, 57) + '...' : prj.description %></p>
+                        <span class="view-project-btn">View</span>
+                    </div>
                 </li>
             <% }) %>
         </ul>
 
-        <div id="projectModal" class="modal">
-            <div class="modal-content project-modal">
+        <div id="projectModal" class="modal project-modal">
+              <div class="modal-content">
                 <span id="closeProjectModal" class="close-button">&times;</span>
-                <div class="project-detail">
-                    <aside class="project-posts">
-                        <div id="projectPostsList" class="posts-list"></div>
-                    </aside>
-                    <section class="project-info">
-                        <h3 id="projectName"></h3>
-                        <p id="projectDesc"></p>
-                    </section>
+
+                <div class="project-header">
+                    <h3 id="projectName"></h3>
+                    <p id="projectDesc"></p>
+                </div>
+
+                <div class="project-body">
+                    <div id="projectPostsList" class="project-posts"></div>
+
                 </div>
             </div>
         </div>
     </div>
 
+
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const projectListUl = document.getElementById('projectList');
+        const projectModal  = document.getElementById('projectModal');
+        const closeProjBtn  = document.getElementById('closeProjectModal');
+        const postsContainer = document.getElementById('projectPostsList');
+        const projNameEl    = document.getElementById('projectName');
+        const projDescEl    = document.getElementById('projectDesc');
+
+        projectListUl.addEventListener('click', async e => {
+            const li = e.target.closest('.project-item');
+            if (!li) return;
+            const projectId   = li.dataset.id;
+            const projectName = li.dataset.name;
+            const projectDesc = li.dataset.desc;
+
+            // Header‐Bereich füllen
+            projNameEl.textContent = projectName;
+            projDescEl.textContent = projectDesc;
+
+            // Container für Posts leeren
+            postsContainer.innerHTML = '';
+
+            try {
+                // Posts vom Server holen
+                const res = await fetch(`/project/${projectId}/posts`);
+                const posts = await res.json();
+
+                posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+
+                    // Post‐Header (Avatar, Username, Timestamp)
+                    const header = document.createElement('div');
+                    header.className = 'post-header';
+                    header.innerHTML = `
+            <img src="/${post.avatar || 'default_profile.png'}" class="post-avatar" alt="${post.username}">
+            <strong>${post.username}</strong>
+            <time>${new Date(post.createdAt).toLocaleString()}</time>
+          `;
+                    card.appendChild(header);
+
+                    // Titel
+                    const titleEl = document.createElement('h5');
+                    titleEl.textContent = post.title;
+                    card.appendChild(titleEl);
+
+                    // Inhalt/Link je nach post.type
+                    if (post.type === 'chapter') {
+                        const link = document.createElement('a');
+                        link.href = `/chapter/${post.id}`;
+                        link.textContent = '📖 Read Chapter';
+                        link.className = 'read-link';
+                        card.appendChild(link);
+                    } else if (post.type === 'comic') {
+                        const link = document.createElement('a');
+                        link.href = `/comic/${post.id}`;
+                        link.textContent = '🎞️ Read Comic';
+                        link.className = 'read-link';
+                        card.appendChild(link);
+                    } else if (post.type === 'image' && post.image) {
+                        const img = document.createElement('img');
+                        img.src = `/${post.image}`;
+                        img.alt = "Post Image";
+                        img.className = 'post-image';
+                        card.appendChild(img);
+                    } else {
+                        const contentEl = document.createElement('p');
+                        contentEl.textContent = post.content;
+                        card.appendChild(contentEl);
+                    }
+
+                    // Hashtags
+                    if (post.hashtags && post.hashtags.length) {
+                        const tagsDiv = document.createElement('div');
+                        tagsDiv.className = 'post-hashtags';
+                        post.hashtags.split(',').forEach(tag => {
+                            const span = document.createElement('span');
+                            span.className = 'hashtag';
+                            span.textContent = `#${tag}`;
+                            tagsDiv.appendChild(span);
+                        });
+                        card.appendChild(tagsDiv);
+                    }
+
+                    postsContainer.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Failed loading project posts:', err);
+            }
+
+            // Modal öffnen
+            projectModal.style.display = 'block';
+        });
+
+        // Modal schließen – wenn X‐Button angeklickt
+        closeProjBtn.addEventListener('click', () => {
+            projectModal.style.display = 'none';
+        });
+        // Modal schließen – wenn außerhalb des Inhalts geklickt wird
+        window.addEventListener('click', e => {
+            if (e.target === projectModal) {
+                projectModal.style.display = 'none';
+            }
+        });
+    });
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
