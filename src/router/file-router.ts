@@ -47,10 +47,6 @@ router.get('/about-us', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/aboutus.html'));
 });
 
-router.get('/events', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../public/Events.html'));
-});
-
 router.get('/discovery', authHandler, async (req, res) => {
     try {
         const username = req.session.user;
