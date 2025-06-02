@@ -98,7 +98,6 @@ function getUserNameById(userId) {
         return user.username;
     });
 }
-//Update functions
 function updateUserFieldInDB(userId, field, value) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

@@ -1122,32 +1122,81 @@ img {
 //=====================================================
 // 10) DISCOVERY-Seite (discovery.ejs)
 //=====================================================
-.discovery-content {
-  max-width: 1000px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-
-  h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    text-align: center;
-    color: $primary-color;
-  }
-
-  #searchBoardInput {
-    width: 100%;
-    max-width: 400px;
-    padding: 0.5rem;
-    margin-right: 0.5rem;
-  }
-
-  #searchBoardButton {
-    margin-bottom: 1rem;
-  }
-
-  #userBoardList {
-    @extend #userBoardList; // Styles aus dem Dashboard wiederverwenden
-  }
+.category-section {
+  margin-bottom: 3rem;
+}
+.category-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+.subgroup {
+  margin-top: 2rem;
+}
+.subgroup h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+.board-card {
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.board-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.board-card .header-container {
+  position: relative;
+}
+.board-card .header-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+.board-card .profile-image {
+  width: 60px;
+  height: 60px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+}
+.board-card .board-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+}
+.board-card .board-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.board-card .board-info p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+.board-card .board-info a {
+  display: inline-block;
+  background: #3498db;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 0.3rem;
+  transition: background 0.2s;
+}
+.board-card .board-info a:hover {
+  background: #2980b9;
 }
 
 

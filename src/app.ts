@@ -12,6 +12,7 @@ import chatRouter from './router/chat-router';
 import readRouter from "./router/read-router";
 import sourceRouter from "./router/source-router";
 import feedRouter from "./router/feed-router";
+import discoveryRouter from "./router/discovery-router";
 
 import { cookie } from "express-validator";
 import CustomSession from "./model/session";
@@ -58,6 +59,7 @@ app.use('/', postRouter);
 app.use('/', chatRouter);
 app.use('/', readRouter);
 app.use('/', sourceRouter);
+app.use('/', discoveryRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));

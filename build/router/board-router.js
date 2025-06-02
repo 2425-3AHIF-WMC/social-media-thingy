@@ -200,10 +200,8 @@ router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(voi
         const currentUserRecord = yield (0, usersDatabase_1.getUserById)(currentUserId);
         const userAvatar = (currentUserRecord === null || currentUserRecord === void 0 ? void 0 : currentUserRecord.profile_image) || 'uploads/default_profile.png';
         const projects = yield (0, boardsDatabase_1.getProjectsForBoard)(boardId);
-        // normalize your post‐rows
         const rawPosts = yield (0, boardsDatabase_1.getPostsByBoard)(boardId);
         const posts = rawPosts.map(p => (Object.assign(Object.assign({}, p), { hashtags: p.hashtags ? p.hashtags.split(',') : [] })));
-        // *** Pass the full user object here ***
         res.render('board', {
             board,
             ownerName,
@@ -213,7 +211,7 @@ router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(voi
             isOwner,
             posts,
             projects,
-            user: currentUserRecord, // user.username, user.id, user.email, etc.
+            user: currentUserRecord,
             userAvatar
         });
     }

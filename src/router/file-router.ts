@@ -47,32 +47,6 @@ router.get('/about-us', (req, res) => {
     res.sendFile(path.join(__dirname, '../../public/aboutus.html'));
 });
 
-router.get('/discovery', authHandler, async (req, res) => {
-    try {
-        const username = req.session.user;
-        if (!username) {
-            return res.status(400).send('Username is undefined');
-        }
-        const user = await giveUserInformation(username);
-        let boards = await getBoards();
-
-        const { search } = req.query;
-        if (search) {
-            const searchTerm = search.toString().toLowerCase();
-            boards = boards.filter(board =>
-                board.name.toLowerCase().includes(searchTerm) ||
-                board.description.toLowerCase().includes(searchTerm) ||
-                (board.hashtag && board.hashtag.toLowerCase().includes(searchTerm))
-            );
-        }
-
-        res.render('discovery', { user, boards });
-    } catch (error) {
-        console.error("Error fetching boards:", error);
-        res.status(500).json({ error: 'Failed to fetch boards' });
-    }
-});
-
 router.get('/username', authHandler, (req, res) => {
     const username = req.session.user;
     if (username) {

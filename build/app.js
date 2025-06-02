@@ -17,6 +17,7 @@ const chat_router_1 = __importDefault(require("./router/chat-router"));
 const read_router_1 = __importDefault(require("./router/read-router"));
 const source_router_1 = __importDefault(require("./router/source-router"));
 const feed_router_1 = __importDefault(require("./router/feed-router"));
+const discovery_router_1 = __importDefault(require("./router/discovery-router"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = 3001;
@@ -55,6 +56,7 @@ app.use('/', post_router_1.default);
 app.use('/', chat_router_1.default);
 app.use('/', read_router_1.default);
 app.use('/', source_router_1.default);
+app.use('/', discovery_router_1.default);
 app.get('/', (req, res) => {
     res.sendFile(path_1.default.join(__dirname, '../public/index.html'));
 });

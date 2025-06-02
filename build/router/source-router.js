@@ -32,26 +32,22 @@ router.get('/project/:projectId/characters', (req, res) => __awaiter(void 0, voi
   `, [pid]);
     res.json(chars);
 }));
-// --- Create or Update a character ---
 router.post('/project/:projectId/characters', upload.array('images', 5), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, database_1.init)();
     const pid = Number(req.params.projectId);
     const { id, name, description, spoiler } = req.body;
     let charId;
     if (id) {
-        // Update existing
         yield database_1.db.run(`UPDATE Characters 
             SET name=?, description=?, spoiler=?
           WHERE id=?`, [name, description, spoiler, Number(id)]);
         charId = Number(id);
     }
     else {
-        // New
         const result = yield database_1.db.run(`INSERT INTO Characters (project_id,name,description,spoiler)
          VALUES (?,?,?,?)`, [pid, name, description, spoiler]);
         charId = result.lastID;
     }
-    // Handle uploaded images
     for (const file of req.files) {
         const rel = path_1.default.join('uploads', path_1.default.basename(file.path));
         yield database_1.db.run(`INSERT INTO CharacterImages (character_id, image_path, caption)
@@ -59,14 +55,12 @@ router.post('/project/:projectId/characters', upload.array('images', 5), (req, r
     }
     res.json({ success: true, id: charId });
 }));
-// GET source data for a project
 router.get('/project/:id/source', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pid = +req.params.id;
     const chars = yield (0, sourceDatabase_1.getCharacterDescriptions)(pid);
     const credits = yield (0, sourceDatabase_1.getProjectCredits)(pid);
     res.json({ characterDescriptions: chars, credits });
 }));
-// POST CharacterDescription (with optional image)
 router.post('/project/:id/source/character', auth_handler_1.authHandler, upload.single('image'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pid = +req.params.id;
     const { name, description, spoiler } = req.body;
@@ -74,7 +68,6 @@ router.post('/project/:id/source/character', auth_handler_1.authHandler, upload.
     const entry = yield (0, sourceDatabase_1.createCharacterDescription)(pid, name, imagePath, description, spoiler);
     res.status(201).json(entry);
 }));
-// POST Credit
 router.post('/project/:id/source/credit', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const pid = +req.params.id;
     const { label, url } = req.body;
