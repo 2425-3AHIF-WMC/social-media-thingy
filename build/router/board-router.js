@@ -21,78 +21,9 @@ const multer_1 = __importDefault(require("multer"));
 const uuid_1 = require("uuid");
 const boardsDatabase_1 = require("../boardsDatabase");
 const usersDatabase_1 = require("../usersDatabase");
+// Import the “like” helpers:
+const postDatabase_1 = require("../postDatabase");
 const router = (0, express_1.Router)();
-/*
-router.post('/create', authHandler, [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('description').notEmpty().withMessage('Description is required'),
-    body('visibility').notEmpty().withMessage('Visibility is required').isIn(['public', 'private']).withMessage('Visibility must be either public or private')
-], async (req: Request, res: Response) => {
-    console.log("Received request to create board:", req.body);
-
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    let { name, description, visibility, hashtag } = req.body;
-
-    // Ensure hashtag are parsed correctly
-    try {
-        if (typeof hashtag === "string") {
-            hashtag = JSON.parse(hashtag);
-        }
-        if (!Array.isArray(hashtag)) {
-            hashtag = [];
-        }
-        hashtag = hashtag.slice(0, 5); // Ensure max of 5
-    } catch (error) {
-        console.error("❌ Error parsing hashtags:", error);
-        hashtag = [];
-    }
-
-    console.log("✅ Processed Hashtags:", hashtag);
-
-    let profileImage = 'default_profile.png';
-    let headerImage = 'default_header.png';
-    const userId = await getUserID(req.session.user);
-
-    try {
-        const uploadsDir = path.resolve(__dirname, '..', 'uploads');
-
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        if (req.files) {
-            const files = req.files as { [key: string]: fileUpload.UploadedFile };
-
-            if (files.profileImage) {
-                const profileImageUUID = uuidv4() + path.extname(files.profileImage.name);
-                const profileImagePath = path.join(uploadsDir, profileImageUUID);
-                await files.profileImage.mv(profileImagePath);
-                profileImage = `uploads/${profileImageUUID}`;
-            }
-
-            if (files.headerImage) {
-                const headerImageUUID = uuidv4() + path.extname(files.headerImage.name);
-                const headerImagePath = path.join(uploadsDir, headerImageUUID);
-                await files.headerImage.mv(headerImagePath);
-                headerImage = `uploads/${headerImageUUID}`;
-            }
-        }
-
-        console.log("Saving board with hashtags:", hashtag);
-        const newBoard = await createBoard(userId, name, description, profileImage, headerImage, visibility, hashtag.join(" "));
-        return res.status(201).json(newBoard);
-
-    } catch (error) {
-        console.error("Error saving board:", error);
-        return res.status(500).json({ error: 'Failed to create board' });
-    }
-});
-
-*/
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         const uploadsDir = path_1.default.resolve(__dirname, '..', 'uploads');
@@ -107,6 +38,9 @@ const storage = multer_1.default.diskStorage({
     }
 });
 const upload = (0, multer_1.default)({ storage });
+/* ==========================
+   CREATE BOARD
+   ========================== */
 router.post('/createBoard', auth_handler_1.authHandler, upload.fields([{ name: 'profileImage' }, { name: 'headerImage' }]), [
     (0, express_validator_1.body)('name').notEmpty().withMessage('Name is required'),
     (0, express_validator_1.body)('description').notEmpty().withMessage('Description is required'),
@@ -150,6 +84,9 @@ router.post('/createBoard', auth_handler_1.authHandler, upload.fields([{ name: '
         return res.status(500).json({ error: 'Failed to create board' });
     }
 }));
+/* ==========================
+   CREATE PROJECT
+   ========================== */
 router.post('/createProject', auth_handler_1.authHandler, [
     (0, express_validator_1.body)('name').notEmpty().withMessage('Name is required'),
     (0, express_validator_1.body)('description').notEmpty().withMessage('Description is required'),
@@ -174,6 +111,9 @@ router.post('/createProject', auth_handler_1.authHandler, [
         return res.status(500).json({ error: 'Failed to create project' });
     }
 }));
+/* ==========================
+   GET PROJECTS FOR BOARD
+   ========================== */
 router.get('/board/:id/projects', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const boardId = parseInt(req.params.id);
     try {
@@ -185,6 +125,9 @@ router.get('/board/:id/projects', auth_handler_1.authHandler, (req, res) => __aw
         return res.status(500).json({ error: 'Failed to fetch projects' });
     }
 }));
+/* ==========================
+   GET SINGLE BOARD (with enriched posts)
+   ========================== */
 router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const boardId = parseInt(req.params.id, 10);
     try {
@@ -200,8 +143,20 @@ router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(voi
         const currentUserRecord = yield (0, usersDatabase_1.getUserById)(currentUserId);
         const userAvatar = (currentUserRecord === null || currentUserRecord === void 0 ? void 0 : currentUserRecord.profile_image) || 'uploads/default_profile.png';
         const projects = yield (0, boardsDatabase_1.getProjectsForBoard)(boardId);
+        // 1) Fetch raw posts from DB
         const rawPosts = yield (0, boardsDatabase_1.getPostsByBoard)(boardId);
-        const posts = rawPosts.map(p => (Object.assign(Object.assign({}, p), { hashtags: p.hashtags ? p.hashtags.split(',') : [] })));
+        // 2) Enrich each post with likeCount + likedByCurrentUser:
+        const posts = yield Promise.all(rawPosts.map((p) => __awaiter(void 0, void 0, void 0, function* () {
+            // a) Split hashtags CSV → array
+            const tagsArr = p.hashtags ? p.hashtags.split(',') : [];
+            // b) Count total likes for this post
+            const likeRow = yield (0, postDatabase_1.getLikesCount)(p.id);
+            const count = (likeRow && likeRow.count) || 0;
+            // c) Check if this user already liked this post
+            const liked = yield (0, postDatabase_1.hasLikedPost)(p.id, currentUserId);
+            return Object.assign(Object.assign({}, p), { hashtags: tagsArr, likeCount: count, likedByCurrentUser: liked });
+        })));
+        // 3) Render the EJS with enriched posts
         res.render('board', {
             board,
             ownerName,
@@ -220,6 +175,9 @@ router.get('/board/:id', auth_handler_1.authHandler, (req, res) => __awaiter(voi
         res.status(500).json({ error: 'Internal server error' });
     }
 }));
+/* ==========================
+   LIST ALL BOARDS (for Discovery, etc.)
+   ========================== */
 router.get('/boards', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { search } = req.query;
@@ -237,6 +195,9 @@ router.get('/boards', auth_handler_1.authHandler, (req, res) => __awaiter(void 0
         return res.status(500).json({ error: 'Failed to fetch boards' });
     }
 }));
+/* ==========================
+   GET BOARDS BELONGING TO USER
+   ========================== */
 router.get('/user-boards', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
@@ -248,6 +209,9 @@ router.get('/user-boards', auth_handler_1.authHandler, (req, res) => __awaiter(v
         return res.status(500).json({ error: 'Failed to fetch user boards' });
     }
 }));
+/* ==========================
+   JOIN BOARD
+   ========================== */
 router.post('/join/:boardId', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
     const boardId = parseInt(req.params.boardId, 10);
@@ -270,6 +234,9 @@ router.post('/join/:boardId', auth_handler_1.authHandler, (req, res) => __awaite
         return res.status(500).send('Server error');
     }
 }));
+/* ==========================
+   GET POSTS FOR A PROJECT (unchanged)
+   ========================== */
 router.get('/project/:projectId/posts', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const projectId = Number(req.params.projectId);
     try {
