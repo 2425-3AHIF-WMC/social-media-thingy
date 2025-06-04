@@ -46,3 +46,10 @@ function formatHashtag(hashtag) {
     if (!hashtag || hashtag.trim() === "") return "None";
     return hashtag.split(" ").map(tag => `#${tag}`).join(", ");
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById("searchBoardButton").addEventListener("click", () => {
+        const searchTerm = document.getElementById("searchBoardInput").value.trim();
+        window.location.href = `/discovery?search=${encodeURIComponent(searchTerm)}`;
+    });
+});

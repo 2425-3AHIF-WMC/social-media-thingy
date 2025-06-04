@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon-04.svg">
-    <link rel="stylesheet" href="/style/main.css">
+    <link rel="stylesheet" href="style/main.css">
 </head>
 <body>
 
@@ -12,19 +12,21 @@
     <img src="/images/aegira.svg" alt="aegira" class="logo">
     <div class="home-buttons">
         <a href="/">Home</a>
-        <a href ="/discovery">Discovery</a>
+        <a href="/discovery">Discovery</a>
         <a href="/feed">For you</a>
         <a href="/about-us">About us</a>
     </div>
+
     <div class="user-buttons">
-        <button id="login-button"><a href="/login">Log in</a></button>
-        <button id="register-button"><a href="/register">Register</a></button>
-        <span id="username"></span>
-        <span id="dashboard-button"></span>
-        <span id="logout-button"></span>
+        <% if (user) { %>
+            <span>Logged in as: <%= user.username %></span>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <button><a href="/login">Log in</a></button>
+            <button><a href="/register">Register</a></button>
+        <% } %>
     </div>
 </div>
-
 
 <!-- Dashboard-specific content -->
 <div class="profile-header-container">
@@ -32,6 +34,7 @@
     <img
             id="userheaderImage"
             class="header-image"
+            src="<%= userHeaderImage %>"
             src="<%= userHeaderImage %>"
             alt="Header Image"
             onerror="this.onerror=null;this.src='/uploads/default_header.png';"
@@ -130,103 +133,6 @@
             </div>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const hashtagInput = document.getElementById('hashtagInput');
-                const addHashtagButton = document.getElementById('addHashtagButton');
-                const hashtagList = document.getElementById('hashtagList');
-                const hashtagsField = document.getElementById('hashtags');
-                let hashtags = [];
-
-                // Add hashtag to the list
-                addHashtagButton.addEventListener('click', () => {
-                    const hashtag = hashtagInput.value.trim();
-                    if (hashtag && !hashtags.includes(hashtag)) {
-                        hashtags.push(hashtag);
-                        updateHashtagList();
-                        hashtagInput.value = '';
-                    }
-                });
-
-                // Update the displayed hashtag list
-                function updateHashtagList() {
-                    hashtagList.innerHTML = '';
-                    hashtags.forEach((tag, index) => {
-                        const tagElement = document.createElement('span');
-                        tagElement.textContent = `#${tag}`;
-                        tagElement.className = 'hashtag-item';
-
-                        // Add a remove button for each hashtag
-                        const removeButton = document.createElement('button');
-                        removeButton.textContent = 'x';
-                        removeButton.className = 'remove-hashtag';
-                        removeButton.addEventListener('click', () => {
-                            hashtags.splice(index, 1);
-                            updateHashtagList();
-                        });
-
-                        tagElement.appendChild(removeButton);
-                        hashtagList.appendChild(tagElement);
-                    });
-
-                    hashtagsField.value = hashtags.join(',');
-                }
-
-                // Handle form submission
-                document.getElementById('createBoardForm').addEventListener('submit', async (event) => {
-                    event.preventDefault();
-
-                    const form = event.target;
-                    const formData = new FormData(form);
-
-                    // Add hashtags to the form data
-                    formData.set('hashtag', hashtags.join(','));
-
-                    try {
-                        const response = await fetch('/createBoard', {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            alert('Board created successfully!');
-                            window.location.reload(); // Reload or redirect to the new board
-                        } else {
-                            const errorData = await response.json();
-                            alert(`Error: ${errorData.error || 'Failed to create board'}`);
-                        }
-                    } catch (error) {
-                        console.error('Error creating board:', error);
-                        alert('An error occurred while creating the board.');
-                    }
-                });
-            });
-
-            document.addEventListener('DOMContentLoaded', () => {
-                const openModalButton = document.getElementById('openModalButton');
-                const closeModalButton = document.getElementById('closeModalButton');
-                const createBoardModal = document.getElementById('createBoardModal');
-
-                // Open the modal
-                openModalButton.addEventListener('click', () => {
-                    createBoardModal.style.display = 'block';
-                });
-
-                // Close the modal
-                closeModalButton.addEventListener('click', () => {
-                    createBoardModal.style.display = 'none';
-                });
-
-                // Close the modal when clicking outside the modal content
-                window.addEventListener('click', (event) => {
-                    if (event.target === createBoardModal) {
-                        createBoardModal.style.display = 'none';
-                    }
-                });
-            });
-        </script>
-
-
     </div>
     <div id="userBoardList">
         <% boards.forEach(board => { %>
@@ -259,107 +165,8 @@
     <a href="/admin">Admin Dashboard</a>
 </button>
 <!-- Fix scripts after some while i really got no fucking clue what happened here -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Make the profile image clickable -> triggers file input
-        const profileImageEl = document.getElementById('userprofileImage');
-        const headerImageEl  = document.getElementById('userheaderImage');
 
-        profileImageEl.addEventListener('click', () => {
-            document.getElementById('profileImageInput').click();
-        });
-
-        headerImageEl.addEventListener('click', () => {
-            document.getElementById('headerImageInput').click();
-        });
-
-        // If you have the old code for updating images via fetch:
-        document.getElementById('profileImageInput').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('avatar', file);
-
-                try {
-                    const response = await fetch('/update-user-avatar', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Error updating profile image');
-                    }
-                } catch (error) {
-                    console.error('Error updating profile image:', error);
-                }
-            }
-        });
-
-        document.getElementById('headerImageInput').addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('header', file);
-
-                try {
-                    const response = await fetch('/update-user-header', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        console.error('Error updating header image');
-                    }
-                } catch (error) {
-                    console.error('Error updating header image:', error);
-                }
-            }
-        });
-
-        // ... the rest of dashboard JS (hashtags, board creation, etc.) ...
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/username')
-            .then(response => response.json())
-            .then(data => {
-                if (data.username) {
-                    document.getElementById('username').textContent = `Logged in as: ${data.username}`;
-                    document.getElementById('logout-button').innerHTML = `<a href="/logout">Logout</a>`;
-                    document.getElementById('login-button').style.display = 'none';
-                    document.getElementById('register-button').style.display = 'none';
-                }
-            });
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        // "Save Changes" updates all fields in one request
-        document.getElementById('saveProfileButton').addEventListener('click', async () => {
-            const bio = document.getElementById('fetchBio').textContent.trim();
-            const pronouns = document.getElementById('fetchPronouns').textContent.trim();
-            const links = document.getElementById('fetchLinks').textContent.trim();
-            const badges = document.getElementById('fetchBadges').textContent.trim();
-
-            try {
-                const response = await fetch('/update-user', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bio, pronouns, links, badges })
-                });
-
-                if (response.ok) {
-                    alert('Profile updated successfully!');
-                    // Optionally reload the page:
-                    // location.reload();
-                } else {
-                    console.error('Failed to update user fields.');
-                }
-            } catch (error) {
-                console.error('Error updating user fields:', error);
-            }
-        });
-    });
-</script>
+<script src="/src/dashboard.js"></script>
 
 </body>
 </html>

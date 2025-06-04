@@ -5,8 +5,8 @@
     <title>For You — Whhaa</title>
     <link rel="stylesheet" href="/style/main.css">
     <link rel="icon" type="image/x-icon" href="/images/favicon-04.svg">
+    <!-- Inline like‐button styles (unchanged) -->
     <style>
-        /* You can move this into main.css if you prefer */
         .like-button {
             background: transparent;
             border: none;
@@ -46,6 +46,9 @@
 </head>
 <body>
 
+<!-- ==================== -->
+<!-- Header (unchanged)  -->
+<!-- ==================== -->
 <div class="header">
     <img src="/images/aegira.svg" alt="aegira" class="logo">
     <div class="home-buttons">
@@ -66,125 +69,77 @@
     </div>
 </div>
 
-<main class="feed-container">
-    <h2>Your Feed</h2>
+<!-- ==================== -->
+<!-- Feed Content        -->
+<!-- ==================== -->
+<div class="container">
+    <main class="feed-container">
+        <h2>Your Feed</h2>
 
-    <% if (!feedItems.length) { %>
-        <p>You haven’t joined any boards yet, or there are no posts to show.</p>
-    <% } else { %>
-        <ul class="feed-list">
-            <% feedItems.forEach(item => { %>
-                <li class="feed-item">
-                    <div class="post-header">
-                        <img
-                                src="/<%= item.avatar || 'default_profile.png' %>"
-                                alt="<%= item.username %>’s avatar"
-                                class="post-avatar"
-                        >
-                        <strong><%= item.username %></strong>
-                        <span class="post-board">
-                            in <em><%= item.boardName %></em>
-                        </span>
-                        <span class="post-date">
-                            <%= new Date(item.createdAt).toLocaleString() %>
-                        </span>
-                    </div>
-
-                    <h3 class="post-title"><%= item.title %></h3>
-                    <p class="post-content"><%= item.content %></p>
-
-                    <% /* Kapitel-Reader / Comic-Reader Links */ %>
-                    <% if (item.type === 'chapter') { %>
-                        <a href="/chapter/<%= item.id %>" class="view-post">📖 Read Chapter</a>
-                    <% } else if (item.type === 'comic') { %>
-                        <a href="/comic/<%= item.id %>" class="view-post">🎞️ Read Comic</a>
-                    <% } %>
-
-                    <% /* Bild-Post anzeigen */ %>
-                    <% if (item.type === 'image' && item.image) { %>
-                        <img src="/<%= item.image %>" class="post-image" alt="Post image">
-                    <% } %>
-
-                    <% if (item.hashtags.length) { %>
-                        <div class="post-hashtags">
-                            <% item.hashtags.forEach(tag => { %>
-                                <span class="hashtag">#<%= tag %></span>
-                            <% }) %>
+        <% if (!feedItems.length) { %>
+            <p>You haven’t joined any boards yet, or there are no posts to show.</p>
+        <% } else { %>
+            <ul class="feed-list">
+                <% feedItems.forEach(item => { %>
+                    <li class="feed-item">
+                        <div class="post-header">
+                            <img
+                                    src="/<%= item.avatar || 'default_profile.png' %>"
+                                    alt="<%= item.username %>’s avatar"
+                                    class="post-avatar"
+                            >
+                            <strong><%= item.username %></strong>
+                            <span class="post-board">in <em><%= item.boardName %></em></span>
+                            <span class="post-date"><%= new Date(item.createdAt).toLocaleString() %></span>
                         </div>
-                    <% } %>
 
-                    <% /* Button zum Board */ %>
-                    <a href="/board/<%= item.boardId %>" class="view-board">View Board</a>
+                        <h3 class="post-title"><%= item.title %></h3>
+                        <p class="post-content"><%= item.content %></p>
 
-                    <% /* ====== HERE: Heart‐Icon & Count ====== */ %>
-                    <div class="like-container">
-                        <button
-                                class="like-button <%= item.likedByCurrentUser ? 'liked' : '' %>"
-                                data-post-id="<%= item.id %>"
-                                aria-label="Like this post"
-                        >
-                            <!-- Simple heart SVG (outline if not liked, filled if liked) -->
-                            <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 21s-8-6.686-8-11.333C4 6.707 6.686 4 10 4c1.657 0 3 1.343 3 3 0-1.657 1.343-3 3-3 3.314 0 6 2.707 6 5.667C20 14.314 12 21 12 21z"/>
-                            </svg>
-                            <span class="like-count"><%= item.likeCount || 0 %></span>
-                        </button>
-                    </div>
-                    <% /* ====== END Heart‐Icon & Count ====== */ %>
-                </li>
-            <% }); %>
-        </ul>
-    <% } %>
-</main>
+                        <!-- Chapter / Comic links -->
+                        <% if (item.type === 'chapter') { %>
+                            <a href="/chapter/<%= item.id %>" class="view-post">📖 Read Chapter</a>
+                        <% } else if (item.type === 'comic') { %>
+                            <a href="/comic/<%= item.id %>" class="view-post">🎞️ Read Comic</a>
+                        <% } %>
 
+                        <!-- Image post (if present) -->
+                        <% if (item.type === 'image' && item.image) { %>
+                            <img src="/<%= item.image %>" class="post-image" alt="Post image">
+                        <% } %>
 
-<script>
-    /**
-     * This script assumes:
-     *   - Every .like-button has data-post-id="…"
-     *   - If the button has class “liked”, we should call /unlike/:postId → remove “liked” class & decrement count.
-     *   - If the button does NOT have class “liked”, we call /like/:postId → add “liked” class & increment count.
-     */
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.like-button').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                e.preventDefault();
+                        <!-- Hashtags -->
+                        <% if (item.hashtags.length) { %>
+                            <div class="post-hashtags">
+                                <% item.hashtags.forEach(tag => { %>
+                                    <span class="hashtag">#<%= tag %></span>
+                                <% }) %>
+                            </div>
+                        <% } %>
 
-                const postId = btn.getAttribute('data-post-id');
-                if (!postId) return;
+                        <!-- Button to go back to Board -->
+                        <a href="/board/<%= item.boardId %>" class="view-board">View Board</a>
 
-                const isLiked = btn.classList.contains('liked');
-                const url = isLiked ? `/unlike/${postId}` : `/like/${postId}`;
-                const method = 'POST';
+                        <!-- Like button + count (heart icon) -->
+                        <div class="like-container">
+                            <button
+                                    class="like-button <%= item.likedByCurrentUser ? 'liked' : '' %>"
+                                    data-post-id="<%= item.id %>"
+                                    aria-label="Like this post"
+                            >
+                                <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 21s-8-6.686-8-11.333C4 6.707 6.686 4 10 4c1.657 0 3 1.343 3 3 0-1.657 1.343-3 3-3 3.314 0 6 2.707 6 5.667C20 14.314 12 21 12 21z"/>
+                                </svg>
+                                <span class="like-count"><%= item.likeCount || 0 %></span>
+                            </button>
+                        </div>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </main>
+</div> <!-- /.container -->
 
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        credentials: 'same-origin'
-                    });
-                    if (res.status === 204) {
-                        // Toggle UI immediately
-                        const countSpan = btn.querySelector('.like-count');
-                        let count = parseInt(countSpan.textContent, 10);
-                        if (isLiked) {
-                            btn.classList.remove('liked');
-                            count = Math.max(0, count - 1);
-                        } else {
-                            btn.classList.add('liked');
-                            count = count + 1;
-                        }
-                        countSpan.textContent = count;
-                    } else {
-                        console.error('Failed to toggle like:', res.status);
-                    }
-                } catch (err) {
-                    console.error('Error toggling like:', err);
-                }
-            });
-        });
-    });
-</script>
-
+<script src="/src/feed.js"></script>
 </body>
 </html>

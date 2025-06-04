@@ -9,9 +9,6 @@
 </head>
 <body>
 
-<!-- ==================== -->
-<!-- Header -->
-<!-- ==================== -->
 <div class="header">
     <img src="/images/aegira.svg" alt="aegira" class="logo">
     <div class="home-buttons">
@@ -33,13 +30,10 @@
     </div>
 </div>
 
-<!-- ==================== -->
-<!-- Discovery Content -->
-<!-- ==================== -->
-<div class="discovery-content container">
+<div class="container">
     <h1>Discovery</h1>
 
-    <!-- Suchleiste -->
+    <!-- Search Bar (unchanged) -->
     <div class="search-container">
         <input
                 type="text"
@@ -50,9 +44,6 @@
         <button id="searchBoardButton">Search</button>
     </div>
 
-    <!-- ==================== -->
-    <!-- Art Boards -->
-    <!-- ==================== -->
     <% if (artBoards.length) { %>
         <section class="category-section">
             <h2>Art</h2>
@@ -84,9 +75,6 @@
         </section>
     <% } %>
 
-    <!-- ==================== -->
-    <!-- Writing Boards -->
-    <!-- ==================== -->
     <% if (writingBoards.length) { %>
         <section class="category-section">
             <h2>Writing</h2>
@@ -118,9 +106,6 @@
         </section>
     <% } %>
 
-    <!-- ==================== -->
-    <!-- Comic Boards -->
-    <!-- ==================== -->
     <% if (comicBoards.length) { %>
         <section class="category-section">
             <h2>Comic</h2>
@@ -152,9 +137,6 @@
         </section>
     <% } %>
 
-    <!-- ==================== -->
-    <!-- All Boards → Unterkategorien nach Hashtags -->
-    <!-- ==================== -->
     <% if (allGroups.length) { %>
         <section class="category-section">
             <h2>All</h2>
@@ -199,13 +181,5 @@
 
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById("searchBoardButton").addEventListener("click", () => {
-            const searchTerm = document.getElementById("searchBoardInput").value.trim();
-            window.location.href = `/discovery?search=${encodeURIComponent(searchTerm)}`;
-        });
-    });
-</script>
 </body>
 </html>
