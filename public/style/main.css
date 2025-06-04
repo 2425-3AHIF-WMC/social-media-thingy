@@ -1,6 +1,3 @@
-/* ==================================================================== */
-/* 1) RESET & GLOBAL STYLES                                             */
-/* ==================================================================== */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,14 +9,6 @@ html, body {
   background: #f5f6fa;
   color: #332D56;
   line-height: 1.6;
-  height: 100%;
-}
-
-/* Prevent background scrolling when a modal is open */
-html.modal-open,
-body.modal-open {
-  overflow: hidden !important;
-  height: 100%;
 }
 
 a {
@@ -73,9 +62,49 @@ img {
   padding: 1rem;
 }
 
-/* ==================================================================== */
-/* 2) HEADER & NAVIGATION                                                */
-/* ==================================================================== */
+.modal-content label,
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  color: #332D56;
+}
+.modal-content textarea {
+  min-height: 4rem;
+  resize: vertical;
+  padding: 0.5rem;
+  border: 1px solid #b3aed4;
+}
+.modal-content input[type=text],
+.modal-content input[type=file],
+.modal-content select {
+  padding: 0.5rem;
+  border: 1px solid #b3aed4;
+  border-radius: 0.25rem;
+}
+.modal-content input[type=file] {
+  margin-top: 0.3rem;
+  margin-bottom: 1rem;
+}
+.modal-content button[type=submit],
+.modal-content .modal-content button {
+  margin-top: 1rem;
+  background: #4E6688;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: background 0.3s;
+}
+.modal-content button[type=submit]:hover,
+.modal-content .modal-content button:hover {
+  background: #3b4e68;
+}
+
 .header {
   background: #ffffff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -127,9 +156,6 @@ img {
   color: #fff;
 }
 
-/* ==================================================================== */
-/* 3) PROFILE HEADER (Dashboard)                                         */
-/* ==================================================================== */
 .profile-header-container {
   position: relative;
   margin-bottom: 75px;
@@ -138,7 +164,7 @@ img {
   width: 100%;
   height: 200px;
   object-fit: cover;
-  background: #ffffff;
+  background: white;
 }
 .profile-header-container .profile-image {
   width: 150px;
@@ -151,336 +177,6 @@ img {
   background: #f5f6fa;
 }
 
-/* ==================================================================== */
-/* 4) DASHBOARD: Profile Info Panel                                      */
-/* ==================================================================== */
-.user-profile-infos {
-  max-width: 600px;
-  margin: 2rem;
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.user-profile-infos .profile-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.user-profile-infos .profile-info .label {
-  font-weight: 500;
-  color: #332D56;
-}
-.user-profile-infos .profile-info .editable-box,
-.user-profile-infos .profile-info .editable-box-badge {
-  background: #ffffff;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  min-width: 200px;
-  word-break: break-word;
-}
-.user-profile-infos .profile-info .editable-box-badge {
-  border: 1px solid #d2cfe6;
-}
-.user-profile-infos #saveProfileButton {
-  align-self: flex-end;
-}
-
-/* ==================================================================== */
-/* 5) DASHBOARD: “Your Boards” Grid & “Create Board” Button              */
-/* ==================================================================== */
-.your-boards-container {
-  max-width: 1200px;
-  margin: 2rem;
-  padding: 2rem;
-  background: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-.your-boards-container h2 {
-  font-size: 1.75rem;
-  color: #4E6688;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-.your-boards-container #openModalButton {
-  align-self: flex-start;
-  background: #71C0BB;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: background 0.3s;
-}
-.your-boards-container #openModalButton:hover {
-  background: #4eb0aa;
-}
-
-/* Board-item grid inside Dashboard */
-#userBoardList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-#userBoardList .board-item {
-  background: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  position: relative; /* for proper z-index layering */
-  z-index: 1;         /* keep cards below any open modal (which is z-index:1000) */
-}
-#userBoardList .board-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Board header + profile image layering */
-#userBoardList .board-item .header-container {
-  position: relative;
-}
-#userBoardList .board-item .header-container .header-image {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  z-index: 1;
-}
-#userBoardList .board-item .header-container .profile-image {
-  width: 80px;
-  height: 80px;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #f5f6fa;
-  z-index: 2; /* above header-image, but still beneath modal */
-}
-#userBoardList .board-item h2 {
-  margin: 2rem 1rem 0.5rem 1rem;
-  font-size: 1.25rem;
-  text-align: center;
-  color: #332D56;
-}
-#userBoardList .board-item p {
-  font-size: 1rem;
-  color: #5b5099;
-  padding: 0 1rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-#userBoardList .board-item a {
-  display: block;
-  text-align: center;
-  background: #4E6688;
-  color: #fff;
-  margin: 0 1rem 1rem 1rem;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: background 0.3s;
-}
-#userBoardList .board-item a:hover {
-  background: #3b4e68;
-}
-
-/* ==================================================================== */
-/* 6) ONLINE USERS SIDEBAR                                                */
-/* ==================================================================== */
-.online-users {
-  max-width: 300px;
-  background: #ffffff;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  margin: 2rem;
-}
-.online-users h3 {
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #4E6688;
-}
-.online-users ul {
-  list-style: none;
-}
-.online-users ul li {
-  padding: 0.5rem 0;
-  text-align: center;
-  border-bottom: 1px solid #d2cfe6;
-  color: #332D56;
-}
-
-/* ==================================================================== */
-/* 7) “CREATE BOARD” MODAL & CHARACTER MODAL                              */
-/*    (All modal forms share one unified set of rules)                    */
-/* ==================================================================== */
-/* Overlay container (hidden by default) */
-.modal,
-#characterModal,
-.project-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000; /* ensures modals float above everything else */
-}
-
-/* Show when active */
-.modal.active,
-#characterModal.active,
-.project-modal.active {
-  display: flex;
-}
-
-/* Shared modal‐content styling */
-.modal .modal-content,
-#characterModal .modal-content {
-  background: #ffffff;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  width: 90%;
-  max-width: 600px;
-  position: relative;
-
-  /* Limit height to 90vh and scroll inside if needed */
-  max-height: 90vh;
-
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* Shared “X” close button */
-.modal .modal-content .close-button,
-#characterModal .modal-content .close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #332D56;
-  transition: color 0.3s;
-}
-.modal .modal-content .close-button:hover,
-#characterModal .modal-content .close-button:hover {
-  color: #D2DF98;
-}
-
-/* Form inside any modal (Create Board, Add Character, etc.) */
-.modal .modal-content form,
-#characterModal .modal-content form {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Labels within modal forms */
-.modal .modal-content form label,
-#characterModal .modal-content form label {
-  font-weight: 500;
-  margin-bottom: 0.125rem;
-  color: #332D56;
-}
-
-/* Inputs, selects, textareas, file inputs in modals */
-.modal .modal-content form input[type="text"],
-#characterModal .modal-content form input[type="text"],
-.modal .modal-content form input[type="number"],
-#characterModal .modal-content form input[type="number"],
-.modal .modal-content form select,
-#characterModal .modal-content form select,
-.modal .modal-content form textarea,
-#characterModal .modal-content form textarea,
-.modal .modal-content form input[type="file"],
-#characterModal .modal-content form input[type="file"] {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 0.25rem;
-  border: 1px solid #b3aed4;
-  transition: border-color 0.3s;
-  margin-bottom: 0.25rem;
-}
-
-/* Buttons (“Add Hashtag” or “Create Board”) inside modal forms */
-.modal .modal-content form button[type="button"],
-#characterModal .modal-content form button[type="button"],
-.modal .modal-content form button[type="submit"],
-#characterModal .modal-content form button[type="submit"] {
-  align-self: flex-end;
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-  font-size: 0.95rem;
-  padding: 0.4rem 0.8rem;
-}
-
-/* Hashtag list in “Create Board” modal */
-.modal .modal-content #hashtagList,
-#characterModal .modal-content #hashtagList {
-  margin-bottom: 0.25rem;
-}
-.modal .modal-content #hashtagList .hashtag-item,
-#characterModal .modal-content #hashtagList .hashtag-item {
-  margin-right: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-/* ==================================================================== */
-/* 8) “CREATE BOARD”‐SPECIFIC FORM SPACING (if you need extra tweaks)    */
-/* ==================================================================== */
-.create-board-container h2 {
-  margin-bottom: 0.5rem;
-}
-.create-board-container form label {
-  display: block;
-  margin-bottom: 0.125rem;
-  font-weight: 500;
-  color: #332D56;
-}
-.create-board-container form input[type="text"],
-.create-board-container form input[type="number"],
-.create-board-container form select,
-.create-board-container form textarea,
-.create-board-container form input[type="file"] {
-  margin-bottom: 0.25rem;
-  padding: 0.25rem;
-  font-size: 1rem;
-  border-radius: 0.25rem;
-  border: 1px solid #b3aed4;
-  transition: border-color 0.3s;
-}
-.create-board-container form button[type="button"],
-.create-board-container form button[type="submit"] {
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
-  font-size: 0.95rem;
-  padding: 0.4rem 0.8rem;
-}
-.create-board-container #hashtagList {
-  margin-bottom: 0.5rem;
-}
-.create-board-container #hashtagList .hashtag-item {
-  margin-right: 0.25rem;
-  margin-bottom: 0.25rem;
-}
-
-/* ==================================================================== */
-/* 9) BOARD PAGE (board.ejs)                                             */
-/* ==================================================================== */
 .board-content {
   padding: 2rem;
   background: #ffffff;
@@ -528,8 +224,7 @@ img {
   cursor: pointer;
   transition: color 0.3s;
 }
-.board-general .board-header .board-tabs .tab-button.active,
-.board-general .board-header .board-tabs .tab-button:hover {
+.board-general .board-header .board-tabs .tab-button.active, .board-general .board-header .board-tabs .tab-button:hover {
   color: #4E6688;
   border-bottom: 2px solid #4E6688;
 }
@@ -541,19 +236,18 @@ img {
   display: block;
 }
 
-/* ==================================================================== */
-/* 10) POSTS LIST (board page)                                            */
-/* ==================================================================== */
 .posts-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 .posts-list .post-card {
+  position: relative;
+  padding: 1rem;
+  padding-bottom: 40px;
   background: #ffffff;
   border-radius: 0.5rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -610,10 +304,87 @@ img {
   border-radius: 0.25rem;
   font-size: 0.85rem;
 }
+.posts-list .post-card .like-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+}
+.posts-list .post-card .like-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #555;
+}
+.posts-list .post-card .like-button .heart-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  fill: none;
+  stroke: #555;
+  stroke-width: 2px;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.posts-list .post-card .like-button.liked .heart-icon {
+  fill: #e74c3c;
+  stroke: #e74c3c;
+}
+.posts-list .post-card .like-button .like-count {
+  min-width: 18px;
+  text-align: right;
+  display: inline-block;
+}
 
-/* ==================================================================== */
-/* 11) CHAT TAB (board page)                                              */
-/* ==================================================================== */
+.modal, #characterModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  z-index: 1000;
+}
+.modal[style*="display: flex"], [style*="display: flex"]#characterModal {
+  display: flex;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1001;
+}
+
+.modal-content .close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #0b0a13;
+  transition: color 0.3s;
+}
+.modal-content .close-button:hover {
+  color: #D2DF98;
+}
+
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+}
+
 .chat-flex-container {
   display: flex;
   gap: 1rem;
@@ -735,9 +506,6 @@ img {
   background: #71C0BB;
 }
 
-/* ==================================================================== */
-/* 12) “SOURCE” TAB (board page)                                          */
-/* ==================================================================== */
 .form-group {
   margin: 1rem 0;
 }
@@ -755,7 +523,6 @@ img {
   border-color: #4E6688;
 }
 
-/* “+ Add Character” button (disabled until needed) */
 #openAddCharModal.btn {
   background: #4E6688;
 }
@@ -767,7 +534,6 @@ img {
   cursor: not-allowed;
 }
 
-/* Character gallery grid */
 #characterGallery {
   display: flex;
   flex-wrap: wrap;
@@ -777,7 +543,6 @@ img {
   margin-top: 1rem;
 }
 
-/* Character‐card in gallery */
 .character-card {
   max-width: 250px;
   background: #ffffff;
@@ -804,9 +569,6 @@ img {
   color: #332D56;
 }
 
-/* ==================================================================== */
-/* 13) CHARACTER DETAIL MODAL                                            */
-/* ==================================================================== */
 #characterModal .modal-content {
   max-width: 800px;
 }
@@ -837,9 +599,6 @@ img {
   color: #f99;
 }
 
-/* ==================================================================== */
-/* 14) PROJECT MODAL (board page)                                         */
-/* ==================================================================== */
 .project-modal {
   position: fixed;
   top: 0;
@@ -861,6 +620,7 @@ img {
   width: 90%;
   max-width: 800px;
   max-height: 100vh;
+  height: auto;
   overflow-y: auto;
   position: relative;
   padding: 2rem;
@@ -981,9 +741,6 @@ img {
   background: #3b4e68;
 }
 
-/* ==================================================================== */
-/* 15) PROJECT LIST GRID (board page)                                     */
-/* ==================================================================== */
 .project-list {
   display: grid;
   gap: 1rem;
@@ -1000,10 +757,6 @@ img {
   flex-direction: column;
   align-items: center;
   padding: 1rem;
-}
-.project-list .project-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .project-list .project-item .project-banner {
   background: #71C0BB;
@@ -1043,17 +796,18 @@ img {
 .project-list .project-item .project-info .view-project-btn:hover {
   background: #3b4e68;
 }
+.project-list .project-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-/* ==================================================================== */
-/* 16) CHAPTER PAGE (chapter.ejs)                                         */
-/* ==================================================================== */
 .chapter-container {
   max-width: 800px;
   margin: 2rem auto;
   padding: 0 1rem;
-  font-family: "Merriweather", serif;
 }
 .chapter-container .chapter-title {
+  font-family: "Merriweather", serif;
   font-size: 2rem;
   margin-bottom: 1rem;
   text-align: center;
@@ -1064,11 +818,10 @@ img {
   padding: 1.5rem;
   border-radius: 0.5rem;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  font-family: "Merriweather", serif;
   font-size: 1.1rem;
   line-height: 1.8;
   color: #332D56;
-  max-height: 70vh;
-  overflow-y: auto;
 }
 .chapter-container .chapter-nav {
   display: flex;
@@ -1076,18 +829,14 @@ img {
   align-items: center;
   margin-top: 1rem;
 }
-.chapter-container .chapter-nav button,
-.chapter-container .chapter-nav a {
+.chapter-container .chapter-nav button, .chapter-container .chapter-nav a {
   background: #4E6688;
   color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   transition: background 0.3s;
-  text-decoration: none;
-  border: none;
 }
-.chapter-container .chapter-nav button:hover,
-.chapter-container .chapter-nav a:hover {
+.chapter-container .chapter-nav button:hover, .chapter-container .chapter-nav a:hover {
   background: #3b4e68;
 }
 .chapter-container .chapter-nav span {
@@ -1095,9 +844,20 @@ img {
   color: #332D56;
 }
 
-/* ==================================================================== */
-/* 17) COMIC PAGE (comic.ejs)                                             */
-/* ==================================================================== */
+.back-to-board {
+  display: inline-block;
+  margin: 1rem 0;
+  background: #71C0BB;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+  text-decoration: none;
+}
+.back-to-board:hover {
+  background: #4eb0aa;
+}
+
 .comic-container {
   max-width: 800px;
   margin: 2rem auto;
@@ -1139,6 +899,7 @@ img {
   display: none;
   max-width: 100%;
   max-height: 80vh;
+  width: auto;
   margin: 0 auto;
 }
 .comic-container .comic-viewer .comic-page.active {
@@ -1159,8 +920,7 @@ img {
   gap: 1rem;
   margin-top: 1rem;
 }
-.comic-container .comic-nav button,
-.comic-container .comic-nav a {
+.comic-container .comic-nav button, .comic-container .comic-nav a {
   background: #4E6688;
   color: #fff;
   padding: 0.5rem 1rem;
@@ -1168,8 +928,7 @@ img {
   transition: background 0.3s;
   text-decoration: none;
 }
-.comic-container .comic-nav button:hover,
-.comic-container .comic-nav a:hover {
+.comic-container .comic-nav button:hover, .comic-container .comic-nav a:hover {
   background: #3b4e68;
 }
 .comic-container .comic-nav span {
@@ -1177,9 +936,342 @@ img {
   color: #332D56;
 }
 
-/* ==================================================================== */
-/* 18) FEED PAGE (feed.ejs)                                               */
-/* ==================================================================== */
+.chapter-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: "Merriweather", serif;
+}
+.chapter-container .chapter-title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: #4E6688;
+}
+.chapter-container .chapter-meta {
+  font-size: 0.9rem;
+  color: #756bb1;
+  margin-bottom: 1rem;
+}
+.chapter-container .chapter-mode-toggle {
+  margin-bottom: 1rem;
+}
+.chapter-container .chapter-mode-toggle button {
+  background: #4E6688;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  margin: 0 0.5rem;
+  border-radius: 0.25rem;
+  transition: background 0.3s;
+}
+.chapter-container .chapter-mode-toggle button:hover {
+  background: #3b4e68;
+}
+.chapter-container .chapter-mode-toggle button.active {
+  background: #455a78;
+}
+.chapter-container .chapter-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+.chapter-container .page-mode-wrapper {
+  position: relative;
+  max-height: 70vh;
+  overflow: hidden;
+}
+.chapter-container .page-mode-wrapper .chapter-page {
+  display: none;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  line-height: 1.8;
+  font-size: 1.1rem;
+}
+.chapter-container .page-mode-wrapper .chapter-page.active {
+  display: block;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+.chapter-container .chapter-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.chapter-container .chapter-nav button, .chapter-container .chapter-nav a {
+  background: #4E6688;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+  text-decoration: none;
+  border: none;
+}
+.chapter-container .chapter-nav button:hover, .chapter-container .chapter-nav a:hover {
+  background: #3b4e68;
+}
+.chapter-container .chapter-nav span {
+  font-size: 1rem;
+  color: #332D56;
+}
+
+.user-profile-infos {
+  max-width: 600px;
+  margin: 2rem;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.user-profile-infos .profile-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.user-profile-infos .profile-info .label {
+  font-weight: 500;
+  color: #332D56;
+}
+.user-profile-infos .profile-info .editable-box,
+.user-profile-infos .profile-info .editable-box-badge {
+  background: white;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  min-width: 200px;
+  word-break: break-word;
+}
+.user-profile-infos .profile-info .editable-box-badge {
+  border: 1px solid #d2cfe6;
+}
+.user-profile-infos #saveProfileButton {
+  align-self: flex-end;
+}
+
+.your-boards-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.your-boards-container h2 {
+  font-size: 1.75rem;
+  color: #4E6688;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.your-boards-container #openModalButton {
+  align-self: flex-end;
+  background: #71C0BB;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+.your-boards-container #openModalButton:hover {
+  background: #4eb0aa;
+}
+.your-boards-container #userBoardList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.your-boards-container #userBoardList .board-item {
+  position: relative;
+  z-index: 1;
+  background: #f5f6fa;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.your-boards-container #userBoardList .board-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.your-boards-container #userBoardList .board-item .header-container {
+  position: relative;
+}
+.your-boards-container #userBoardList .board-item .header-container .header-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  z-index: 1;
+}
+.your-boards-container #userBoardList .board-item .header-container .profile-image {
+  width: 80px;
+  height: 80px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #f5f6fa;
+  z-index: 2; /* sits above header-image but below any modal */
+}
+.your-boards-container #userBoardList .board-item h2 {
+  margin: 2rem 1rem 0.5rem 1rem;
+  font-size: 1.25rem;
+  text-align: center;
+  color: #332D56;
+}
+.your-boards-container #userBoardList .board-item p {
+  font-size: 1rem;
+  color: #5b5099;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.your-boards-container #userBoardList .board-item a {
+  display: block;
+  text-align: center;
+  background: #4E6688;
+  color: #fff;
+  margin: 0 1rem 1rem 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+.your-boards-container #userBoardList .board-item a:hover {
+  background: #3b4e68;
+}
+
+.online-users {
+  max-width: 300px;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  margin: 2rem auto;
+}
+.online-users h3 {
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #4E6688;
+}
+.online-users ul {
+  list-style: none;
+}
+.online-users ul li {
+  padding: 0.5rem 0;
+  text-align: center;
+  border-bottom: 1px solid #d2cfe6;
+  color: #332D56;
+}
+
+.category-section {
+  margin-bottom: 3rem;
+}
+
+.category-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.subgroup {
+  margin-top: 2rem;
+}
+
+.subgroup h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.board-card {
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.board-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.board-card .header-container {
+  position: relative;
+}
+
+.board-card .header-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.board-card .profile-image {
+  width: 60px;
+  height: 60px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+}
+
+.board-card .board-info {
+  margin-top: 2rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.board-card .board-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.board-card .board-info p {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.board-card .board-info a {
+  display: inline-block;
+  background: #3498db;
+  color: #fff;
+  padding: 0.4rem 1rem;
+  border-radius: 0.3rem;
+  transition: background 0.2s;
+}
+
+.board-card .board-info a:hover {
+  background: #2980b9;
+}
+
 .feed-container {
   max-width: 800px;
   margin: 2rem auto;
@@ -1265,9 +1357,19 @@ img {
   background: #3b4e68;
 }
 
-/* ==================================================================== */
-/* 19) INDEX, LOGIN & REGISTER PAGES                                      */
-/* ==================================================================== */
+.view-post {
+  display: inline-block;
+  margin: 0.5rem 0;
+  padding: 0.4rem 0.8rem;
+  background: #71C0BB;
+  color: #fff;
+  border-radius: 0.5rem;
+  transition: background 0.3s;
+}
+.view-post:hover {
+  background: #4eb0aa;
+}
+
 .under-header {
   background: url("../images/aegira-03.png");
   color: #fff;
@@ -1361,223 +1463,12 @@ img {
   margin-top: 1rem;
 }
 
-/* ==================================================================== */
-/* 20) UTILITY CLASSES                                                    */
-/* ==================================================================== */
 .hidden {
   display: none !important;
 }
+
 .flex {
   display: flex !important;
 }
 
-/* =============================================================================
-   21) DISCOVERY PAGE (discovery.ejs) – restored 3-column grid + card styling
-   ============================================================================= */
-
-/* 21.1) “Discovery” page wrapper + search bar spacing */
-
-.discovery-content h1 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #332D56;
-}
-
-.search-container {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-.search-container input {
-  flex: 1;
-  min-width: 250px;
-  border: 1px solid #b3aed4;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-}
-.search-container button {
-  background: #4E6688;
-  border-radius: 0.5rem;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  transition: background 0.3s;
-}
-.search-container button:hover {
-  background: #3b4e68;
-}
-
-/* 21.2) Category section (e.g. Art, Writing, Comic, All) */
-
-.category-section {
-  margin-bottom: 2rem;
-}
-.category-section h2 {
-  font-size: 1.75rem;
-  color: #4E6688;
-  margin-bottom: 1rem;
-}
-
-/* 21.3) Subgroup heading (for “All → by hashtag”) */
-
-.subgroup {
-  margin-top: 1.5rem;
-}
-.subgroup h3 {
-  font-size: 1.4rem;
-  margin-bottom: 0.75rem;
-  color: #332D56;
-}
-
-/* 21.4) Board-grid: force a responsive 3-column layout */
-
-.board-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-/* 21.5) Individual card container */
-
-.board-card {
-  background: #ffffff;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.board-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 21.6) Header container inside each card: holds the large header image + small profile image */
-
-.header-container {
-  position: relative;
-  width: 100%;
-  height: 0;
-  padding-bottom: 40%; /* maintains a 5:2 aspect – approximately 150px tall at 375px wide */
-  overflow: hidden;
-}
-.header-container .header-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* 21.7) Round “profile” image overlaps the bottom of the header image */
-
-.header-container .profile-image {
-  position: absolute;
-  bottom: -30px;    /* half of the profile-image’s height (60px / 2) */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
-  border: 3px solid #ffffff;
-  border-radius: 50%;
-  background: #f5f6fa;
-  object-fit: cover;
-  z-index: 2;
-}
-
-/* 21.8) Text area (“board-info”) below the images */
-
-.board-info {
-  margin-top: 40px; /* to clear the overlapping profile-image */
-  padding: 1rem;
-  text-align: center;
-  flex: 1; /* so that cards all have the same height if you want that */
-}
-.board-info h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: #332D56;
-}
-.board-info p {
-  font-size: 1rem;
-  color: #5b5099;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-}
-.board-info a {
-  display: inline-block;
-  background: #4E6688;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.95rem;
-  text-decoration: none;
-  transition: background 0.3s;
-}
-.board-info a:hover {
-  background: #3b4e68;
-}
-
-/* 21.9) Optional: force a small bottom margin under each section */
-
-.category-section + .category-section {
-  margin-top: 2rem;
-}
-
-/* 21.10) Allow the profile image to overflow the header area */
-.board-card .header-container {
-  overflow: visible;
-}
-
-/* 21.11) Ensure the circular profile image stacks on top */
-.board-card .header-container .profile-image {
-  z-index: 2;
-  /* (optional) if you want to reinforce the white border around it: */
-  border: 3px solid #ffffff;
-}
-
-/* 21.12) Allow the profile image to overflow the header area */
-.board-card .header-container {
-  overflow: visible; /* so .profile-image can sit on top of the white card */
-}
-
-/* 21.13) Ensure the circular profile image stacks above the card’s white background */
-.board-card .header-container .profile-image {
-  z-index: 2;
-  /* (Optional) Re‐enforce a white border around the avatar, if you like: */
-  border: 3px solid #ffffff;
-}
-
-/* 21.14) Turn each board‐card into a columnar flex container */
-.board-card {
-  display: flex;
-  flex-direction: column;
-}
-
-/* 21.15) Make the “board‐info” section stretch, so the <p> can take up available space
-       and the <a> (button) will remain pinned at the bottom */
-.board-card .board-info {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 21.16) Clamp the description (<p>) to (for example) 3 lines, then show “…” */
-.board-card .board-info p {
-  flex: 1 1 auto;
-  margin: 0 0 1rem; /* small bottom gap before the button */
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;      /* ← change “3” to however many lines you want */
-  -webkit-box-orient: vertical;
-}
-
-/* 21.17) Push the “Open Board” link (styled as a button) down to the bottom */
-.board-card .board-info a {
-  margin-top: auto;
-
-  align-self: center;
-  text-align: center;
-}
+/*# sourceMappingURL=main.css.map */

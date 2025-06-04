@@ -46,12 +46,13 @@ app.use('/profile_images', express_1.default.static(path_1.default.join(__dirnam
         }
     }
 }));
+app.use('/api/user', users_router_1.default);
+console.log('🟢  Mounted userRouter at /api/user');
 app.use('/', feed_router_1.default);
 app.use('/', auth_router_1.default);
 app.use('/', file_router_1.default);
 app.use('/', role_router_1.default);
 app.use('/', board_router_1.default);
-app.use('/', users_router_1.default);
 app.use('/', post_router_1.default);
 app.use('/', chat_router_1.default);
 app.use('/', read_router_1.default);

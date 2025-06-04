@@ -1,15 +1,12 @@
-// public/src/dashboard.js
-
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Profile & Header Image Logic (UPDATED) ---
+    // --- Profile & Header Image Logic ---
     const profileImageEl = document.getElementById('userprofileImage');
     const headerImageEl  = document.getElementById('userheaderImage');
 
-    // When the user clicks on their avatar <img>, open the hidden file‐input:
     profileImageEl.addEventListener('click', () => {
         document.getElementById('profileImageInput').click();
     });
-    // When the user clicks on their header <img>, open the hidden file‐input:
+
     headerImageEl.addEventListener('click', () => {
         document.getElementById('headerImageInput').click();
     });

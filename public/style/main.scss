@@ -85,6 +85,53 @@ img {
 }
 
 
+.modal-content {
+  label,
+  input,
+  textarea,
+  select {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: $text-color;
+  }
+
+  textarea {
+    min-height: 4rem;
+    resize: vertical;
+    padding: 0.5rem;
+    border: 1px solid lighten($text-color, 50%);
+  }
+
+  input[type="text"],
+  input[type="file"],
+  select {
+    padding: 0.5rem;
+    border: 1px solid lighten($text-color, 50%);
+    border-radius: $border-radius / 2;
+  }
+
+  input[type="file"] {
+    margin-top: 0.3rem;
+    margin-bottom: 1rem;
+  }
+
+  button[type="submit"],
+  .modal-content button {
+    margin-top: 1rem;
+    background: $primary-color;
+    color: #fff;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius / 2;
+    transition: background $transition-speed;
+    &:hover {
+      background: darken($primary-color, 10%);
+    }
+  }
+}
 //=====================================
 // 2) Header (Navigation)
 //=====================================
@@ -245,16 +292,19 @@ img {
 
 
 // 4.3) POSTS-Tab: Karten-Layout
+
 .posts-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 
   .post-card {
+    position: relative;          // Positionierungskontext für .like-container
+    padding: 1rem;
+    padding-bottom: 40px;        // Platz für das Herz-Icon unten rechts
     background: $card-background;
     border-radius: $border-radius;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -320,11 +370,52 @@ img {
         font-size: 0.85rem;
       }
     }
+
+    .like-container {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+    }
+
+    .like-button {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #555;
+
+      .heart-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 4px;
+        fill: none;
+        stroke: #555;
+        stroke-width: 2px;
+        transition: fill 0.2s, stroke 0.2s;
+      }
+
+      &.liked {
+        .heart-icon {
+          fill: #e74c3c;
+          stroke: #e74c3c;
+        }
+      }
+
+      .like-count {
+        min-width: 18px;
+        text-align: right;
+        display: inline-block;
+      }
+    }
+
   }
 }
 
-
 // 4.4) MODALS (Create Post, Add Character, Create Project u. ä.)
+
+
 .modal {
   position: fixed;
   top: 0;
@@ -332,55 +423,55 @@ img {
   width: 100%;
   height: 100%;
 
-  // halbtransparenter schwarzer Overlay
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5); // dunkle Überlagerung
+  display: none;                        // standardmäßig versteckt
+  align-items: center;                  // horizontal zentrieren
+  justify-content: center;              // vertikal zentrieren
 
-  display: none;         // standardmäßig versteckt
-  justify-content: center;
-  align-items: center;
-  /* Damit sich der Inhalt scrollen lässt, ohne dass die Seite scrollt: */
-  overflow: auto;
+  overflow-y: auto;    // falls Modalinhalt größer als Viewport ist
+  z-index: 1000;       // liegt über allem
 
-  z-index: 1000;         // Overlay liegt über allem
+  // Wenn per JS inline „display: flex“ gesetzt wird, bleibt es sichtbar
+  &[style*="display: flex"] {
+    display: flex;
+  }
 }
 
-.modal[style*="display: flex"] {
-  display: flex;         // zwingend “flex” (falls JS inline‐style display:flex setzt)
-}
-
-/* Das weiße Kästchen mit allen Formular‐Feldern */
+// 2) Die „weiße Box“, die den eigentlichen Modal-Inhalt enthält:
 .modal-content {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
+  background-color: $card-background;  // weißer Hintergrund
+  border-radius: $border-radius;       // abgerundete Ecken
+  padding: 2rem;                       // Innenabstand
 
-  max-width: 600px;       // nie breiter als 600px
-  width: 90%;             // 90% der Viewport‐Breite auf kleinen Bildschirmen
+  // Grundlebensbreiten: auf kleinen Bildschirmen nicht zu breit,
+  // auf großen Bildschirmen max. 600px
+  width: 90%;
+  max-width: 600px;
 
-  /*
-    Damit das Formular im Inneren scrollbar wird, wenn es größer als der Bildschirm ist:
-    – Maximal 90% der Viewport‐Höhe
-    – overflow-y: auto
-  */
+  // Maximal 80–90% der Viewport-Höhe, damit der Inhalt scrollt
   max-height: 90vh;
   overflow-y: auto;
 
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  position: relative;     // Damit close‐Button absolut positioniert werden kann
-  z-index: 1001;          // Muss über dem schwarzen Overlay (1000) liegen
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); // leichter Schlagschatten
+  position: relative;                         // für Close-Button
+  z-index: 1001;                              // muss über das Overlay (1000) liegen
 }
 
-/* Close button styling (optional, but often nice) */
+// 3) Close‐Button in der Ecke:
 .modal-content .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 1.5rem;
+  top: 8px;
+  right: 8px;
+  font-size: 1.25rem;
   cursor: pointer;
-  color: #333;
+  color: darken($text-color, 20%);
+  transition: color $transition-speed;
+
+  &:hover {
+    color: $accent-color;
+  }
 }
 
-/* Scroll‐lock: Wenn html OR body die Klasse modal-open hat, dann overflow hidden */
 html.modal-open,
 body.modal-open {
   overflow: hidden !important;
