@@ -1,23 +1,85 @@
 // public/src/dashboard.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Profile & Header Image Logic (unchanged) ---
+    // --- Profile & Header Image Logic (UPDATED) ---
     const profileImageEl = document.getElementById('userprofileImage');
     const headerImageEl  = document.getElementById('userheaderImage');
 
+    // When the user clicks on their avatar <img>, open the hidden file‐input:
     profileImageEl.addEventListener('click', () => {
         document.getElementById('profileImageInput').click();
     });
+    // When the user clicks on their header <img>, open the hidden file‐input:
     headerImageEl.addEventListener('click', () => {
         document.getElementById('headerImageInput').click();
     });
 
-    document.getElementById('profileImageInput').addEventListener('change', async (event) => {
-        // ... code omitted for brevity (same as before) ...
-    });
-    document.getElementById('headerImageInput').addEventListener('change', async (event) => {
-        // ... code omitted for brevity (same as before) ...
-    });
+    // --- Avatar Upload Handler ---
+    document
+        .getElementById('profileImageInput')
+        .addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Build a FormData with the new avatar. Multer in user-router expects field name "avatar"
+            const fd = new FormData();
+            fd.append('avatar', file);
+
+            try {
+                const res = await fetch('/api/user/update-user-avatar', {
+                    method: 'POST',
+                    body: fd
+                });
+                if (!res.ok) {
+                    // If the server returned a non-2xx status, show the raw text
+                    const errorMsg = await res.text();
+                    return alert('Upload failed: ' + errorMsg);
+                }
+
+                // The router responds with { success: true, profile_image: "profile_images/xyz.png" }
+                const data = await res.json();
+                // Update the <img> src so the user sees the new avatar immediately:
+                // If data.profile_image does not start with '/', prepend it:
+                profileImageEl.src = data.profile_image.startsWith('/')
+                    ? data.profile_image
+                    : '/' + data.profile_image;
+            } catch (err) {
+                console.error(err);
+                alert('Something went wrong while uploading avatar.');
+            }
+        });
+
+    // --- Header Upload Handler ---
+    document
+        .getElementById('headerImageInput')
+        .addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Build a FormData with the new header. Multer expects field name "header"
+            const fd = new FormData();
+            fd.append('header', file);
+
+            try {
+                const res = await fetch('/api/user/update-user-header', {
+                    method: 'POST',
+                    body: fd
+                });
+                if (!res.ok) {
+                    const errorMsg = await res.text();
+                    return alert('Upload failed: ' + errorMsg);
+                }
+
+                // The router responds with { success: true, header_image: "profile_images/xyz.png" }
+                const data = await res.json();
+                headerImageEl.src = data.header_image.startsWith('/')
+                    ? data.header_image
+                    : '/' + data.header_image;
+            } catch (err) {
+                console.error(err);
+                alert('Something went wrong while uploading header.');
+            }
+        });
 
     // --- Username / Logout Button Display Logic (unchanged) ---
     fetch('/username')
@@ -34,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- “Save Changes” for Profile Fields (unchanged) ---
     document.getElementById('saveProfileButton').addEventListener('click', async () => {
-        // ... code omitted for brevity (same as before) ...
+        // … your existing “save profile” logic (unchanged) …
     });
 
     // --- Hashtag Logic for “Create Board” Form (unchanged) ---
@@ -101,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Modal Opening / Closing Logic (UPDATED!) ---
+    // --- Modal Opening / Closing Logic (unchanged) ---
     const openModalButton    = document.getElementById('openModalButton');
     const closeModalButton   = document.getElementById('closeModalButton');
     const createBoardModal   = document.getElementById('createBoardModal');
@@ -130,9 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         closeModal();
     });
 
-    // Attach “close” handler when clicking outside modal‐content (on overlay):
+    // Attach “close” handler when clicking outside modal‐content:
     createBoardModal.addEventListener('click', (event) => {
-        // If the click target is exactly the overlay (and not inside .modal-content), close it
         if (event.target === createBoardModal) {
             closeModal();
         }

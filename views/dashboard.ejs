@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
     <link rel="icon" type="image/x-icon" href="/images/favicon-04.svg">
-    <link rel="stylesheet" href="style/main.css">
+    <link rel="stylesheet" href="/style/main.css">
 </head>
 <body>
 
@@ -148,23 +148,6 @@
         <% }) %>
     </div>
 </div>
-
-
-<div class="online-users">
-    <h3>Online users</h3>
-    <ul id="onlineUsers">
-        <% onlineUsers.forEach(onlineUser => { %>
-            <li><%= onlineUser %></li>
-        <% }) %>
-    </ul>
-</div>
-
-<button><a href="/home">home</a></button>
-<button><a href="/logout">logout</a></button>
-<button id="adminButton" style="display: <%= user.role === 'admin' ? 'block' : 'none' %>;">
-    <a href="/admin">Admin Dashboard</a>
-</button>
-<!-- Fix scripts after some while i really got no fucking clue what happened here -->
 
 <script src="/src/dashboard.js"></script>
 

@@ -42,19 +42,19 @@ app.use('/profile_images', express.static(path.join(__dirname, 'profile_images')
             ".png": "image/png",
             ".gif": "image/gif"
         };
-
         if (mimeTypeMap[ext]) {
             res.setHeader("Content-Type", mimeTypeMap[ext]);
         }
     }
 }));
 
+app.use('/api/user', userRouter);
+console.log('🟢  Mounted userRouter at /api/user');
 app.use('/', feedRouter);
 app.use('/', authRouter);
 app.use('/', fileRouter);
 app.use('/', roleRouter);
 app.use('/', boardRouter);
-app.use('/', userRouter);
 app.use('/', postRouter);
 app.use('/', chatRouter);
 app.use('/', readRouter);
