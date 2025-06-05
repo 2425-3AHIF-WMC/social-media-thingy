@@ -26,6 +26,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectDropdown      = document.getElementById('projectId');
     let hashtagsArr            = [];
 
+    const typeSelect   = document.getElementById('type');
+     const fieldImage   = document.getElementById('field-image');
+     const fieldChapter = document.getElementById('field-chapter');
+     const fieldComic   = document.getElementById('field-comic');
+
+          // Versteckt alle File-Container
+               function hideAllFileFields() {
+                  fieldImage.style.display   = 'none';
+                  fieldChapter.style.display = 'none';
+                   fieldComic.style.display   = 'none';
+                 }
+
+     // Initial: alle File-Container ausblenden
+           hideAllFileFields();
+
+         // Je nach Auswahl in „Type“, das passende File-Feld einblenden
+            typeSelect.addEventListener('change', (e) => {
+                   hideAllFileFields();
+                    if (e.target.value === 'image') {
+                         fieldImage.style.display = 'block';
+                       } else if (e.target.value === 'chapter') {
+                         fieldChapter.style.display = 'block';
+                       } else if (e.target.value === 'comic') {
+                         fieldComic.style.display = 'block';
+                       }
+                 });
+
     if (projectDropdown) {
         fetch(`/board/${boardId}/projects`)
             .then(res => res.json())
