@@ -22,17 +22,20 @@ const auth_handler_1 = require("../middleware/auth-handler");
 const database_1 = require("../database");
 const router = (0, express_1.Router)();
 const profileUploads = path_1.default.resolve(__dirname, '..', 'profile_images');
+// Ensure the folder exists
 if (!fs_1.default.existsSync(profileUploads)) {
     fs_1.default.mkdirSync(profileUploads, { recursive: true });
 }
+// Multer storage config → writes files into “profile_images/…”
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         cb(null, profileUploads);
     },
     filename: (req, file, cb) => {
+        // unique name = uuid + original extension
         const uniqueName = (0, uuid_1.v4)() + path_1.default.extname(file.originalname);
         cb(null, uniqueName);
-    },
+    }
 });
 const upload = (0, multer_1.default)({
     storage,
@@ -44,8 +47,9 @@ const upload = (0, multer_1.default)({
         else {
             cb(new Error('Invalid file type. Only JPG, PNG, and GIF are allowed.'));
         }
-    },
+    }
 });
+// ─── Update arbitrary user fields (bio, pronouns, etc.) ───
 router.post('/update-user', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const username = req.session.user;
@@ -69,6 +73,7 @@ router.post('/update-user', auth_handler_1.authHandler, (req, res) => __awaiter(
         return res.status(500).json({ message: 'Server error' });
     }
 }));
+// ─── Get all user‐data (including current avatar & header) ───
 router.get('/get-user-data', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
@@ -79,13 +84,14 @@ router.get('/get-user-data', (req, res) => __awaiter(void 0, void 0, void 0, fun
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        res.status(200).json(user);
+        return res.status(200).json(user);
     }
     catch (error) {
         console.error('Error fetching user data:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 }));
+// ─── Update avatar (Multer expects form‐field “avatar”) ───
 router.post('/update-user-avatar', auth_handler_1.authHandler, upload.single('avatar'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
@@ -95,18 +101,22 @@ router.post('/update-user-avatar', auth_handler_1.authHandler, upload.single('av
         if (!req.file) {
             return res.status(400).json({ error: 'No avatar image provided' });
         }
+        // Compose the relative URL that you'll store in the DB
         const avatarImage = `profile_images/${req.file.filename}`;
         const success = yield (0, usersDatabase_1.updateUserProfileImage)(userId, avatarImage);
         if (!success) {
             return res.status(500).json({ error: 'Failed to update avatar' });
         }
-        return res.status(200).json({ success: true, message: 'Avatar updated', profile_image: avatarImage });
+        return res
+            .status(200)
+            .json({ success: true, message: 'Avatar updated', profile_image: avatarImage });
     }
     catch (error) {
         console.error('Error saving avatar image:', error);
         return res.status(500).json({ error: 'Failed to update avatar' });
     }
 }));
+// ─── Update header (Multer expects form‐field “header”) ───
 router.post('/update-user-header', auth_handler_1.authHandler, upload.single('header'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
@@ -121,13 +131,16 @@ router.post('/update-user-header', auth_handler_1.authHandler, upload.single('he
         if (!success) {
             return res.status(500).json({ error: 'Failed to update header' });
         }
-        return res.status(200).json({ success: true, message: 'Header updated', header_image: headerImage });
+        return res
+            .status(200)
+            .json({ success: true, message: 'Header updated', header_image: headerImage });
     }
     catch (error) {
         console.error('Error saving header image:', error);
         return res.status(500).json({ error: 'Failed to update header' });
     }
 }));
+// ─── Get just profile_image (if needed) ───
 router.get('/get-user-avatar', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);
@@ -145,6 +158,7 @@ router.get('/get-user-avatar', auth_handler_1.authHandler, (req, res) => __await
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 }));
+// ─── Get just header_image (if needed) ───
 router.get('/get-user-header', auth_handler_1.authHandler, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const userId = yield (0, usersDatabase_1.getUserID)(req.session.user);

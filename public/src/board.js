@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    function openTab(name) {
+    function openTab(event, name) {
         document.querySelectorAll('.tab-content').forEach(div => div.style.display = 'none');
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
         document.getElementById(name).style.display = 'block';
@@ -7,12 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.addEventListener('click', () =>
-            openTab(btn.getAttribute('onclick').match(/'(.+)'/)[1])
-        );
+        btn.addEventListener('click', (event) => {
+            // Extract the tab‐name from the inline onclick="openTab('…')" attribute
+            const tabName = btn.getAttribute('onclick').match(/'(.+)'/)[1];
+            openTab(event, tabName);
+        });
     });
 
-    document.querySelector('.tab-button').click();
+    document.querySelectorAll('.tab-button')[0].click();
 
     const openPostModalButton  = document.getElementById('openPostModalButton');
     const closePostModalButton = document.getElementById('closePostModalButton');
@@ -381,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createProjectForm.addEventListener('submit', async event => {
             event.preventDefault();
             const form = event.target;
-            const formData = new FormData(form);
+            const formData = new URLSearchParams(new FormData(form));
 
             try {
                 const response = await fetch('/createProject', {
