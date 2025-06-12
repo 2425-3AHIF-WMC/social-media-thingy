@@ -15,6 +15,14 @@ $transition-speed:    0.3s;
 // Schriftfamilien
 $font-sans:           'Helvetica Neue', Arial, sans-serif;
 $font-serif:          'Merriweather', serif;
+@font-face {
+  font-family: 'ChatTime';
+  src: url('./assets/chatime.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 
 //=====================================
@@ -1667,36 +1675,161 @@ body.modal-open {
   }
 }
 
-// 12.2) Index – Cards im Main-Bereich
+/* Keyframes */
+@keyframes float-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@keyframes ripple {
+  from {
+    width:     0;
+    height:    0;
+    opacity:   0.6;
+    transform: translateX(-50%) scale(0.5);
+  }
+  to {
+    width:     250px;
+    height:    250px;
+    opacity:   0;
+    transform: translateX(-50%) scale(1.5);
+  }
+}
+
+/* Gradient-Heading */
+.sparkle-heading {
+  font-family:      'ChatTime', serif;
+  font-size:        4rem;
+  text-align:       center;
+  margin:           2rem 0;
+  background:       linear-gradient(120deg, #4E6688 25%, #71C0BB 50%, #4E6688 75%);
+  background-size:  200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition:       background-position 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+    background-position: 100% 0;
+    transform:           translateY(-5px);
+  }
+}
+
+/* Main content wrapper */
 .main-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
+  background-color: rgba(245, 246, 250, 0.8);
+  color:            #332D56;
+  font-family:      'Inter', sans-serif;
+  padding:          2rem;
+  max-width:        1000px;
+  margin:           0 auto;
+  border-radius:    1rem;
 
-  .card {
-    background: $card-background;
-    border-radius: $border-radius;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  /* Simplified container: no card styling */
+  .aegira-wrapper {
+    display:      flex;
+    align-items:  flex-start;
+    gap:          2rem;
+    margin:       2rem 0;
+    padding:      0;        /* remove internal card padding */
+    background:   transparent;
+    box-shadow:   none;
+    border-radius:0;
+  }
 
-    h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: $primary-color;
-      text-align: center;
+  /* Character image */
+  .aegira-img {
+    flex-shrink:   0;
+    width:         400px;
+    filter:        drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08));
+    animation:     float-bob 5s ease-in-out infinite;
+    transition:    transform 0.3s ease, filter 0.3s ease;
+    position:      relative;
+
+    &:hover {
+      transform: translateY(-12px) scale(1.2);
+      filter:    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.12));
     }
 
-    p {
-      color: lighten($text-color, 20%);
-      font-size: 1rem;
-      text-align: center;
+    &::after {
+      content:       '';
+      position:      absolute;
+      bottom:        -10px;
+      left:          50%;
+      background:    rgba(113, 192, 187, 0.3);
+      border-radius: 50%;
+    }
+    &:hover::after {
+      animation: ripple 0.3s ease-out forwards;
+    }
+  }
+
+  /* Plain description text */
+  .description {
+    flex:          1;
+    position:      relative;
+    margin:        0;
+    padding:       0;
+    font-size:     1.125rem;
+    line-height:   1.75;
+    text-align:    justify;
+    hyphens:       auto;
+    background:    transparent;
+    border:        none;
+
+    /* Drop-quote */
+    &::before {
+      content:      '“';
+      position:     absolute;
+      top:          0.5rem;
+      left:         -0.5rem;
+      font-size:    3rem;
+      color:        rgba(113, 192, 187, 0.3);
+      line-height:  1;
+    }
+    /* Drop-cap */
+    &::first-letter {
+      font-size:    2.5rem;
+      font-weight:  bold;
+      color:        #71C0BB;
+      float:        left;
+      margin:       0.1rem 0.5rem 0 0;
+      line-height:  1;
+    }
+    /* First-line small caps */
+    &::first-line {
+      font-variant:   small-caps;
+      letter-spacing: 0.05em;
+      color:          #4E6688;
+    }
+    /* Keyword highlight */
+    .highlight-text {
+      background:    rgba(113, 192, 187, 0.2);
+      color:         #4E6688;
+      padding:       0.1em 0.2em;
+      border-radius: 0.25rem;
+      font-weight:   600;
+      transition:    background 0.3s ease;
+
+      &:hover {
+        background: rgba(113, 192, 187, 0.4);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .aegira-wrapper {
+      flex-direction: column;
+      text-align:     center;
+    }
+    .aegira-img {
+      width:         260px;
+      margin-bottom: 1.5rem;
+    }
+    .description {
+      font-size:    1rem;
     }
   }
 }
+
 
 // 12.3) Login & Register
 .login,
