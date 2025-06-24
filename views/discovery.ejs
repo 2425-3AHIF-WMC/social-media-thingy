@@ -6,7 +6,26 @@
     <link rel="stylesheet" href="/style/main.css">
 </head>
 <body>
-<div class="header">…dein Header…</div>
+<div class="header">
+    <img src="/images/aegira.svg" alt="aegira" class="logo">
+    <div class="home-buttons">
+        <a href="/">Home</a>
+        <a href="/discovery">Discovery</a>
+        <a href="/feed">For you</a>
+        <a href="/about-us">About us</a>
+    </div>
+    <div class="user-buttons">
+        <% if (user && user.username) { %>
+            <span>Logged in as: <%= user.username %></span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <button id="login-button"><a href="/login">Log in</a></button>
+            <button id="register-button"><a href="/register">Register</a></button>
+        <% } %>
+    </div>
+</div>
+
 <div class="container">
     <h1>Discovery</h1>
 
