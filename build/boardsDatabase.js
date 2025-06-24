@@ -21,6 +21,7 @@ exports.updateOwnerRole = updateOwnerRole;
 exports.doesUserExist = doesUserExist;
 exports.isUserMemberOfBoard = isUserMemberOfBoard;
 exports.addBoardMember = addBoardMember;
+exports.getBoardTypes = getBoardTypes;
 exports.addHashtagToBoard = addHashtagToBoard;
 exports.createProject = createProject;
 exports.getProjectsForBoard = getProjectsForBoard;
@@ -136,6 +137,12 @@ function isUserMemberOfBoard(userId, boardId) {
 function addBoardMember(userId_1, boardId_1) {
     return __awaiter(this, arguments, void 0, function* (userId, boardId, role = 'member') {
         yield database_1.db.run(`INSERT INTO BoardMembers (userId, boardId, role) VALUES (?, ?, ?)`, [userId, boardId, role]);
+    });
+}
+function getBoardTypes() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield (0, database_1.init)();
+        return database_1.db.all('SELECT id, type_name FROM board_types ORDER BY id');
     });
 }
 function addHashtagToBoard(boardId, hashtags) {

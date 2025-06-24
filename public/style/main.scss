@@ -3,10 +3,10 @@
 //=============================================
 $primary-color:       #4E6688;
 $secondary-color:     #71C0BB;
-$accent-color:        #D2DF98;
+$accent-color: #b1bb10;
 $background-color:    #f5f6fa;
 $card-background:     #ffffff;
-$text-color:          #332D56;
+$text-color: #273457;
 $header-background:   #ffffff;
 $header-text-color:   $text-color;
 $border-radius:       0.5rem;
@@ -22,8 +22,6 @@ $font-serif:          'Merriweather', serif;
   font-style: normal;
   font-display: swap;
 }
-
-
 
 //=====================================
 // 1) Reset & Grundlegende Global-Styles
@@ -198,7 +196,54 @@ img {
     }
   }
 }
+.header-index {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 1rem 1rem;
 
+  .home-buttons {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2rem;
+
+    a {
+      color: white;
+      font-weight: 500;
+      transition: color $transition-speed;
+      &:hover {
+        color: darken(white, 30%);
+      }
+    }
+  }
+
+  .user-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+
+    a {
+      color: $header-text-color;
+      transition: color $transition-speed;
+    }
+
+    button {
+      background: transparent;
+      color: $header-text-color;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid rgba(31, 49, 70, 0.9);
+      transition: background $transition-speed, color $transition-speed;
+      a { color: inherit; }
+      &:hover {
+        background: #2c425d;
+        color: #fff;
+      }
+    }
+  }
+}
 
 //=====================================================
 // 3) Profil-Header (Bilder: Header + Profilbild rund)
@@ -302,20 +347,28 @@ img {
 // 4.3) POSTS-Tab: Karten-Layout
 
 .posts-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+  max-height: calc(100vh - 350px); // Höhe anpassen je nachdem, wie groß dein Header/Tabs sind
+  overflow-y: auto;
+  padding-right: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
 
+  scrollbar-width: none;     // Firefox
+  -ms-overflow-style: none;  // IE und Edge
+
+  &::-webkit-scrollbar {
+    display: none;           // Chrome, Safari, Opera
+  }
+}
   .post-card {
-    position: relative;          // Positionierungskontext für .like-container
+
+    width: 100%;
+    position: relative;
     padding: 1rem;
-    padding-bottom: 40px;        // Platz für das Herz-Icon unten rechts
-    background: $card-background;
-    border-radius: $border-radius;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    padding-bottom: 40px;
 
     .post-header {
       display: flex;
@@ -354,8 +407,14 @@ img {
     }
 
     .post-image {
-      margin-top: 0.5rem;
+      width: auto;
+      max-width: 100%;
+      // Höhe beschränken, damit alle Vorschaubilder gleich groß sind
+      max-height: 300px;
+      object-fit: cover;     // füllt den Kasten, schneidet proportional zu
       border-radius: $border-radius;
+      margin: 0.5rem auto;   // zentriert das Bild innerhalb der Card
+      display: block;
     }
 
     .post-meta {
@@ -419,7 +478,7 @@ img {
     }
 
   }
-}
+
 
 // 4.4) MODALS (Create Post, Add Character, Create Project u. ä.)
 
@@ -820,10 +879,12 @@ body.modal-open {
       // Wir lassen es vom .modal-content scrollen, deshalb hier kein weiteres overflow.
 
       .post-card {
+        position: relative;
         background: $card-background;
         border-radius: $border-radius;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
         padding: 1rem;
+        padding-bottom: 40px;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
@@ -1675,159 +1736,125 @@ body.modal-open {
   }
 }
 
-/* Keyframes */
-@keyframes float-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
-}
-@keyframes ripple {
-  from {
-    width:     0;
-    height:    0;
-    opacity:   0.6;
-    transform: translateX(-50%) scale(0.5);
-  }
-  to {
-    width:     250px;
-    height:    250px;
-    opacity:   0;
-    transform: translateX(-50%) scale(1.5);
-  }
-}
+// ==== Variablen für die Wellen ====
+$wave-height: 15vh;
+$min-wave-height: 100px;
+$max-wave-height: 150px;
+$wave-colors: (
+        rgba(255,255,255,0.7),
+        rgba(255,255,255,0.5),
+        rgba(255,255,255,0.3),
+        #fff
+);
+$durations: (7s, 10s, 13s, 20s);
+$delays:    (-2s, -3s, -4s, -5s);
 
-/* Gradient-Heading */
-.sparkle-heading {
-  font-family:      'ChatTime', serif;
-  font-size:        4rem;
-  text-align:       center;
-  margin:           2rem 0;
-  background:       linear-gradient(120deg, #4E6688 25%, #71C0BB 50%, #4E6688 75%);
-  background-size:  200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  transition:       background-position 0.3s ease, transform 0.3s ease;
-
-  &:hover {
-    background-position: 100% 0;
-    transform:           translateY(-5px);
-  }
-}
-
-/* Main content wrapper */
 .main-content {
-  background-color: rgba(245, 246, 250, 0.8);
-  color:            #332D56;
-  font-family:      'Inter', sans-serif;
-  padding:          2rem;
-  max-width:        1000px;
-  margin:           0 auto;
-  border-radius:    1rem;
+  position: relative;
+  background: $primary-color;
+  padding-top: 50px; // Platz für Header
+  height: 800px;
+  margin: 10px 20px;
+  border-radius: 50px 50px 0 0;
 
-  /* Simplified container: no card styling */
-  .aegira-wrapper {
-    display:      flex;
-    align-items:  flex-start;
-    gap:          2rem;
-    margin:       2rem 0;
-    padding:      0;        /* remove internal card padding */
-    background:   transparent;
-    box-shadow:   none;
-    border-radius:0;
+  .header-background {
+    position: relative;
+    overflow: hidden;
+
+    img#aegira-curved-img {
+      position: relative;
+      z-index: 1;
+      display: block;
+      margin: 150px auto;
+      max-width: 60%;
+      height: auto;
+    }
+
   }
 
-  /* Character image */
-  .aegira-img {
-    flex-shrink:   0;
-    width:         400px;
-    filter:        drop-shadow(0 12px 24px rgba(0, 0, 0, 0.08));
-    animation:     float-bob 5s ease-in-out infinite;
-    transition:    transform 0.3s ease, filter 0.3s ease;
-    position:      relative;
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -30px;       // halb so hoch wie die Bögen
+    left: 0;
+    width: 100%;
+    height: 30px;        // Gesamthöhe der scallops
+    z-index: 0;          // zwischen Bild (2) und Waves (0)
 
-    &:hover {
-      transform: translateY(-12px) scale(1.2);
-      filter:    drop-shadow(0 16px 32px rgba(0, 0, 0, 0.12));
-    }
-
-    &::after {
-      content:       '';
-      position:      absolute;
-      bottom:        -10px;
-      left:          50%;
-      background:    rgba(113, 192, 187, 0.3);
-      border-radius: 50%;
-    }
-    &:hover::after {
-      animation: ripple 0.3s ease-out forwards;
-    }
+    background:
+            radial-gradient(
+                            circle at top center,
+                            $primary-color 30px,   // oben noch dein Blau
+                            transparent 31px       // ab mittig durchsichtig
+            )
+            repeat-x 0 0;
+    background-size: 60px 60px;
+  }
   }
 
-  /* Plain description text */
-  .description {
-    flex:          1;
-    position:      relative;
-    margin:        0;
-    padding:       0;
-    font-size:     1.125rem;
-    line-height:   1.75;
-    text-align:    justify;
-    hyphens:       auto;
-    background:    transparent;
-    border:        none;
+.welcome-container{
+  background-color: #b2e5e7;
+  margin-right: 20px;
+    margin-left: 20px;
 
-    /* Drop-quote */
-    &::before {
-      content:      '“';
-      position:     absolute;
-      top:          0.5rem;
-      left:         -0.5rem;
-      font-size:    3rem;
-      color:        rgba(113, 192, 187, 0.3);
-      line-height:  1;
-    }
-    /* Drop-cap */
-    &::first-letter {
-      font-size:    2.5rem;
-      font-weight:  bold;
-      color:        #71C0BB;
-      float:        left;
-      margin:       0.1rem 0.5rem 0 0;
-      line-height:  1;
-    }
-    /* First-line small caps */
-    &::first-line {
-      font-variant:   small-caps;
-      letter-spacing: 0.05em;
-      color:          #4E6688;
-    }
-    /* Keyword highlight */
-    .highlight-text {
-      background:    rgba(113, 192, 187, 0.2);
-      color:         #4E6688;
-      padding:       0.1em 0.2em;
-      border-radius: 0.25rem;
-      font-weight:   600;
-      transition:    background 0.3s ease;
+  path {
+    fill: transparent;
+  }
 
-      &:hover {
-        background: rgba(113, 192, 187, 0.4);
+  text {
+    font-family: ChatTime, sans-serif;
+    padding-top: 100px;
+    text-align: center;
+    color: #2c425d;
+    font-size: 18.2px;
+  }
+
+
+  #biboo-doodling-img {
+    position: absolute;
+    top: 150vh;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 30%;
+    height: auto;
+    z-index: 1;
+  }
+  
+}
+.waves-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: $wave-height;
+  min-height: $min-wave-height;
+  max-height: $max-wave-height;
+  line-height: 0;
+  z-index: 0;
+
+  .waves {
+    width: 100%;
+    height: 100%;
+
+    .parallax > use {
+      animation: move-forever 25s cubic-bezier(.55,.5,.45,.5) infinite;
+    }
+
+    // Farben, Dauer & Delay auf die einzelnen Layers anwenden
+    @for $i from 1 through 4 {
+      .parallax > use:nth-child(#{$i}) {
+        fill: nth($wave-colors, $i);
+        animation-duration: nth($durations, $i);
+        animation-delay:    nth($delays,    $i);
       }
     }
   }
+}
 
-  @media (max-width: 768px) {
-    .aegira-wrapper {
-      flex-direction: column;
-      text-align:     center;
-    }
-    .aegira-img {
-      width:         260px;
-      margin-bottom: 1.5rem;
-    }
-    .description {
-      font-size:    1rem;
-    }
-  }
+// Animation für die Wellenbewegung
+@keyframes move-forever {
+  0%   { transform: translate3d(-90px, 0, 0); }
+  100% { transform: translate3d(85px, 0, 0); }
 }
 
 
@@ -1880,6 +1907,33 @@ body.modal-open {
 //=====================================================
 .hidden {
   display: none !important;
+}
+
+
+.toggle-btn {
+  display: block;
+  margin: 1rem auto;
+  background: $secondary-color;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: background $transition-speed;
+  &:hover {
+    background: darken($secondary-color, 10%);
+  }
+}
+
+.show-all-link, .back-btn {
+  display: inline-block;
+  margin: 1rem 0;
+  color: $primary-color;
+  font-weight: 600;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .flex {

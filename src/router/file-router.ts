@@ -3,7 +3,7 @@ import path from "path";
 import { adminHandler, authHandler, moderatorHandler } from '../middleware/auth-handler';
 import authRouter from "./auth-router";
 import { giveUserInformation, getUserID, getUserInfo } from "../usersDatabase";
-import {getBoards, getUserBoard} from "../boardsDatabase";
+import {getBoards, getBoardTypes, getUserBoard} from "../boardsDatabase";
 import {getOnlineUsers} from "../authDatabase";
 
 const router = express.Router();
@@ -31,12 +31,13 @@ router.get('/dashboard', authHandler, async (req, res) => {
         const userInfo = await getUserInfo(userId);
         const boards = await getUserBoard(userId);
         const onlineUsers = await getOnlineUsers();
+        const types = await getBoardTypes();
 
         // Fetch user images
         const userProfileImage = userInfo.profile_image ? `/${userInfo.profile_image}` : '/uploads/default_profile.png';
         const userHeaderImage = userInfo.header_image ? `/${userInfo.header_image}` : '/uploads/default_header.png';
 
-        res.render('dashboard', { user, boards, onlineUsers, userProfileImage, userHeaderImage });
+        res.render('dashboard', { user, boards,types, onlineUsers, userProfileImage, userHeaderImage });
     } catch (error) {
         console.error('Error loading dashboard:', error);
         res.status(500).send('Internal Server Error');

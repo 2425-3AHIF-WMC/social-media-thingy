@@ -126,6 +126,11 @@ export async function addBoardMember(userId: number, boardId: number, role = 'me
     );
 }
 
+export async function getBoardTypes(): Promise<{id:number;type_name:string}[]> {
+    await init();
+    return db.all('SELECT id, type_name FROM board_types ORDER BY id');
+}
+
 export async function addHashtagToBoard(boardId: number | undefined, hashtags: string[]){
     const uniqueHashtags = [...new Set(hashtags.map(tag => tag.trim().toLowerCase()))];
 

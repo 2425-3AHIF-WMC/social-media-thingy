@@ -107,8 +107,13 @@
                             <option value="private">Private</option>
                         </select>
 
-                        <label for="boardTypeId">Board Type ID:</label>
-                        <input type="number" id="boardTypeId" name="boardTypeId" required>
+
+                        <label for="boardTypeId">Board Type:</label>
+                        <select id="boardTypeId" name="boardTypeId" required>
+                            <% types.forEach(type => { %>
+                                <option value="<%= type.id %>"><%= type.type_name %></option>
+                            <% }) %>
+                        </select>
 
                         <label for="profileImage">Profile Image:</label>
                         <input type="file" id="profileImage" name="profileImage" accept="image/*">

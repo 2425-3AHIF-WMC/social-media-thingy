@@ -7,51 +7,98 @@
     <link rel="icon" type="image/x-icon" href="images/favicon-04.svg">
 </head>
 <body>
-<div class="header">
-    <img src="images/aegira.svg" alt="aegira" class="logo">
-    <div class="home-buttons">
-        <a href="/">Home</a>
-        <a href ="/discovery">Discovery</a>
-        <a href="/feed">For you</a>
-        <a href="/about-us">About us</a>
-    </div>
-    <div class="user-buttons">
-        <button id="login-button"><a href="/login">Log in</a></button>
-        <button id="register-button"><a href="/register">Register</a></button>
-        <span id="username"></span>
-        <span id="dashboard-button"></span>
-        <span id="logout-button"></span>
-    </div>
-</div>
 
-<div class="under-header">
-    <div>
-    </div>
-</div>
+  <!--
+  <div class="under-header">
+      <div>
+      </div>
+  </div>
+
+  <div class="main-content">
+      <h1 class="sparkle-heading">What is Aegira?</h1>
+      <div class="aegira-wrapper">
+
+          <img src="images/biboo.png" alt="Aegira Character" class="aegira-img" />
+          <p class="description">
+              Aegira ist dein persönlicher Guide in virtuelle Welten: lebendig,
+              neugierig und immer einen Rat parat. Von geheimen Pfaden bis hin zu
+              kniffligen Rätseln – Aegira analysiert in Echtzeit, was du tust,
+              und gibt dir maßgeschneiderte Tipps. Egal ob Einsteiger oder Profi –
+              mit Aegira wird Gaming persönlicher und spannender als je zuvor.
+          </p>
+      </div>
+      <h1 class="sparkle-heading">Create whatever you want!</h1>
+      <h1 class="sparkle-heading">Connect with others</h1>
+      <h1 class="sparkle-heading">Share your ideas</h1>
+      <h1 class="sparkle-heading">Login and Register</h1>
+
+  </div>
+
+
+    -->
 
 <div class="main-content">
-    <h1 class="sparkle-heading">What is Aegira?</h1>
-    <div class="aegira-wrapper">
+    <div class="header-background">
+        <div class="header-index">
+            <div class="home-buttons">
+                <a href="/">Home</a>
+                <a href ="/discovery">Discovery</a>
+                <a href="/feed">For you</a>
+                <a href="/about-us">About us</a>
+            </div>
+            <div class="user-buttons">
+                <button id="login-button"><a href="/login">Log in</a></button>
+                <button id="register-button"><a href="/register">Register</a></button>
+                <span id="username"></span>
+                <span id="dashboard-button"></span>
+                <span id="logout-button"></span>
+            </div>
+        </div>
+        <img
+                id="aegira-curved-img"
+                src="images/aegiraCurved-02.svg"
+                alt="curved"
+        />
 
-        <img src="images/biboo.png" alt="Aegira Character" class="aegira-img" />
-        <p class="description">
-            Aegira ist dein persönlicher Guide in virtuelle Welten: lebendig,
-            neugierig und immer einen Rat parat. Von geheimen Pfaden bis hin zu
-            kniffligen Rätseln – Aegira analysiert in Echtzeit, was du tust,
-            und gibt dir maßgeschneiderte Tipps. Egal ob Einsteiger oder Profi –
-            mit Aegira wird Gaming persönlicher und spannender als je zuvor.
-        </p>
     </div>
-    <h1 class="sparkle-heading">Create whatever you want!</h1>
-    <h1 class="sparkle-heading">Connect with others</h1>
-    <h1 class="sparkle-heading">Share your ideas</h1>
-    <h1 class="sparkle-heading">Login and Register</h1>
-
 </div>
+  <div class="welcome-container">
+     <div class="svg-wrapper">
+         <svg viewBox="0 0 500 200">
+             <path id="curve" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97" />
+             <text width="500">
+                 <textPath xlink:href="#curve">
+                     Create, connect, and share your ideas with the world.
+                 </textPath>
+             </text>
+         </svg>
+     </div>
 
+      <img id="biboo-doodling-img" src="images/bubo_draw_together-ezgif.com-gif-to-apng-converter.png" alt="drawing">
 
+  </div>
 
-
+  <div class="waves-container">
+    <svg
+            class="waves"
+            viewBox="0 24 150 28"
+            preserveAspectRatio="none"
+            shape-rendering="auto"
+    >
+        <defs>
+            <path
+                    id="gentle-wave"
+                    d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"
+            />
+        </defs>
+        <g class="parallax">
+            <use xlink:href="#gentle-wave" x="48" y="0" />
+            <use xlink:href="#gentle-wave" x="48" y="3" />
+            <use xlink:href="#gentle-wave" x="48" y="5" />
+            <use xlink:href="#gentle-wave" x="48" y="7" />
+        </g>
+    </svg>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

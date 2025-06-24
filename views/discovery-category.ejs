@@ -1,0 +1,33 @@
+<!-- views/discovery-category.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %> Boards</title>
+    <link rel="stylesheet" href="/style/main.css">
+</head>
+<body>
+<div class="header">…dein Header…</div>
+<div class="container">
+    <h1><%= title %> Boards</h1>
+    <div class="board-grid">
+        <% boards.forEach(b => { %>
+            <div class="board-card">
+                <div class="header-container">
+                    <img src="/<%= b.header_image %>" class="header-image"
+                         onerror="this.onerror=null;this.src='/uploads/default_header.png'">
+                    <img src="/<%= b.profile_image %>" class="profile-image"
+                         onerror="this.onerror=null;this.src='/uploads/default_profile.png'">
+                </div>
+                <div class="board-info">
+                    <h3><%= b.name %></h3>
+                    <p><%= b.description %></p>
+                    <a href="/board/<%= b.id %>">Open Board</a>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+    <a href="/discovery" class="back-btn">← Zurück zur Übersicht</a>
+</div>
+</body>
+</html>

@@ -4,182 +4,100 @@
     <meta charset="UTF-8">
     <title>Discovery</title>
     <link rel="stylesheet" href="/style/main.css">
-    <script src="/src/discovery.js" defer></script>
-    <link rel="icon" type="image/x-icon" href="/images/favicon-04.svg">
 </head>
 <body>
-
-<div class="header">
-    <img src="/images/aegira.svg" alt="aegira" class="logo">
-    <div class="home-buttons">
-        <a href="/">Home</a>
-        <a href="/discovery">Discovery</a>
-        <a href="/feed">For you</a>
-        <a href="/about-us">About us</a>
-    </div>
-
-    <div class="user-buttons">
-        <% if (user) { %>
-            <span>Logged in as: <%= user.username %></span>
-            <a href="/dashboard">Dashboard</a>
-            <a href="/logout">Logout</a>
-        <% } else { %>
-            <button><a href="/login">Log in</a></button>
-            <button><a href="/register">Register</a></button>
-        <% } %>
-    </div>
-</div>
-
+<div class="header">…dein Header…</div>
 <div class="container">
     <h1>Discovery</h1>
 
-    <!-- Search Bar (unchanged) -->
     <div class="search-container">
-        <input
-                type="text"
-                id="searchBoardInput"
-                placeholder="Search by name, description or hashtags..."
-                value="<%= currentSearch %>"
-        >
-        <button id="searchBoardButton">Search</button>
+        <form action="/discovery" method="get">
+            <input type="text" name="search" placeholder="Search…" value="<%= currentSearch %>">
+            <button type="submit">Search</button>
+        </form>
     </div>
 
-    <% if (artBoards.length) { %>
-        <section class="category-section">
-            <h2>Art</h2>
-            <div class="board-grid">
-                <% artBoards.forEach(board => { %>
-                    <div class="board-card">
-                        <div class="header-container">
-                            <img
-                                    src="/<%= board.header_image %>"
-                                    alt="<%= board.name %> header"
-                                    class="header-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_header.png';"
-                            />
-                            <img
-                                    src="/<%= board.profile_image %>"
-                                    alt="<%= board.name %> profile"
-                                    class="profile-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
-                            />
-                        </div>
-                        <div class="board-info">
-                            <h3><%= board.name %></h3>
-                            <p><%= board.description %></p>
-                            <a href="/board/<%= board.id %>">Open Board</a>
-                        </div>
+    <% function preview(boards, title, key) {
+        if (!boards || boards.length === 0) return; %>
+    <section class="category-section">
+        <h2><%= title %></h2>
+        <div class="board-grid">
+            <% boards.slice(0,5).forEach(function(b) { %>
+                <div class="board-card">
+                    <div class="header-container">
+                        <img src="/<%= b.header_image %>" class="header-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_header.png'">
+                        <img src="/<%= b.profile_image %>" class="profile-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_profile.png'">
                     </div>
-                <% }) %>
-            </div>
-        </section>
-    <% } %>
-
-    <% if (writingBoards.length) { %>
-        <section class="category-section">
-            <h2>Writing</h2>
-            <div class="board-grid">
-                <% writingBoards.forEach(board => { %>
-                    <div class="board-card">
-                        <div class="header-container">
-                            <img
-                                    src="/<%= board.header_image %>"
-                                    alt="<%= board.name %> header"
-                                    class="header-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_header.png';"
-                            />
-                            <img
-                                    src="/<%= board.profile_image %>"
-                                    alt="<%= board.name %> profile"
-                                    class="profile-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
-                            />
-                        </div>
-                        <div class="board-info">
-                            <h3><%= board.name %></h3>
-                            <p><%= board.description %></p>
-                            <a href="/board/<%= board.id %>">Open Board</a>
-                        </div>
-                    </div>
-                <% }) %>
-            </div>
-        </section>
-    <% } %>
-
-    <% if (comicBoards.length) { %>
-        <section class="category-section">
-            <h2>Comic</h2>
-            <div class="board-grid">
-                <% comicBoards.forEach(board => { %>
-                    <div class="board-card">
-                        <div class="header-container">
-                            <img
-                                    src="/<%= board.header_image %>"
-                                    alt="<%= board.name %> header"
-                                    class="header-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_header.png';"
-                            />
-                            <img
-                                    src="/<%= board.profile_image %>"
-                                    alt="<%= board.name %> profile"
-                                    class="profile-image"
-                                    onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
-                            />
-                        </div>
-                        <div class="board-info">
-                            <h3><%= board.name %></h3>
-                            <p><%= board.description %></p>
-                            <a href="/board/<%= board.id %>">Open Board</a>
-                        </div>
-                    </div>
-                <% }) %>
-            </div>
-        </section>
-    <% } %>
-
-    <% if (allGroups.length) { %>
-        <section class="category-section">
-            <h2>All</h2>
-            <% allGroups.forEach(group => { %>
-                <div class="subgroup">
-                    <h3>
-                        <% if (group.hashtag === 'Uncategorized') { %>
-                            Others
-                        <% } else { %>
-                            <%= group.hashtag.charAt(0).toUpperCase() + group.hashtag.slice(1) %>
-                        <% } %>
-                    </h3>
-                    <div class="board-grid">
-                        <% group.boards.forEach(board => { %>
-                            <div class="board-card">
-                                <div class="header-container">
-                                    <img
-                                            src="/<%= board.header_image %>"
-                                            alt="<%= board.name %> header"
-                                            class="header-image"
-                                            onerror="this.onerror=null;this.src='/uploads/default_header.png';"
-                                    />
-                                    <img
-                                            src="/<%= board.profile_image %>"
-                                            alt="<%= board.name %> profile"
-                                            class="profile-image"
-                                            onerror="this.onerror=null;this.src='/uploads/default_profile.png';"
-                                    />
-                                </div>
-                                <div class="board-info">
-                                    <h3><%= board.name %></h3>
-                                    <p><%= board.description %></p>
-                                    <a href="/board/<%= board.id %>">Open Board</a>
-                                </div>
-                            </div>
-                        <% }) %>
+                    <div class="board-info">
+                        <h3><%= b.name %></h3>
+                        <p><%= b.description %></p>
+                        <a href="/board/<%= b.id %>">Open Board</a>
                     </div>
                 </div>
-            <% }) %>
-        </section>
+            <% }); %>
+        </div>
+        <% if (boards.length > 5) { %>
+            <a href="/discovery/category/<%= key %>" class="show-all-link">
+                Alle anzeigen &rarr;
+            </a>
+        <% } %>
+    </section>
     <% } %>
 
-</div>
+    <% preview(artBoards,    'Art',    'art'); %>
+    <% preview(writingBoards,'Writing','writing'); %>
+    <% preview(comicBoards,  'Comic',  'comic'); %>
 
+    <%
+    // “All” nach Hashtag-Gruppen, ohne TS-Typen
+    var groups = {};
+    allBoards.forEach(function(b) {
+        if (b.hashtag_list) {
+            b.hashtag_list.split(',').map(function(s){ return s.trim(); }).filter(function(s){ return s; })
+                    .forEach(function(tag) {
+                        var slug = tag.toLowerCase().replace(/\W/g,'-');
+                        if (!groups[slug]) groups[slug] = { hashtag: tag, boards: [] };
+                        groups[slug].boards.push(b);
+                    });
+        } else {
+            if (!groups.uncategorized) groups.uncategorized = { hashtag: 'Uncategorized', boards: [] };
+            groups.uncategorized.boards.push(b);
+        }
+    });
+    Object.keys(groups).forEach(function(slug) {
+        var group = groups[slug];
+        var title = slug === 'uncategorized'
+                ? 'Others'
+                : slug.split('-').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);} ).join(' ');
+    %>
+    <section class="category-section">
+        <h3><%= title %></h3>
+        <div class="board-grid">
+            <% group.boards.slice(0,5).forEach(function(b) { %>
+                <div class="board-card">
+                    <div class="header-container">
+                        <img src="/<%= b.header_image %>" class="header-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_header.png'">
+                        <img src="/<%= b.profile_image %>" class="profile-image"
+                             onerror="this.onerror=null;this.src='/uploads/default_profile.png'">
+                    </div>
+                    <div class="board-info">
+                        <h3><%= b.name %></h3>
+                        <p><%= b.description %></p>
+                        <a href="/board/<%= b.id %>">Open Board</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+        <% if (group.boards.length > 5) { %>
+            <a href="/discovery/category/all-<%= slug %>" class="show-all-link">
+                Alle anzeigen &rarr;
+            </a>
+        <% } %>
+    </section>
+    <% }); %>
+</div>
 </body>
 </html>

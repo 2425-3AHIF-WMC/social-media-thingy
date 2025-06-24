@@ -39,10 +39,11 @@ router.get('/dashboard', auth_handler_1.authHandler, (req, res) => __awaiter(voi
         const userInfo = yield (0, usersDatabase_1.getUserInfo)(userId);
         const boards = yield (0, boardsDatabase_1.getUserBoard)(userId);
         const onlineUsers = yield (0, authDatabase_1.getOnlineUsers)();
+        const types = yield (0, boardsDatabase_1.getBoardTypes)();
         // Fetch user images
         const userProfileImage = userInfo.profile_image ? `/${userInfo.profile_image}` : '/uploads/default_profile.png';
         const userHeaderImage = userInfo.header_image ? `/${userInfo.header_image}` : '/uploads/default_header.png';
-        res.render('dashboard', { user, boards, onlineUsers, userProfileImage, userHeaderImage });
+        res.render('dashboard', { user, boards, types, onlineUsers, userProfileImage, userHeaderImage });
     }
     catch (error) {
         console.error('Error loading dashboard:', error);

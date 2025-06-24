@@ -82,12 +82,23 @@
             <ul class="feed-list">
                 <% feedItems.forEach(item => { %>
                     <li class="feed-item">
+                        <%
+                            // Helper: wenn image mit "http" oder "uploads/" anfängt, lass es so,
+                            // sonst prepend "/" für dein static-Verzeichnis
+                            function imgSrc(p) {
+                                if (!p) return '/default_profile.png';
+                                return p.startsWith('http') || p.startsWith('uploads/')
+                                        ? p
+                                        : '/' + p;
+                            }
+                        %>
+
                         <div class="post-header">
                             <img
-                                    src="/<%= item.avatar || 'default_profile.png' %>"
+                                    src="<%= imgSrc(item.avatar || 'default_profile.png') %>"
                                     alt="<%= item.username %>’s avatar"
                                     class="post-avatar"
-                            >
+                            />
                             <strong><%= item.username %></strong>
                             <span class="post-board">in <em><%= item.boardName %></em></span>
                             <span class="post-date"><%= new Date(item.createdAt).toLocaleString() %></span>
